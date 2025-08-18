@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Avaliação - Cadastro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">Sistema de Avaliação</div>
+        <div class="nav-links">
+            <a href="cadastro.html" class="active">Cadastro</a>
+            <a href="avaliacao.html">Avaliação</a>
+            <a href="index.html">Sair</a>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <h1>Cadastro de Pessoas</h1>
+        
+        <div class="form-container">
+            <form>
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Nome Completo:</label>
+                        <input type="text" placeholder="Digite o nome completo">
+                    </div>
+                    <div class="input-group">
+                        <label>E-mail:</label>
+                        <input type="email" placeholder="Digite o e-mail">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Telefone:</label>
+                        <input type="tel" placeholder="(11) 99999-9999">
+                    </div>
+                    <div class="input-group">
+                        <label>Cargo:</label>
+                        <input type="text" placeholder="Digite o cargo">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="input-group">
+                        <label>Data de Ingresso:</label>
+                        <input type="date">
+                    </div>
+                    <div class="input-group">
+                        <label>Departamento:</label>
+                        <select>
+                            <option>Selecione o departamento</option>
+                            <option>Recursos Humanos</option>
+                            <option>Tecnologia</option>
+                            <option>Vendas</option>
+                            <option>Marketing</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button type="button" class="btn-primary">Salvar Cadastro</button>
+            </form>
+        </div>
+        
+        <div class="quick-actions">
+            <h3>Ações Rápidas</h3>
+            <div class="action-buttons">
+                <button type="button" class="btn-secondary">Cadastrar Empresa</button>
+                <button type="button" class="btn-secondary">Cadastrar Função</button>
+                <button type="button" class="btn-secondary">Configurar Avaliação</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

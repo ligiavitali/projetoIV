@@ -1,6 +1,9 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Login = ({ onLogin }) => {
+  const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -62,8 +65,26 @@ const Login = ({ onLogin }) => {
             Entrar
           </button>
         </form>
+
+        <div className="login-footer-links" style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between' }}>
+          <button
+            type="button"
+            onClick={() => navigate('/Register')}
+            style={{ background: 'none', border: 'none', color: 'blue', cursor: 'pointer', padding: 0 }}
+          >
+            Criar Conta
+          </button>
+
+          <button
+            type="button"
+            onClick={() => navigate('/forgot-password')}
+            style={{ background: 'none', border: 'none', color: 'blue', cursor: 'pointer', padding: 0 }}
+          >
+            Esqueceu a senha?
+          </button>
+        </div>
         
-        <div className="login-footer">
+        <div className="login-footer" style={{ marginTop: '30px' }}>
           <p>Sistema desenvolvido para controle interno de avaliações</p>
         </div>
       </div>
@@ -72,4 +93,3 @@ const Login = ({ onLogin }) => {
 };
 
 export default Login;
-

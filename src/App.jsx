@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import Login from './components/Login';
-import Register from './components/Register';  // Ajustei aqui para importar Register
+import Register from './components/Register'; // registro simples
+import Cadastro from './components/Cadastro'; // cadastro interno com abas
 import Formularios from './components/Formularios';
 import Navigation from './components/Navigation';
 import ForgotPassword from './components/ForgotPassword';
@@ -29,6 +30,8 @@ function App() {
     switch (currentPage) {
       case 'formularios':
         return <Formularios />;
+      case 'cadastro':
+        return <Cadastro />; // quando clicar dentro do dashboard
       default:
         return <Formularios />;
     }
@@ -37,22 +40,22 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Tela de Login */}
+        {/* Login */}
         <Route
           path="/"
           element={isLoggedIn ? <Navigate to="/dashboard" /> : <Login onLogin={handleLogin} />}
         />
 
-        {/* Tela de Cadastro */}
+        {/* Registro rápido */}
         <Route
           path="/register"
           element={isLoggedIn ? <Navigate to="/dashboard" /> : <Register />}
         />
 
-        {/* Tela de Recuperação de senha */}
+        {/* Recuperação de senha */}
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
-        {/* Dashboard só para usuário logado */}
+        {/* Dashboard */}
         <Route
           path="/dashboard"
           element={
@@ -76,6 +79,9 @@ function App() {
             )
           }
         />
+
+        {/* Redireciona qualquer rota inválida */}
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
   );

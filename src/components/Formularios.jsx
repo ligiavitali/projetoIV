@@ -66,13 +66,6 @@ const Formularios = () => {
           {tabs.find(tab => tab.id === activeTab)?.component}
         </div>
       </div>
-      
-      <div className="formularios-info">
-        <div className="info-card">
-          <h3>💡 Dica</h3>
-          <p>Use as abas acima para navegar entre os diferentes formulários disponíveis no sistema. Cada formulário tem suas próprias funcionalidades e campos específicos.</p>
-        </div>
-      </div>
     </div>
   );
 };

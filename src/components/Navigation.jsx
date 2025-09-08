@@ -1,3 +1,5 @@
+import Logo from '../assets/img/Logo.jpeg';
+
 const Navigation = ({ currentPage, setCurrentPage, userEmail, onLogout }) => {
   const menuItems = [
     { id: 'cadastro', label: 'Cadastros', icon: '📝' },
@@ -8,8 +10,8 @@ const Navigation = ({ currentPage, setCurrentPage, userEmail, onLogout }) => {
     <nav className="navigation">
       <div className="nav-container">
         <div className="nav-brand">
-          <h2>🎯 Sistema de Avaliação</h2>
-          <span className="nav-subtitle">Controle Interno</span>
+          <img className="img-logo" src={Logo} alt="Logo" />
+          <h2 className='brand-text'>Diomício Freitas</h2>
         </div>
         
         <div className="nav-menu">

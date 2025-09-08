@@ -129,17 +129,7 @@ const FichaAcompanhamento = () => {
         </button>
       </div>
 
-      <div className="info-section">
-        <div className="info-card">
-          <h3>📋 Instruções</h3>
-          <ul>
-            <li>Preencha todos os campos obrigatórios</li>
-            <li>A data da visita deve ser posterior à data de admissão</li>
-            <li>O parecer geral deve ser detalhado e objetivo</li>
-            <li>Mantenha contato regular com o responsável pelo RH</li>
-          </ul>
-        </div>
-        
+      <div className="info-section">        
         <div className="info-card">
           <h3>📞 Contatos Importantes</h3>
           <p><strong>Instituto:</strong> (48) 3433-8235</p>

@@ -193,26 +193,6 @@ const ListaUsuariosEncaminhados = () => {
           </tbody>
         </table>
       </div>
-
-      <div className="lista-info">
-        <div className="info-card">
-          <h3>📊 Estatísticas</h3>
-          <p>Total de usuários: <strong>{usuarios.length}</strong></p>
-          <p>Preenchidos: <strong>{usuarios.filter(u => u.nome && u.empresa).length}</strong></p>
-          <p>Pendentes: <strong>{usuarios.filter(u => !u.nome || !u.empresa).length}</strong></p>
-          <p>Ano de referência: <strong>{anoReferencia}</strong></p>
-        </div>
-        
-        <div className="info-card">
-          <h3>📋 Instruções</h3>
-          <ul>
-            <li>Preencha todos os campos obrigatórios</li>
-            <li>A data de admissão deve ser anterior ao desligamento</li>
-            <li>Mantenha os contatos do RH atualizados</li>
-            <li>Use o botão "Exportar PDF" para gerar relatório</li>
-          </ul>
-        </div>
-      </div>
     </div>
   );
 };

@@ -131,7 +131,7 @@ const FichaAcompanhamento = () => {
 
       <div className="info-section">        
         <div className="info-card">
-          <h3>📞 Contatos Importantes</h3>
+          <h3>Contatos Importantes</h3>
           <p><strong>Instituto:</strong> (48) 3433-8235</p>
           <p><strong>E-mail:</strong> educ.especial@ibest.com.br</p>
           <p><strong>Endereço:</strong> Rua Lúcia Milioli, 211 - Santa Bárbara</p>

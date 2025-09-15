@@ -2,8 +2,8 @@ import Logo from '../assets/img/Logo.jpeg';
 
 const Navigation = ({ currentPage, setCurrentPage, userEmail, onLogout }) => {
   const menuItems = [
-    { id: 'cadastro', label: 'Cadastros', icon: '📝' },
-    { id: 'formularios', label: 'Formulários', icon: '📋' }
+    { id: 'cadastro', label: 'Cadastros'},
+    { id: 'formularios', label: 'Formulários'}
   ];
 
   return (
@@ -29,10 +29,10 @@ const Navigation = ({ currentPage, setCurrentPage, userEmail, onLogout }) => {
         
         <div className="nav-user">
           <div className="user-info">
-            <span className="user-email">👤 {userEmail}</span>
+            <span className="user-email">{userEmail}</span>
           </div>
           <button onClick={onLogout} className="logout-btn">
-            🚪 Sair
+            Sair
           </button>
         </div>
       </div>

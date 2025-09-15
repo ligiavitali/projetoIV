@@ -12,31 +12,26 @@ const Formularios = () => {
     {
       id: 'controle-interno',
       label: 'Controle Interno',
-      icon: '📊',
       component: <FormularioAvaliacao />
     },
     {
       id: 'avaliacao-exp1',
       label: 'Avaliação Experiência 1',
-      icon: '📝',
       component: <AvaliacaoExperiencia1 />
     },
     {
       id: 'avaliacao-exp2',
       label: 'Avaliação Experiência 2',
-      icon: '📋',
       component: <AvaliacaoExperiencia2 />
     },
     {
       id: 'ficha-acompanhamento',
       label: 'Ficha de Acompanhamento',
-      icon: '📄',
       component: <FichaAcompanhamento />
     },
     {
       id: 'lista-usuarios',
       label: 'Lista de Usuários Encaminhados',
-      icon: '📋',
       component: <ListaUsuariosEncaminhados />
     }
   ];
@@ -44,7 +39,7 @@ const Formularios = () => {
   return (
     <div className="formularios-container">
       <div className="formularios-header">
-        <h1>📋 Formulários do Sistema</h1>
+        <h1>Formulários do Sistema</h1>
         <p>Gerencie todos os formulários de avaliação e acompanhamento</p>
       </div>
       

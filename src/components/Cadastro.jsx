@@ -266,10 +266,10 @@ const Cadastro = () => {
   );
 
   const tabs = [
-    { id: 'pessoas', label: 'Pessoas', icon: '👤' },
-    { id: 'empresas', label: 'Empresas', icon: '🏢' },
-    { id: 'funcoes', label: 'Funções', icon: '💼' },
-    { id: 'avaliacao', label: 'Avaliação', icon: '📊' }
+    { id: 'pessoas', label: 'Pessoas' },
+    { id: 'empresas', label: 'Empresas'},
+    { id: 'funcoes', label: 'Funções'},
+    { id: 'avaliacao', label: 'Avaliação'}
   ];
 
   return (

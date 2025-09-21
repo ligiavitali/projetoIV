@@ -85,7 +85,6 @@ const Login = ({ onLogin }) => {
         </div>
         
         <div className="login-footer" style={{ marginTop: '30px' }}>
-          <p>Sistema desenvolvido para controle interno de avaliações</p>
         </div>
       </div>
     </div>

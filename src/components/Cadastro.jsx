@@ -276,7 +276,6 @@ const Cadastro = () => {
     <div className="cadastro-container">
       <div className="cadastro-header">
         <h1>Cadastros do Sistema</h1>
-        <p>Gerencie pessoas, empresas, funções e tipos de avaliação</p>
       </div>
       
       <div className="tabs-container">

@@ -40,7 +40,6 @@ const Formularios = () => {
     <div className="formularios-container">
       <div className="formularios-header">
         <h1>Formulários do Sistema</h1>
-        <p>Gerencie todos os formulários de avaliação e acompanhamento</p>
       </div>
       
       <div className="tabs-container">

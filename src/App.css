@@ -261,10 +261,31 @@ body {
 }
 
 /* Botões */
+.btn-excluir {
+  background-color: var(--danger-red);
+  color: var(--white);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+  margin-top: 10px;
+}
+
+.btn-excluir:hover {
+  background-color: #c0392b;
+}
+
+
+
+
 .submit-btn,
 .btn-save,
 .btn-add,
-.btn-gerar {
+.btn-gerar,
+.btn-editar,
+.btn-visualizar {
   background-color: var(--primary-blue);
   color: var(--white);
   border: none;
@@ -274,12 +295,15 @@ body {
   cursor: pointer;
   transition: background-color 0.3s ease;
   margin-top: 10px;
+  margin-right: 10px;
 }
 
 .submit-btn:hover,
 .btn-save:hover,
 .btn-add:hover,
-.btn-gerar:hover {
+.btn-gerar:hover,
+.btn-editar:hover,
+.btn-visualizar:hover{
   background-color: var(--secondary-blue);
 }
 

@@ -1,0 +1,31 @@
+{
+  "pessoas": [],
+  "empresas": [
+    {
+      "id": "fbaf",
+      "razaoSocial": "teste",
+      "cnpj": "0000000000000",
+      "endereco": "rua",
+      "telefone": "48991900130",
+      "email": "zanotti.junior@hotmal.com"
+    }
+  ],
+  "funcoes": [
+    {
+      "id": "66af",
+      "titulo": "muyjyun",
+      "descricao": "",
+      "departamento": "nyuuujyu",
+      "nivel": ""
+    }
+  ],
+  "avaliacao": [
+    {
+      "id": "ab71",
+      "tipo": "periodo-experiencia",
+      "criterios": " /.nkjk",
+      "periodo": "kj.",
+      "responsavel": "gjyun"
+    }
+  ]
+}

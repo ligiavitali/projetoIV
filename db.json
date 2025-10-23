@@ -1,14 +1,5 @@
 {
-  "pessoas": [
-    {
-      "id": "a9a5",
-      "nome": "",
-      "email": "",
-      "telefone": "",
-      "cargo": "",
-      "dataIngresso": ""
-    }
-  ],
+  "pessoas": [],
   "empresas": [
     {
       "id": "fbaf",
@@ -19,22 +10,6 @@
       "email": "zanotti.junior@hotmal.com"
     }
   ],
-  "funcoes": [
-    {
-      "id": "66af",
-      "titulo": "muyjyun",
-      "descricao": "",
-      "departamento": "nyuuujyu",
-      "nivel": ""
-    }
-  ],
-  "avaliacao": [
-    {
-      "id": "ab71",
-      "tipo": "periodo-experiencia",
-      "criterios": " /.nkjk",
-      "periodo": "kj.",
-      "responsavel": "gjyun"
-    }
-  ]
+  "funcoes": [],
+  "avaliacao": []
 }

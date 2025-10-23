@@ -224,6 +224,13 @@ body {
 }
 
 /* Formulários Gerais */
+.error-message {
+  color: var(--danger-red);
+  font-size: 14px;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;

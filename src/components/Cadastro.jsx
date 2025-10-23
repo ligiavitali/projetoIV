@@ -1,4 +1,10 @@
 import { useState, useEffect } from "react";
+import {
+  pessoasSchema,
+  empresasSchema,
+  funcoesSchema,
+  avaliacaoSchema,
+} from "../utils/validationSchemas";
 
 const Cadastro = () => {
   const [activeTab, setActiveTab] = useState("pessoas");
@@ -9,9 +15,9 @@ const Cadastro = () => {
     avaliacao: { tipo: "", criterios: "", periodo: "", responsavel: "" },
   });
 
+  const [errors, setErrors] = useState({});
   const [registros, setRegistros] = useState([]);
 
-  // 🔹 Carrega os dados do JSON Server
   const carregarDados = async () => {
     try {
       const response = await fetch(`http://localhost:5000/${activeTab}`);
@@ -31,15 +37,29 @@ const Cadastro = () => {
       ...prev,
       [tab]: { ...prev[tab], [field]: value },
     }));
+    setErrors((prev) => ({
+      ...prev,
+      [field]: "",
+    }));
   };
 
-  // 🔹 Salvar ou atualizar registro
   const handleSubmit = async (e) => {
     e.preventDefault();
     const url = `http://localhost:5000/${activeTab}`;
     const data = formData[activeTab];
 
     try {
+      const schemaMap = {
+        pessoas: pessoasSchema,
+        empresas: empresasSchema,
+        funcoes: funcoesSchema,
+        avaliacao: avaliacaoSchema,
+      };
+
+      const schema = schemaMap[activeTab];
+
+      await schema.validate(data, { abortEarly: false });
+
       const metodo = data.id ? "PUT" : "POST";
       const endpoint = data.id ? `${url}/${data.id}` : url;
 
@@ -58,15 +78,23 @@ const Cadastro = () => {
             Object.keys(prev[activeTab]).map((key) => [key, ""])
           ),
         }));
+        setErrors({});
       } else {
         alert("Erro ao salvar dados!");
       }
     } catch (error) {
-      console.error("Erro ao enviar dados:", error);
+      if (error.name === "ValidationError") {
+        const validationErrors = {};
+        error.inner.forEach((err) => {
+          validationErrors[err.path] = err.message;
+        });
+        setErrors(validationErrors);
+      } else {
+        console.error("Erro ao enviar dados:", error);
+      }
     }
   };
 
-  // 🔹 Excluir registro
   const handleExcluir = async (id) => {
     if (!window.confirm("Tem certeza que deseja excluir este registro?")) return;
     try {
@@ -84,7 +112,6 @@ const Cadastro = () => {
     }
   };
 
-  // 🔹 Visualizar registro
   const handleVisualizar = (item) => {
     const detalhes = Object.entries(item)
       .map(([key, value]) => `${key}: ${value}`)
@@ -92,7 +119,6 @@ const Cadastro = () => {
     alert(detalhes);
   };
 
-  // 🔹 Editar registro
   const handleEditar = (item) => {
     setFormData((prev) => ({
       ...prev,
@@ -100,7 +126,10 @@ const Cadastro = () => {
     }));
   };
 
-  // 🔹 Funções de renderização dos formulários
+  // 🔹 Renderização dos formulários com mensagens de erro
+  const renderFieldError = (field) =>
+    errors[field] && <p className="error-message">{errors[field]}</p>;
+
   const renderPessoasForm = () => (
     <form onSubmit={handleSubmit}>
       <div className="form-row">
@@ -112,7 +141,9 @@ const Cadastro = () => {
             onChange={(e) => handleChange("pessoas", "nome", e.target.value)}
             placeholder="Digite o nome completo"
           />
+          {renderFieldError("nome")}
         </div>
+
         <div className="form-group">
           <label>E-mail</label>
           <input
@@ -121,6 +152,7 @@ const Cadastro = () => {
             onChange={(e) => handleChange("pessoas", "email", e.target.value)}
             placeholder="Digite o e-mail"
           />
+          {renderFieldError("email")}
         </div>
       </div>
 
@@ -133,7 +165,9 @@ const Cadastro = () => {
             onChange={(e) => handleChange("pessoas", "telefone", e.target.value)}
             placeholder="(11) 99999-9999"
           />
+          {renderFieldError("telefone")}
         </div>
+
         <div className="form-group">
           <label>Cargo</label>
           <input
@@ -142,6 +176,7 @@ const Cadastro = () => {
             onChange={(e) => handleChange("pessoas", "cargo", e.target.value)}
             placeholder="Digite o cargo"
           />
+          {renderFieldError("cargo")}
         </div>
       </div>
 
@@ -152,6 +187,7 @@ const Cadastro = () => {
           value={formData.pessoas.dataIngresso}
           onChange={(e) => handleChange("pessoas", "dataIngresso", e.target.value)}
         />
+        {renderFieldError("dataIngresso")}
       </div>
 
       <button type="submit" className="submit-btn">
@@ -171,7 +207,9 @@ const Cadastro = () => {
             onChange={(e) => handleChange("empresas", "razaoSocial", e.target.value)}
             placeholder="Digite a razão social"
           />
+          {renderFieldError("razaoSocial")}
         </div>
+
         <div className="form-group">
           <label>CNPJ</label>
           <input
@@ -180,6 +218,7 @@ const Cadastro = () => {
             onChange={(e) => handleChange("empresas", "cnpj", e.target.value)}
             placeholder="00.000.000/0000-00"
           />
+          {renderFieldError("cnpj")}
         </div>
       </div>
 
@@ -191,6 +230,7 @@ const Cadastro = () => {
           onChange={(e) => handleChange("empresas", "endereco", e.target.value)}
           placeholder="Digite o endereço completo"
         />
+        {renderFieldError("endereco")}
       </div>
 
       <div className="form-row">
@@ -202,7 +242,9 @@ const Cadastro = () => {
             onChange={(e) => handleChange("empresas", "telefone", e.target.value)}
             placeholder="(11) 3333-3333"
           />
+          {renderFieldError("telefone")}
         </div>
+
         <div className="form-group">
           <label>E-mail</label>
           <input
@@ -211,6 +253,7 @@ const Cadastro = () => {
             onChange={(e) => handleChange("empresas", "email", e.target.value)}
             placeholder="contato@empresa.com"
           />
+          {renderFieldError("email")}
         </div>
       </div>
 
@@ -231,7 +274,9 @@ const Cadastro = () => {
             onChange={(e) => handleChange("funcoes", "titulo", e.target.value)}
             placeholder="Digite o título da função"
           />
+          {renderFieldError("titulo")}
         </div>
+
         <div className="form-group">
           <label>Departamento</label>
           <input
@@ -240,32 +285,32 @@ const Cadastro = () => {
             onChange={(e) => handleChange("funcoes", "departamento", e.target.value)}
             placeholder="Digite o departamento"
           />
+          {renderFieldError("departamento")}
         </div>
       </div>
 
-      <div className="form-group">
-        <label>Descrição</label>
-        <textarea
-          value={formData.funcoes.descricao}
-          onChange={(e) => handleChange("funcoes", "descricao", e.target.value)}
-          placeholder="Descreva as responsabilidades da função"
-          rows="4"
-        />
-      </div>
+      <div className="form-row">
+        <div className="form-group">
+          <label>Nível</label>
+          <input
+            type="text"
+            value={formData.funcoes.nivel}
+            onChange={(e) => handleChange("funcoes", "nivel", e.target.value)}
+            placeholder="Ex: Júnior, Pleno, Sênior"
+          />
+          {renderFieldError("nivel")}
+        </div>
 
-      <div className="form-group">
-        <label>Nível</label>
-        <select
-          value={formData.funcoes.nivel}
-          onChange={(e) => handleChange("funcoes", "nivel", e.target.value)}
-        >
-          <option value="">Selecione o nível</option>
-          <option value="junior">Júnior</option>
-          <option value="pleno">Pleno</option>
-          <option value="senior">Sênior</option>
-          <option value="coordenacao">Coordenação</option>
-          <option value="gerencia">Gerência</option>
-        </select>
+        <div className="form-group">
+          <label>Descrição</label>
+          <input
+            type="text"
+            value={formData.funcoes.descricao}
+            onChange={(e) => handleChange("funcoes", "descricao", e.target.value)}
+            placeholder="Descreva as responsabilidades"
+          />
+          {renderFieldError("descricao")}
+        </div>
       </div>
 
       <button type="submit" className="submit-btn">
@@ -279,46 +324,49 @@ const Cadastro = () => {
       <div className="form-row">
         <div className="form-group">
           <label>Tipo de Avaliação</label>
-          <select
+          <input
+            type="text"
             value={formData.avaliacao.tipo}
             onChange={(e) => handleChange("avaliacao", "tipo", e.target.value)}
-          >
-            <option value="">Selecione o tipo</option>
-            <option value="periodo-experiencia">Período de Experiência</option>
-            <option value="desempenho-anual">Desempenho Anual</option>
-            <option value="promocao">Promoção</option>
-            <option value="feedback-360">Feedback 360°</option>
-          </select>
+            placeholder="Ex: Desempenho, Técnica..."
+          />
+          {renderFieldError("tipo")}
         </div>
+
         <div className="form-group">
           <label>Período</label>
           <input
             type="text"
             value={formData.avaliacao.periodo}
             onChange={(e) => handleChange("avaliacao", "periodo", e.target.value)}
-            placeholder="Ex: 1º Trimestre 2025"
+            placeholder="Ex: 1º semestre / 2025"
           />
+          {renderFieldError("periodo")}
         </div>
       </div>
 
-      <div className="form-group">
-        <label>Critérios de Avaliação</label>
-        <textarea
-          value={formData.avaliacao.criterios}
-          onChange={(e) => handleChange("avaliacao", "criterios", e.target.value)}
-          placeholder="Descreva os critérios que serão avaliados"
-          rows="4"
-        />
-      </div>
+      <div className="form-row">
+        <div className="form-group">
+          <label>Critérios</label>
+          <input
+            type="text"
+            value={formData.avaliacao.criterios}
+            onChange={(e) => handleChange("avaliacao", "criterios", e.target.value)}
+            placeholder="Digite os critérios de avaliação"
+          />
+          {renderFieldError("criterios")}
+        </div>
 
-      <div className="form-group">
-        <label>Responsável pela Avaliação</label>
-        <input
-          type="text"
-          value={formData.avaliacao.responsavel}
-          onChange={(e) => handleChange("avaliacao", "responsavel", e.target.value)}
-          placeholder="Nome do responsável"
-        />
+        <div className="form-group">
+          <label>Responsável</label>
+          <input
+            type="text"
+            value={formData.avaliacao.responsavel}
+            onChange={(e) => handleChange("avaliacao", "responsavel", e.target.value)}
+            placeholder="Digite o nome do responsável"
+          />
+          {renderFieldError("responsavel")}
+        </div>
       </div>
 
       <button type="submit" className="submit-btn">
@@ -369,52 +417,29 @@ const Cadastro = () => {
           {activeTab === "funcoes" && renderFuncoesForm()}
           {activeTab === "avaliacao" && renderAvaliacaoForm()}
 
-          <h3 style={{ marginTop: "30px" }}>
-            Lista de {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
-          </h3>
-
-          {registros.length === 0 ? (
-            <p>Nenhum cadastro realizado.</p>
-          ) : (
-            <ul>
-              {registros.map((item) => (
-                <li
-                  key={item.id}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "10px",
-                  }}
-                >
-                  <span>{renderRegistroItem(item)}</span>
-                 <div>
-  <button 
-    className="btn-visualizar" 
-    onClick={() => handleVisualizar(item)}
-  >
-    Visualizar
-  </button>
-
-  <button 
-    className="btn-editar" 
-    onClick={() => handleEditar(item)}
-  >
-    Editar
-  </button>
-
-  <button 
-    className="btn-excluir" 
-    onClick={() => handleExcluir(item.id)}
-  >
-    Excluir
-  </button>
+          <div className="lista-registros">
+  {registros.length === 0 ? (
+    <p>Nenhum registro encontrado.</p>
+  ) : (
+    <ul>
+      {registros.map((item) => (
+        <li key={item.id}>
+          {renderRegistroItem(item)}{" "}
+          <button className="btn-editar" onClick={() => handleEditar(item)}>
+            Editar
+          </button>{" "}
+          <button className="btn-visualizar" onClick={() => handleVisualizar(item)}>
+            Visualizar
+          </button>
+          <button className="btn-excluir" onClick={() => handleExcluir(item.id)}>
+            Excluir
+          </button>{" "}
+        </li>
+      ))}
+    </ul>
+  )}
 </div>
 
-                </li>
-              ))}
-            </ul>
-          )}
         </div>
       </div>
     </div>

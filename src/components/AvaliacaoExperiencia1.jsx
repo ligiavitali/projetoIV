@@ -1,16 +1,13 @@
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateAvaliacaoExperiencia1 } from '../redux/slices/formulariosSlice';
 
 const AvaliacaoExperiencia1 = () => {
-  const [formData, setFormData] = useState({
-    nome: '',
-    dataEntrada: '',
-    dataAvaliacao: '',
-    observacoes: '',
-    situacoesIrritacao: '',
-    nomeAvaliador: ''
-  });
+  const dispatch = useDispatch();
+  const { formData: reduxFormData, questoes: reduxQuestoes } = useSelector((state) => state.formularios.avaliacaoExperiencia1);
 
-  const [questoes, setQuestoes] = useState([
+  // Dados iniciais das questões (constante)
+  const questoesIniciais = [
     { id: 1, texto: 'Atende as regras.', resposta: '' },
     { id: 2, texto: 'Socializa com o grupo.', resposta: '' },
     { id: 3, texto: 'Isola-se do grupo', resposta: '' },
@@ -57,20 +54,23 @@ const AvaliacaoExperiencia1 = () => {
     { id: 44, texto: 'Você percebe incentivo quanto a busca de autonomia para o usuário por parte da família.', resposta: '' },
     { id: 45, texto: 'Você percebe incentivo quanto a inserção do usuário no mercado de trabalho por parte da família.', resposta: '' },
     { id: 46, texto: 'Traz os documentos enviados pela Instituição assinado.', resposta: '' }
-  ]);
+  ];
+
+  // Usar o estado do Redux ou as questões iniciais
+  const questoes = reduxQuestoes && reduxQuestoes.length > 0 ? reduxQuestoes : questoesIniciais;
+  const formData = reduxFormData || {}; // Garante que formData não é undefined
 
   const [questaoAberta, setQuestaoAberta] = useState('');
 
   const opcoes = ['Sim', 'Não', 'Maioria das vezes', 'Raras vezes'];
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    dispatch(updateAvaliacaoExperiencia1({ formData: { ...formData, [field]: value } }));
   };
 
   const handleQuestaoChange = (id, value) => {
-    setQuestoes(prev => 
-      prev.map(q => q.id === id ? { ...q, resposta: value } : q)
-    );
+    const updatedQuestoes = questoes.map(q => q.id === id ? { ...q, resposta: value } : q);
+    dispatch(updateAvaliacaoExperiencia1({ questoes: updatedQuestoes }));
   };
 
   const adicionarQuestao = () => {
@@ -80,13 +80,14 @@ const AvaliacaoExperiencia1 = () => {
         texto: questaoAberta,
         resposta: ''
       };
-      setQuestoes(prev => [...prev, novaQuestao]);
+      dispatch(updateAvaliacaoExperiencia1({ questoes: [...questoes, novaQuestao] }));
       setQuestaoAberta('');
     }
   };
 
   const removerQuestao = (id) => {
-    setQuestoes(prev => prev.filter(q => q.id !== id));
+    const updatedQuestoes = questoes.filter(q => q.id !== id);
+    dispatch(updateAvaliacaoExperiencia1({ questoes: updatedQuestoes }));
   };
 
   const salvarFormulario = () => {
@@ -109,7 +110,7 @@ const AvaliacaoExperiencia1 = () => {
             <label>Nome:</label>
             <input
               type="text"
-              value={formData.nome}
+              value={formData.nome || ''}
               onChange={(e) => handleInputChange('nome', e.target.value)}
               placeholder="Nome completo do usuário"
             />
@@ -121,7 +122,7 @@ const AvaliacaoExperiencia1 = () => {
             <label>Data da entrada:</label>
             <input
               type="date"
-              value={formData.dataEntrada}
+              value={formData.dataEntrada || ''}
               onChange={(e) => handleInputChange('dataEntrada', e.target.value)}
             />
           </div>
@@ -129,7 +130,7 @@ const AvaliacaoExperiencia1 = () => {
             <label>1ª Avaliação:</label>
             <input
               type="date"
-              value={formData.dataAvaliacao}
+              value={formData.dataAvaliacao || ''}
               onChange={(e) => handleInputChange('dataAvaliacao', e.target.value)}
             />
           </div>
@@ -190,7 +191,7 @@ const AvaliacaoExperiencia1 = () => {
       <div className="questao-especial">
         <h4>47 - Em sua opinião o usuário tem perfil para esta instituição? Por quê?</h4>
         <textarea
-          value={formData.observacoes}
+          value={formData.observacoes || ''}
           onChange={(e) => handleInputChange('observacoes', e.target.value)}
           placeholder="Descreva sua opinião..."
           rows="4"
@@ -200,7 +201,7 @@ const AvaliacaoExperiencia1 = () => {
       <div className="questao-especial">
         <h4>Em que situações demonstra irritações?</h4>
         <textarea
-          value={formData.situacoesIrritacao}
+          value={formData.situacoesIrritacao || ''}
           onChange={(e) => handleInputChange('situacoesIrritacao', e.target.value)}
           placeholder="Descreva as situações..."
           rows="3"
@@ -212,7 +213,7 @@ const AvaliacaoExperiencia1 = () => {
           <label>Nome do professor(a):</label>
           <input
             type="text"
-            value={formData.nomeAvaliador}
+            value={formData.nomeAvaliador || ''}
             onChange={(e) => handleInputChange('nomeAvaliador', e.target.value)}
             placeholder="Nome completo do avaliador"
           />
@@ -229,4 +230,3 @@ const AvaliacaoExperiencia1 = () => {
 };
 
 export default AvaliacaoExperiencia1;
-

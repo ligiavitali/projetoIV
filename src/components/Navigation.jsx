@@ -1,6 +1,12 @@
 import Logo from '../assets/img/Logo.jpeg';
+import { useDispatch } from 'react-redux';
+import { logout } from '../redux/slices/userSlice';
 
-const Navigation = ({ currentPage, setCurrentPage, userEmail, onLogout }) => {
+const Navigation = ({ currentPage, setCurrentPage, userEmail }) => {
+  const dispatch = useDispatch();
+  const handleLogout = () => {
+    dispatch(logout());
+  };
   const menuItems = [
     { id: 'cadastro', label: 'Cadastros'},
     { id: 'formularios', label: 'Formulários'}
@@ -31,7 +37,7 @@ const Navigation = ({ currentPage, setCurrentPage, userEmail, onLogout }) => {
           <div className="user-info">
             <span className="user-email">{userEmail}</span>
           </div>
-          <button onClick={onLogout} className="logout-btn">
+          <button onClick={handleLogout} className="logout-btn">
             Sair
           </button>
         </div>

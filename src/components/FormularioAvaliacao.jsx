@@ -1,23 +1,26 @@
-import { useState } from "react";
+import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateFormularioAvaliacao, resetFormulariosData } from '../redux/slices/formulariosSlice';
 
 const FormularioAvaliacao = () => {
-  const [avaliacoes, setAvaliacoes] = useState([
-    {
-      id: 1,
-      nomeUsuario: "",
-      ingresso: "",
-      primeiraAval: "",
-      segundaAval: "",
-      primeiraEntrevistaPais: "",
-      segundaEntrevistaPais: "",
-      resultado: "",
-    },
-  ]);
+  const dispatch = useDispatch();
+  // O estado do formulário de avaliação será um array de objetos
+  const avaliacoes = useSelector((state) => state.formularios.formularioAvaliacao.data || [{
+    id: 1,
+    nomeUsuario: "",
+    ingresso: "",
+    primeiraAval: "",
+    segundaAval: "",
+    primeiraEntrevistaPais: "",
+    segundaEntrevistaPais: "",
+    resultado: "",
+  }]);
 
   const handleInputChange = (id, field, value) => {
-    setAvaliacoes((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, [field]: value } : item))
+    const updatedAvaliacoes = avaliacoes.map((item) =>
+      item.id === id ? { ...item, [field]: value } : item
     );
+    dispatch(updateFormularioAvaliacao({ data: updatedAvaliacoes }));
   };
 
   const adicionarLinha = () => {
@@ -31,12 +34,13 @@ const FormularioAvaliacao = () => {
       segundaEntrevistaPais: "",
       resultado: "",
     };
-    setAvaliacoes((prev) => [...prev, novaLinha]);
+    dispatch(updateFormularioAvaliacao({ data: [...avaliacoes, novaLinha] }));
   };
 
   const removerLinha = (id) => {
     if (avaliacoes.length > 1) {
-      setAvaliacoes((prev) => prev.filter((item) => item.id !== id));
+      const updatedAvaliacoes = avaliacoes.filter((item) => item.id !== id);
+      dispatch(updateFormularioAvaliacao({ data: updatedAvaliacoes }));
     }
   };
 
@@ -46,18 +50,17 @@ const FormularioAvaliacao = () => {
   };
 
   const limparFormulario = () => {
-    setAvaliacoes([
-      {
-        id: 1,
-        nomeUsuario: "",
-        ingresso: "",
-        primeiraAval: "",
-        segundaAval: "",
-        primeiraEntrevistaPais: "",
-        segundaEntrevistaPais: "",
-        resultado: "",
-      },
-    ]);
+    // Limpa o formulário de avaliação no Redux
+    dispatch(updateFormularioAvaliacao({ data: [{
+      id: 1,
+      nomeUsuario: "",
+      ingresso: "",
+      primeiraAval: "",
+      segundaAval: "",
+      primeiraEntrevistaPais: "",
+      segundaEntrevistaPais: "",
+      resultado: "",
+    }]}));
   };
 
   return (

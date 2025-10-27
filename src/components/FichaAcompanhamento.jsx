@@ -1,18 +1,13 @@
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateFichaAcompanhamento, resetFormulariosData } from '../redux/slices/formulariosSlice';
 
 const FichaAcompanhamento = () => {
-  const [formData, setFormData] = useState({
-    nome: '',
-    dataAdmissao: '',
-    empresa: '',
-    responsavelRH: '',
-    dataVisita: '',
-    contatoCom: '',
-    parecerGeral: ''
-  });
+  const dispatch = useDispatch();
+  const formData = useSelector((state) => state.formularios.fichaAcompanhamento);
 
   const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    dispatch(updateFichaAcompanhamento({ [field]: value }));
   };
 
   const salvarFormulario = () => {
@@ -21,15 +16,9 @@ const FichaAcompanhamento = () => {
   };
 
   const limparFormulario = () => {
-    setFormData({
-      nome: '',
-      dataAdmissao: '',
-      empresa: '',
-      responsavelRH: '',
-      dataVisita: '',
-      contatoCom: '',
-      parecerGeral: ''
-    });
+    // Ação que limpa todos os formulários (ou criamos uma específica se necessário)
+    // Por enquanto, usaremos a geral para demonstrar.
+    dispatch(resetFormulariosData());
   };
 
   return (

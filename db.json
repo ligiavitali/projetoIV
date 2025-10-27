@@ -1,24 +1,15 @@
 {
   "pessoas": [
     {
-      "id": "f46d",
-      "nome": "valmor zanotti junior",
-      "email": "zanotti.junior@hotmal.com",
-      "telefone": "48991900130",
-      "cargo": "KSOPJ",
-      "dataIngresso": "2025-10-27"
+      "id": "f9bb",
+      "nome": "asdas",
+      "email": "sdasd@gmail.com",
+      "telefone": "48988245520",
+      "cargo": "asdas",
+      "dataIngresso": "2004-09-01"
     }
   ],
-  "empresas": [
-    {
-      "id": "fbaf",
-      "razaoSocial": "teste",
-      "cnpj": "0000000000000",
-      "endereco": "rua",
-      "telefone": "48991900130",
-      "email": "zanotti.junior@hotmal.com"
-    }
-  ],
+  "empresas": [],
   "funcoes": [],
   "avaliacao": []
 }

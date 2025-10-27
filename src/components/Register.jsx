@@ -1,26 +1,34 @@
 // Register.js
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateRegisterData, resetRegisterData } from '../redux/slices/cadastroSlice';
 
 const Register = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: ''
-  });
+  const registerData = useSelector((state) => state.cadastro.registerData);
+
+  // O estado local é mantido apenas para fins de sincronização inicial,
+  // mas o formulário lê diretamente do Redux.
+  const [formData, setFormData] = useState(registerData);
+
+  useEffect(() => {
+    setFormData(registerData);
+  }, [registerData]);
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const newData = { [e.target.name]: e.target.value };
+    dispatch(updateRegisterData(newData));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     // Simula cadastro
-    alert('Usuário cadastrado com sucesso!');
+    // Aqui você faria a chamada à API usando os dados em registerData
+    console.log('Dados de Registro:', registerData);
+    alert('Usuário cadastrado com sucesso! (Dados no Redux)');
+    dispatch(resetRegisterData()); // Limpa o estado após o "cadastro"
     navigate('/'); // Volta para o login
   };
 
@@ -35,7 +43,7 @@ const Register = () => {
             <input
               type="text"
               name="name"
-              value={formData.name}
+              value={registerData.name || ''}
               onChange={handleChange}
               required
             />
@@ -46,7 +54,7 @@ const Register = () => {
             <input
               type="email"
               name="email"
-              value={formData.email}
+              value={registerData.email || ''}
               onChange={handleChange}
               required
             />
@@ -57,7 +65,7 @@ const Register = () => {
             <input
               type="password"
               name="password"
-              value={formData.password}
+              value={registerData.password || ''}
               onChange={handleChange}
               required
             />

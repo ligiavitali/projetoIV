@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import Login from './components/Login';
@@ -11,18 +12,14 @@ import ForgotPassword from './components/ForgotPassword';
 import './App.css';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userEmail, setUserEmail] = useState('');
+    const { isAuthenticated, user } = useSelector((state) => state.user);
   const [currentPage, setCurrentPage] = useState('formularios');
 
-  const handleLogin = (email) => {
-    setUserEmail(email);
-    setIsLoggedIn(true);
-  };
+  // A lógica de login/logout agora é tratada pelo Redux.
+  // O componente Navigation precisará ser atualizado para usar a ação de logout do Redux.
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUserEmail('');
+    // Ação de logout será implementada no Navigation
     setCurrentPage('formularios');
   };
 
@@ -43,13 +40,13 @@ function App() {
         {/* Login */}
         <Route
           path="/"
-          element={isLoggedIn ? <Navigate to="/dashboard" /> : <Login onLogin={handleLogin} />}
+          element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />}
         />
 
         {/* Registro rápido */}
         <Route
           path="/register"
-          element={isLoggedIn ? <Navigate to="/dashboard" /> : <Register />}
+          element={isAuthenticated ? <Navigate to="/dashboard" /> : <Register />}
         />
 
         {/* Recuperação de senha */}
@@ -59,13 +56,13 @@ function App() {
         <Route
           path="/dashboard"
           element={
-            isLoggedIn ? (
+            isAuthenticated ? (
               <div className="app">
                 <Navigation
                   currentPage={currentPage}
                   setCurrentPage={setCurrentPage}
-                  userEmail={userEmail}
-                  onLogout={handleLogout}
+                  userEmail={user ? user.email : ''}
+                  
                 />
                 <main className="main-content">{renderCurrentPage()}</main>
                 <footer className="app-footer">

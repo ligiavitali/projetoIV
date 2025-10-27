@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from 'react-redux';
+import { updateCadastroAbaData, resetCadastroData } from '../redux/slices/cadastroSlice';
 import {
   pessoasSchema,
   empresasSchema,
@@ -7,13 +9,12 @@ import {
 } from "../utils/validationSchemas";
 
 const Cadastro = () => {
+  const dispatch = useDispatch();
+  const { cadastroData } = useSelector((state) => state.cadastro);
+  
   const [activeTab, setActiveTab] = useState("pessoas");
-  const [formData, setFormData] = useState({
-    pessoas: { nome: "", email: "", telefone: "", cargo: "", dataIngresso: "" },
-    empresas: { razaoSocial: "", cnpj: "", endereco: "", telefone: "", email: "" },
-    funcoes: { titulo: "", descricao: "", departamento: "", nivel: "" },
-    avaliacao: { tipo: "", criterios: "", periodo: "", responsavel: "" },
-  });
+  // O formData local é substituído por cadastroData do Redux
+  const formData = cadastroData;
 
   const [errors, setErrors] = useState({});
   const [registros, setRegistros] = useState([]);
@@ -33,10 +34,7 @@ const Cadastro = () => {
   }, [activeTab]);
 
   const handleChange = (tab, field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      [tab]: { ...prev[tab], [field]: value },
-    }));
+    dispatch(updateCadastroAbaData({ aba: tab, data: { [field]: value } }));
     setErrors((prev) => ({
       ...prev,
       [field]: "",
@@ -72,12 +70,10 @@ const Cadastro = () => {
       if (response.ok) {
         alert(`Dados de ${activeTab} salvos com sucesso!`);
         carregarDados();
-        setFormData((prev) => ({
-          ...prev,
-          [activeTab]: Object.fromEntries(
-            Object.keys(prev[activeTab]).map((key) => [key, ""])
-          ),
-        }));
+        // Limpar o estado do formulário no Redux
+        dispatch(updateCadastroAbaData({ aba: activeTab, data: Object.fromEntries(
+          Object.keys(formData[activeTab]).map((key) => [key, ""])
+        )}));
         setErrors({});
       } else {
         alert("Erro ao salvar dados!");
@@ -120,10 +116,8 @@ const Cadastro = () => {
   };
 
   const handleEditar = (item) => {
-    setFormData((prev) => ({
-      ...prev,
-      [activeTab]: { ...item },
-    }));
+    // Carregar dados para edição no Redux
+    dispatch(updateCadastroAbaData({ aba: activeTab, data: { ...item } }));
   };
 
   // 🔹 Renderização dos formulários com mensagens de erro

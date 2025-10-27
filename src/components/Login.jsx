@@ -1,7 +1,10 @@
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { loginSuccess } from '../redux/slices/userSlice';
 import { useNavigate } from 'react-router-dom';
 
-const Login = ({ onLogin }) => {
+const Login = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -20,7 +23,9 @@ const Login = ({ onLogin }) => {
     e.preventDefault();
     // Simulação de login - em produção seria uma chamada à API
     if (formData.email && formData.password) {
-      onLogin(formData.email);
+      // Dispatch da ação loginSuccess com os dados do usuário
+      dispatch(loginSuccess({ email: formData.email, name: 'Usuário Teste' }));
+      navigate('/'); // Redireciona para a página principal após o login
     } else {
       alert('Por favor, preencha todos os campos');
     }

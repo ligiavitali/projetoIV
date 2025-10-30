@@ -1,25 +1,57 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateFichaAcompanhamento, resetFormulariosData } from '../redux/slices/formulariosSlice';
+import { updateFichaAcompanhamento, resetFormulariosData, fetchFichaAcompanhamentoList, saveFichaAcompanhamento, deleteFichaAcompanhamento } from '../redux/slices/formulariosSlice';
+import FormularioListagem from './FormularioListagem';
 
 const FichaAcompanhamento = () => {
   const dispatch = useDispatch();
-  const formData = useSelector((state) => state.formularios.fichaAcompanhamento);
+  const { fichaAcompanhamento: formData, fichaAcompanhamentoList, loading, error } = useSelector((state) => state.formularios);
+
+  useEffect(() => {
+    dispatch(fetchFichaAcompanhamentoList());
+  }, [dispatch]);
 
   const handleInputChange = (field, value) => {
     dispatch(updateFichaAcompanhamento({ [field]: value }));
   };
 
+  const handleEditar = (item) => {
+    dispatch(updateFichaAcompanhamento({ ...item, id: item.id }));
+  };
+
+  const handleExcluir = async (id) => {
+    if (window.confirm("Tem certeza que deseja excluir este registro?")) {
+      await dispatch(deleteFichaAcompanhamento(id));
+      dispatch(fetchFichaAcompanhamentoList()); // Recarrega a lista
+    }
+  };
+
   const salvarFormulario = () => {
-    console.log('Dados salvos:', formData);
-    alert('Ficha de Acompanhamento salva com sucesso!');
+    dispatch(saveFichaAcompanhamento(formData))
+      .unwrap()
+      .then(() => {
+        alert('Ficha de Acompanhamento salva com sucesso!');
+        dispatch(fetchFichaAcompanhamentoList()); // Recarrega a lista após salvar
+        dispatch(updateFichaAcompanhamento({ nome: '', dataAdmissao: '', dataVisita: '', empresa: '', responsavelRH: '', contatoCom: '', parecerGeral: '', id: undefined })); // Limpa o formulário de edição
+      })
+      .catch((err) => {
+        alert(`Erro ao salvar ficha: ${err.message || 'Erro desconhecido'}`);
+        console.error("Erro ao salvar:", err);
+      });
   };
 
   const limparFormulario = () => {
-    // Ação que limpa todos os formulários (ou criamos uma específica se necessário)
-    // Por enquanto, usaremos a geral para demonstrar.
-    dispatch(resetFormulariosData());
+    // Limpa o formulário de edição
+    dispatch(updateFichaAcompanhamento({ nome: '', dataAdmissao: '', dataVisita: '', empresa: '', responsavelRH: '', contatoCom: '', parecerGeral: '', id: undefined }));
   };
+
+  if (loading) {
+    return <div className="loading-message">Carregando Ficha de Acompanhamento...</div>;
+  }
+
+  if (error) {
+    return <div className="error-message">Erro ao carregar ficha: {error.message}</div>;
+  }
 
   return (
     <div className="ficha-container">
@@ -127,6 +159,15 @@ const FichaAcompanhamento = () => {
           <p><strong>CEP:</strong> 88802-020 - Criciúma - SC</p>
         </div>
       </div>
+      
+      <FormularioListagem 
+        data={fichaAcompanhamentoList} 
+        collectionName="fichaAcompanhamento" 
+        onEdit={handleEditar} 
+        onDelete={handleExcluir}
+        title="Registros Salvos"
+        displayFields={['nome', 'empresa', 'dataVisita']}
+      />
     </div>
   );
 };

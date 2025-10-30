@@ -1,27 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateListaUsuariosEncaminhados, fetchListaUsuariosEncaminhadosList, saveListaUsuariosEncaminhados, deleteListaUsuariosEncaminhados } from '../redux/slices/formulariosSlice';
+import FormularioListagem from './FormularioListagem';
 
 const ListaUsuariosEncaminhados = () => {
-  const [usuarios, setUsuarios] = useState([
-    {
-      id: 1,
-      numero: '01',
-      nome: '',
-      dataAdmissao: '',
-      empresa: '',
-      funcao: '',
-      contatoRH: '',
-      provavelDataDesligamento: ''
-    }
-  ]);
+  const dispatch = useDispatch();
+  const { listaUsuariosEncaminhados: formData, listaUsuariosEncaminhadosList, loading, error } = useSelector((state) => state.formularios);
+  const { anoReferencia, usuarios, id } = formData;
 
-  const [anoReferencia, setAnoReferencia] = useState('2025');
+  useEffect(() => {
+    dispatch(fetchListaUsuariosEncaminhadosList());
+  }, [dispatch]);
 
   const handleInputChange = (id, field, value) => {
-    setUsuarios(prev => 
-      prev.map(usuario => 
-        usuario.id === id ? { ...usuario, [field]: value } : usuario
-      )
+    const updatedUsuarios = usuarios.map(usuario => 
+      usuario.id === id ? { ...usuario, [field]: value } : usuario
     );
+    dispatch(updateListaUsuariosEncaminhados({ usuarios: updatedUsuarios }));
+  };
+
+  const handleAnoChange = (value) => {
+    dispatch(updateListaUsuariosEncaminhados({ anoReferencia: value }));
   };
 
   const adicionarLinha = () => {
@@ -35,43 +34,70 @@ const ListaUsuariosEncaminhados = () => {
       contatoRH: '',
       provavelDataDesligamento: ''
     };
-    setUsuarios(prev => [...prev, novaLinha]);
+    dispatch(updateListaUsuariosEncaminhados({ usuarios: [...usuarios, novaLinha] }));
   };
 
   const removerLinha = (id) => {
     if (usuarios.length > 1) {
-      setUsuarios(prev => {
-        const novosUsuarios = prev.filter(usuario => usuario.id !== id);
-        // Renumerar os usuários
-        return novosUsuarios.map((usuario, index) => ({
-          ...usuario,
-          numero: String(index + 1).padStart(2, '0')
-        }));
-      });
+      const novosUsuarios = usuarios.filter(usuario => usuario.id !== id);
+      // Renumerar os usuários
+      const updatedUsuarios = novosUsuarios.map((usuario, index) => ({
+        ...usuario,
+        numero: String(index + 1).padStart(2, '0')
+      }));
+      dispatch(updateListaUsuariosEncaminhados({ usuarios: updatedUsuarios }));
+    }
+  };
+
+  const handleEditar = (item) => {
+    dispatch(updateListaUsuariosEncaminhados({ ...item, id: item.id }));
+  };
+
+  const handleExcluir = async (id) => {
+    if (window.confirm("Tem certeza que deseja excluir este registro?")) {
+      await dispatch(deleteListaUsuariosEncaminhados(id));
+      dispatch(fetchListaUsuariosEncaminhadosList()); // Recarrega a lista
     }
   };
 
   const salvarLista = () => {
-    console.log('Lista salva:', { anoReferencia, usuarios });
-    alert('Lista de Usuários Encaminhados salva com sucesso!');
+    dispatch(saveListaUsuariosEncaminhados({ id, anoReferencia, usuarios }))
+      .unwrap()
+      .then(() => {
+        alert('Lista de Usuários Encaminhados salva com sucesso!');
+        dispatch(fetchListaUsuariosEncaminhadosList()); // Recarrega a lista após salvar
+        dispatch(updateListaUsuariosEncaminhados({ anoReferencia: '2025', usuarios: [{ id: 1, numero: '01', nome: '', dataAdmissao: '', empresa: '', funcao: '', contatoRH: '', provavelDataDesligamento: '' }], id: undefined })); // Limpa o formulário de edição
+      })
+      .catch((err) => {
+        alert(`Erro ao salvar lista: ${err.message || 'Erro desconhecido'}`);
+        console.error("Erro ao salvar:", err);
+      });
   };
 
   const limparLista = () => {
-    setUsuarios([{
-      id: 1,
-      numero: '01',
-      nome: '',
-      dataAdmissao: '',
-      empresa: '',
-      funcao: '',
-      contatoRH: '',
-      provavelDataDesligamento: ''
-    }]);
+    dispatch(updateListaUsuariosEncaminhados({
+      anoReferencia: '2025',
+      usuarios: [{
+        id: 1,
+        numero: '01',
+        nome: '',
+        dataAdmissao: '',
+        empresa: '',
+        funcao: '',
+        contatoRH: '',
+        provavelDataDesligamento: ''
+      }],
+      id: undefined
+    }));
   };
 
-  const exportarPDF = () => {
-    alert('Funcionalidade de exportar PDF será implementada em versão futura.');
-  };
+  if (loading) {
+    return <div className="loading-message">Carregando Lista de Usuários Encaminhados...</div>;
+  }
+
+  if (error) {
+    return <div className="error-message">Erro ao carregar lista: {error.message}</div>;
+  }
 
   return (
     <div className="lista-container">
@@ -84,7 +110,7 @@ const ListaUsuariosEncaminhados = () => {
           <input
             type="number"
             value={anoReferencia}
-            onChange={(e) => setAnoReferencia(e.target.value)}
+            onChange={(e) => handleAnoChange(e.target.value)}
             className="ano-input"
             min="2020"
             max="2030"
@@ -100,12 +126,7 @@ const ListaUsuariosEncaminhados = () => {
         <button onClick={salvarLista} className="btn-save">
           💾 Salvar Lista
         </button>
-        <button onClick={limparLista} className="btn-clear">
-          🗑️ Limpar Lista
-        </button>
-        <button onClick={exportarPDF} className="btn-export">
-          📄 Exportar PDF
-        </button>
+
       </div>
 
       <div className="table-container">
@@ -193,6 +214,15 @@ const ListaUsuariosEncaminhados = () => {
           </tbody>
         </table>
       </div>
+      
+      <FormularioListagem 
+        data={listaUsuariosEncaminhadosList} 
+        collectionName="listaUsuariosEncaminhados" 
+        onEdit={handleEditar} 
+        onDelete={handleExcluir}
+        title="Registros Salvos"
+        displayFields={['anoReferencia', 'usuarios']}
+      />
     </div>
   );
 };

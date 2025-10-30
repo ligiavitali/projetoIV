@@ -1,12 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateFormularioAvaliacao, resetFormulariosData } from '../redux/slices/formulariosSlice';
+import { updateFormularioAvaliacao, resetFormulariosData, fetchControleInternoList, saveControleInterno, deleteControleInterno } from '../redux/slices/formulariosSlice';
+import FormularioListagem from './FormularioListagem';
 
 const FormularioAvaliacao = () => {
   const dispatch = useDispatch();
   // O estado do formulário de avaliação será um array de objetos
-  const avaliacoes = useSelector((state) => state.formularios.formularioAvaliacao.data || [{
-    id: 1,
+  const { formularioAvaliacao: formData, controleInternoList, loading, error } = useSelector((state) => state.formularios);
+  
+  // Estrutura do formulário de edição
+  const avaliacoes = formData.data || [{
+    id: Date.now(), // Usar Date.now() para garantir um ID temporário único para novo registro
     nomeUsuario: "",
     ingresso: "",
     primeiraAval: "",
@@ -14,7 +18,11 @@ const FormularioAvaliacao = () => {
     primeiraEntrevistaPais: "",
     segundaEntrevistaPais: "",
     resultado: "",
-  }]);
+  }];
+
+  useEffect(() => {
+    dispatch(fetchControleInternoList());
+  }, [dispatch]);
 
   const handleInputChange = (id, field, value) => {
     const updatedAvaliacoes = avaliacoes.map((item) =>
@@ -44,15 +52,51 @@ const FormularioAvaliacao = () => {
     }
   };
 
+  const handleEditar = (item) => {
+    dispatch(updateFormularioAvaliacao({ data: item.data, id: item.id }));
+  };
+
+  const handleExcluir = async (id) => {
+    if (window.confirm("Tem certeza que deseja excluir este registro?")) {
+      await dispatch(deleteControleInterno(id));
+      dispatch(fetchControleInternoList()); // Recarrega a lista
+    }
+  };
+
   const salvarFormulario = () => {
-    console.log("Dados salvos:", avaliacoes);
-    alert("Formulário de avaliação salvo com sucesso!");
+    const dataToSave = {
+      id: formData.id, // ID para edição/criação
+      data: avaliacoes,
+      // Adicionar um campo de identificação para a lista
+      nomeUsuario: avaliacoes.map(a => a.nomeUsuario).filter(n => n).join(', ') || 'Registro Sem Nome',
+    };
+
+    dispatch(saveControleInterno(dataToSave))
+      .unwrap()
+      .then(() => {
+        alert("Formulário de avaliação salvo com sucesso!");
+        dispatch(fetchControleInternoList()); // Recarrega a lista após salvar
+        dispatch(updateFormularioAvaliacao({ data: [{
+          id: Date.now(),
+          nomeUsuario: "",
+          ingresso: "",
+          primeiraAval: "",
+          segundaAval: "",
+          primeiraEntrevistaPais: "",
+          segundaEntrevistaPais: "",
+          resultado: "",
+        }], id: undefined })); // Limpa o formulário de edição
+      })
+      .catch((err) => {
+        alert(`Erro ao salvar formulário: ${err.message || 'Erro desconhecido'}`);
+        console.error("Erro ao salvar:", err);
+      });
   };
 
   const limparFormulario = () => {
     // Limpa o formulário de avaliação no Redux
     dispatch(updateFormularioAvaliacao({ data: [{
-      id: 1,
+      id: Date.now(),
       nomeUsuario: "",
       ingresso: "",
       primeiraAval: "",
@@ -60,8 +104,16 @@ const FormularioAvaliacao = () => {
       primeiraEntrevistaPais: "",
       segundaEntrevistaPais: "",
       resultado: "",
-    }]}));
+    }], id: undefined }));
   };
+
+  if (loading) {
+    return <div className="loading-message">Carregando Formulário de Avaliação...</div>;
+  }
+
+  if (error) {
+    return <div className="error-message">Erro ao carregar formulário: {error.message}</div>;
+  }
 
   return (
     <div className="formulario-container">
@@ -212,6 +264,15 @@ const FormularioAvaliacao = () => {
           </tbody>
         </table>
       </div>
+      
+      <FormularioListagem 
+        data={controleInternoList} 
+        collectionName="controleInterno" 
+        onEdit={handleEditar} 
+        onDelete={handleExcluir}
+        title="Registros Salvos"
+        displayFields={['nomeUsuario']}
+      />
     </div>
   );
 };

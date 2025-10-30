@@ -1,12 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateAvaliacaoExperiencia2 } from '../redux/slices/formulariosSlice';
+import {
+  updateAvaliacaoExperiencia2,
+  fetchAvaliacaoExperiencia2List,
+  saveAvaliacaoExperiencia2,
+  deleteAvaliacaoExperiencia2
+} from '../redux/slices/formulariosSlice';
+import FormularioListagem from './FormularioListagem';
 
 const AvaliacaoExperiencia2 = () => {
   const dispatch = useDispatch();
-  const { formData: reduxFormData, questoes: reduxQuestoes } = useSelector((state) => state.formularios.avaliacaoExperiencia2);
+  const {
+    avaliacaoExperiencia2,
+    avaliacaoExperiencia2List,
+    loading,
+    error
+  } = useSelector((state) => state.formularios);
 
-  // Dados iniciais das questões (constante)
+  // Extrair dados do Redux
+  const formDataLocal = avaliacaoExperiencia2?.formData || {};
+  const reduxQuestoes = avaliacaoExperiencia2?.questoes || [];
+
+  // Dados iniciais fixos
   const questoesIniciais = [
     { id: 1, texto: 'Atende as regras.', resposta: '' },
     { id: 2, texto: 'Socializa com o grupo.', resposta: '' },
@@ -56,20 +71,25 @@ const AvaliacaoExperiencia2 = () => {
     { id: 46, texto: 'Traz os documentos enviados pela Instituição assinado.', resposta: '' }
   ];
 
-  // Usar o estado do Redux ou as questões iniciais
-  const questoes = reduxQuestoes && reduxQuestoes.length > 0 ? reduxQuestoes : questoesIniciais;
-  const formData = reduxFormData || {}; // Garante que formData não é undefined
-
+  const questoes = reduxQuestoes.length > 0 ? reduxQuestoes : questoesIniciais;
   const [questaoAberta, setQuestaoAberta] = useState('');
+
+  useEffect(() => {
+    dispatch(fetchAvaliacaoExperiencia2List());
+  }, [dispatch]);
 
   const opcoes = ['Sim', 'Não', 'Maioria das vezes', 'Raras vezes'];
 
   const handleInputChange = (field, value) => {
-    dispatch(updateAvaliacaoExperiencia2({ formData: { ...formData, [field]: value } }));
+    dispatch(updateAvaliacaoExperiencia2({
+      formData: { ...formDataLocal, [field]: value }
+    }));
   };
 
   const handleQuestaoChange = (id, value) => {
-    const updatedQuestoes = questoes.map(q => q.id === id ? { ...q, resposta: value } : q);
+    const updatedQuestoes = questoes.map((q) =>
+      q.id === id ? { ...q, resposta: value } : q
+    );
     dispatch(updateAvaliacaoExperiencia2({ questoes: updatedQuestoes }));
   };
 
@@ -86,14 +106,59 @@ const AvaliacaoExperiencia2 = () => {
   };
 
   const removerQuestao = (id) => {
-    const updatedQuestoes = questoes.filter(q => q.id !== id);
+    const updatedQuestoes = questoes.filter((q) => q.id !== id);
     dispatch(updateAvaliacaoExperiencia2({ questoes: updatedQuestoes }));
   };
 
-  const salvarFormulario = () => {
-    console.log('Dados salvos:', { formData, questoes });
-    alert('Avaliação Experiência 2 salva com sucesso!');
+  const handleEditar = (item) => {
+    dispatch(updateAvaliacaoExperiencia2({
+      formData: item.formData,
+      questoes: item.questoes,
+      id: item.id
+    }));
   };
+
+  const handleExcluir = async (id) => {
+    if (window.confirm('Tem certeza que deseja excluir este registro?')) {
+      await dispatch(deleteAvaliacaoExperiencia2(id));
+      dispatch(fetchAvaliacaoExperiencia2List());
+    }
+  };
+
+  const salvarFormulario = () => {
+    const dataToSave = {
+      id: formDataLocal.id,
+      formData: formDataLocal,
+      questoes,
+      nome: formDataLocal?.nome || 'Registro Sem Nome'
+    };
+
+    dispatch(saveAvaliacaoExperiencia2(dataToSave))
+      .unwrap()
+      .then(() => {
+        alert('Avaliação Experiência 2 salva com sucesso!');
+        dispatch(fetchAvaliacaoExperiencia2List());
+        dispatch(
+          updateAvaliacaoExperiencia2({
+            formData: {},
+            questoes: questoesIniciais,
+            id: undefined
+          })
+        );
+      })
+      .catch((err) => {
+        alert(`Erro ao salvar avaliação: ${err.message || 'Erro desconhecido'}`);
+        console.error('Erro ao salvar:', err);
+      });
+  };
+
+  if (loading) {
+    return <div className="loading-message">Carregando Avaliação Experiência 2...</div>;
+  }
+
+  if (error) {
+    return <div className="error-message">Erro ao carregar avaliação: {error.message}</div>;
+  }
 
   return (
     <div className="avaliacao-container">
@@ -110,7 +175,7 @@ const AvaliacaoExperiencia2 = () => {
             <label>Nome:</label>
             <input
               type="text"
-              value={formData.nome || ''}
+              value={formDataLocal.nome || ''}
               onChange={(e) => handleInputChange('nome', e.target.value)}
               placeholder="Nome completo do usuário"
             />
@@ -122,7 +187,7 @@ const AvaliacaoExperiencia2 = () => {
             <label>Data da entrada:</label>
             <input
               type="date"
-              value={formData.dataEntrada || ''}
+              value={formDataLocal.dataEntrada || ''}
               onChange={(e) => handleInputChange('dataEntrada', e.target.value)}
             />
           </div>
@@ -130,7 +195,7 @@ const AvaliacaoExperiencia2 = () => {
             <label>2ª Avaliação:</label>
             <input
               type="date"
-              value={formData.dataAvaliacao || ''}
+              value={formDataLocal.dataAvaliacao || ''}
               onChange={(e) => handleInputChange('dataAvaliacao', e.target.value)}
             />
           </div>
@@ -139,7 +204,7 @@ const AvaliacaoExperiencia2 = () => {
 
       <div className="questoes-section">
         <h3>Questionário</h3>
-        
+
         <div className="admin-controls">
           <div className="add-questao">
             <input
@@ -161,7 +226,7 @@ const AvaliacaoExperiencia2 = () => {
               <div className="questao-numero">{questao.id}</div>
               <div className="questao-texto">{questao.texto}</div>
               <div className="questao-opcoes">
-                {opcoes.map(opcao => (
+                {opcoes.map((opcao) => (
                   <label key={opcao} className="radio-label">
                     <input
                       type="radio"
@@ -175,7 +240,7 @@ const AvaliacaoExperiencia2 = () => {
                 ))}
               </div>
               {questao.id > 46 && (
-                <button 
+                <button
                   onClick={() => removerQuestao(questao.id)}
                   className="btn-remove-questao"
                   title="Remover questão"
@@ -191,7 +256,7 @@ const AvaliacaoExperiencia2 = () => {
       <div className="questao-especial">
         <h4>47 - Em sua opinião o usuário tem perfil para esta instituição? Por quê?</h4>
         <textarea
-          value={formData.observacoes || ''}
+          value={formDataLocal.observacoes || ''}
           onChange={(e) => handleInputChange('observacoes', e.target.value)}
           placeholder="Descreva sua opinião..."
           rows="4"
@@ -201,7 +266,7 @@ const AvaliacaoExperiencia2 = () => {
       <div className="questao-especial">
         <h4>Em que situações demonstra irritações?</h4>
         <textarea
-          value={formData.situacoesIrritacao || ''}
+          value={formDataLocal.situacoesIrritacao || ''}
           onChange={(e) => handleInputChange('situacoesIrritacao', e.target.value)}
           placeholder="Descreva as situações..."
           rows="3"
@@ -213,7 +278,7 @@ const AvaliacaoExperiencia2 = () => {
           <label>Nome do professor(a):</label>
           <input
             type="text"
-            value={formData.nomeAvaliador || ''}
+            value={formDataLocal.nomeAvaliador || ''}
             onChange={(e) => handleInputChange('nomeAvaliador', e.target.value)}
             placeholder="Nome completo do avaliador"
           />
@@ -225,6 +290,15 @@ const AvaliacaoExperiencia2 = () => {
           💾 Salvar Avaliação
         </button>
       </div>
+
+      <FormularioListagem
+        data={avaliacaoExperiencia2List}
+        collectionName="avaliacaoExperiencia2"
+        onEdit={handleEditar}
+        onDelete={handleExcluir}
+        title="Registros Salvos"
+        displayFields={['nome']}
+      />
     </div>
   );
 };

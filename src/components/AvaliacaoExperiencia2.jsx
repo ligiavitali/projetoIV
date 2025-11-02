@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  updateAvaliacaoExperiencia1,
-  fetchAvaliacaoExperiencia1List,
-  saveAvaliacaoExperiencia1,
-  deleteAvaliacaoExperiencia1
+  updateAvaliacaoExperiencia2,
+  fetchAvaliacaoExperiencia2List,
+  saveAvaliacaoExperiencia2,
+  deleteAvaliacaoExperiencia2
 } from '../redux/slices/formulariosSlice';
 
-const AvaliacaoExperiencia1 = () => {
+const AvaliacaoExperiencia2 = () => {
   const dispatch = useDispatch();
   const {
-    avaliacaoExperiencia1: formState,
-    avaliacaoExperiencia1List,
+    avaliacaoExperiencia2: formState,
+    avaliacaoExperiencia2List,
     loading,
     error
   } = useSelector((state) => state.formularios);
@@ -72,20 +72,20 @@ const AvaliacaoExperiencia1 = () => {
   const [questaoAberta, setQuestaoAberta] = useState('');
 
   useEffect(() => {
-    dispatch(fetchAvaliacaoExperiencia1List());
+    dispatch(fetchAvaliacaoExperiencia2List());
   }, [dispatch]);
 
   const opcoes = ['Sim', 'Não', 'Maioria das vezes', 'Raras vezes'];
 
   const handleInputChange = (field, value) => {
-    dispatch(updateAvaliacaoExperiencia1({ formData: { ...reduxFormData, [field]: value } }));
+    dispatch(updateAvaliacaoExperiencia2({ formData: { ...reduxFormData, [field]: value } }));
   };
 
   const handleQuestaoChange = (id, value) => {
     const updatedQuestoes = questoes.map((q) =>
       q.id === id ? { ...q, resposta: value } : q
     );
-    dispatch(updateAvaliacaoExperiencia1({ questoes: updatedQuestoes }));
+    dispatch(updateAvaliacaoExperiencia2({ questoes: updatedQuestoes }));
   };
 
   const adicionarQuestao = () => {
@@ -95,19 +95,19 @@ const AvaliacaoExperiencia1 = () => {
         texto: questaoAberta,
         resposta: ''
       };
-      dispatch(updateAvaliacaoExperiencia1({ questoes: [...questoes, novaQuestao] }));
+      dispatch(updateAvaliacaoExperiencia2({ questoes: [...questoes, novaQuestao] }));
       setQuestaoAberta('');
     }
   };
 
   const removerQuestao = (id) => {
     const updatedQuestoes = questoes.filter((q) => q.id !== id);
-    dispatch(updateAvaliacaoExperiencia1({ questoes: updatedQuestoes }));
+    dispatch(updateAvaliacaoExperiencia2({ questoes: updatedQuestoes }));
   };
 
   const handleEditar = (item) => {
     dispatch(
-      updateAvaliacaoExperiencia1({
+      updateAvaliacaoExperiencia2({
         formData: item.formData,
         questoes: item.questoes,
         id: item.id
@@ -117,8 +117,8 @@ const AvaliacaoExperiencia1 = () => {
 
   const handleExcluir = async (id) => {
     if (window.confirm('Tem certeza que deseja excluir este registro?')) {
-      await dispatch(deleteAvaliacaoExperiencia1(id));
-      dispatch(fetchAvaliacaoExperiencia1List());
+      await dispatch(deleteAvaliacaoExperiencia2(id));
+      dispatch(fetchAvaliacaoExperiencia2List());
     }
   };
 
@@ -145,7 +145,7 @@ const AvaliacaoExperiencia1 = () => {
   const salvarFormulario = () => {
   const { nome, dataAdmissao, dataInicio, dataFim, empresa, funcao, responsavelRH } = reduxFormData || {};
 
-  // Lista de campos obrigatórios com rótulos amigáveis
+  // Campos obrigatórios com rótulos amigáveis
   const camposObrigatorios = {
     nome: "Nome",
     dataAdmissao: "Data de Admissão",
@@ -156,16 +156,23 @@ const AvaliacaoExperiencia1 = () => {
     responsavelRH: "Responsável RH"
   };
 
-  // Verifica quais estão vazios
-  const camposVazios = Object.entries(camposObrigatorios)
-    .filter(([campo]) => !reduxFormData?.[campo]?.trim())
-    .map(([_, label]) => label);
+  // Validação só quando for novo registro
+  if (!formState.id) {
+    const camposVazios = Object.entries(camposObrigatorios)
+      .filter(([campo]) => {
+        const valor = reduxFormData?.[campo];
+        // Se for string, checa se está vazia; se não, checa se é null/undefined
+        return typeof valor === "string" ? valor.trim() === "" : !valor;
+      })
+      .map(([_, label]) => label);
 
-  if (camposVazios.length > 0) {
-    alert(`Preencha os seguintes campos antes de salvar:\n\n• ${camposVazios.join("\n• ")}`);
-    return;
+    if (camposVazios.length > 0) {
+      alert(`Preencha os seguintes campos antes de salvar:\n\n• ${camposVazios.join("\n• ")}`);
+      return;
+    }
   }
 
+  // Monta os dados para salvar
   const dataToSave = {
     id: formState.id,
     formData: reduxFormData,
@@ -173,13 +180,14 @@ const AvaliacaoExperiencia1 = () => {
     nome: reduxFormData?.nome || 'Registro Sem Nome'
   };
 
-  dispatch(saveAvaliacaoExperiencia1(dataToSave))
+  // Salva via Redux
+  dispatch(saveAvaliacaoExperiencia2(dataToSave))
     .unwrap()
     .then(() => {
-      alert('Avaliação Experiência 1 salva com sucesso!');
-      dispatch(fetchAvaliacaoExperiencia1List());
+      alert('Avaliação Experiência 2 salva com sucesso!');
+      dispatch(fetchAvaliacaoExperiencia2List());
       dispatch(
-        updateAvaliacaoExperiencia1({
+        updateAvaliacaoExperiencia2({
           formData: {},
           questoes: questoesIniciais,
           id: undefined
@@ -193,8 +201,9 @@ const AvaliacaoExperiencia1 = () => {
 };
 
 
+
   if (loading) {
-    return <div className="loading-message">Carregando Avaliação Experiência 1...</div>;
+    return <div className="loading-message">Carregando Avaliação Experiência 2...</div>;
   }
 
   if (error) {
@@ -207,7 +216,7 @@ const AvaliacaoExperiencia1 = () => {
         <h1>INSTITUTO DE EDUCAÇÃO ESPECIAL</h1>
         <h2>DIOMÍCIO FREITAS</h2>
         <h3>Criciúma - SC</h3>
-        <h4>Avaliação Usuário em Período de Experiência - 1ª Avaliação</h4>
+        <h4>Avaliação Usuário em Período de Experiência - 2ª Avaliação</h4>
       </div>
 
       <div className="form-section">
@@ -331,11 +340,11 @@ const AvaliacaoExperiencia1 = () => {
       </div>
 
       <div className="lista-registros">
-        {avaliacaoExperiencia1List.length === 0 ? (
+        {avaliacaoExperiencia2List.length === 0 ? (
           <p>Nenhum registro salvo.</p>
         ) : (
           <ul>
-            {avaliacaoExperiencia1List.map((item) => (
+            {avaliacaoExperiencia2List.map((item) => (
               <li key={item.id}>
                 {item.formData?.nome || 'Sem nome'}{" "}
                 <button className="btn-editar" onClick={() => handleEditar(item)}>
@@ -356,4 +365,4 @@ const AvaliacaoExperiencia1 = () => {
   );
 };
 
-export default AvaliacaoExperiencia1;
+export default AvaliacaoExperiencia2;

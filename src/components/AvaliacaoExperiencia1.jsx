@@ -142,23 +142,23 @@ const AvaliacaoExperiencia1 = () => {
 };
 
 
-  const salvarFormulario = () => {
-  const { nome, dataAdmissao, dataInicio, dataFim, empresa, funcao, responsavelRH } = reduxFormData || {};
+const salvarFormulario = () => {
+  const { nome, dataEntrada, dataAvaliacao, nomeAvaliador } = reduxFormData || {};
 
-  // Lista de campos obrigatórios com rótulos amigáveis
+  // Campos obrigatórios com rótulos amigáveis (apenas os que existem no form)
   const camposObrigatorios = {
     nome: "Nome",
-    dataAdmissao: "Data de Admissão",
-    dataInicio: "Data de Início",
-    dataFim: "Data de Fim",
-    empresa: "Empresa",
-    funcao: "Função",
-    responsavelRH: "Responsável RH"
+    dataEntrada: "Data da Entrada",
+    dataAvaliacao: "Data da Avaliação",
+    nomeAvaliador: "Nome do Professor(a)"
   };
 
   // Verifica quais estão vazios
   const camposVazios = Object.entries(camposObrigatorios)
-    .filter(([campo]) => !reduxFormData?.[campo]?.trim())
+    .filter(([campo]) => {
+      const valor = reduxFormData?.[campo];
+      return typeof valor === "string" ? valor.trim() === "" : !valor;
+    })
     .map(([_, label]) => label);
 
   if (camposVazios.length > 0) {
@@ -166,17 +166,18 @@ const AvaliacaoExperiencia1 = () => {
     return;
   }
 
+  // Monta dados para salvar
   const dataToSave = {
     id: formState.id,
     formData: reduxFormData,
     questoes: questoes,
-    nome: reduxFormData?.nome || 'Registro Sem Nome'
+    nome: reduxFormData?.nome || "Registro Sem Nome"
   };
 
   dispatch(saveAvaliacaoExperiencia1(dataToSave))
     .unwrap()
     .then(() => {
-      alert('Avaliação Experiência 1 salva com sucesso!');
+      alert("Avaliação Experiência 1 salva com sucesso!");
       dispatch(fetchAvaliacaoExperiencia1List());
       dispatch(
         updateAvaliacaoExperiencia1({
@@ -187,10 +188,11 @@ const AvaliacaoExperiencia1 = () => {
       );
     })
     .catch((err) => {
-      alert(`Erro ao salvar: ${err.message || 'Erro desconhecido'}`);
-      console.error('Erro ao salvar:', err);
+      alert(`Erro ao salvar: ${err.message || "Erro desconhecido"}`);
+      console.error("Erro ao salvar:", err);
     });
 };
+
 
 
   if (loading) {

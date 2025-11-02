@@ -1,14 +1,6 @@
 {
   "pessoas": [
     {
-      "id": "f9bb",
-      "nome": "asdas",
-      "email": "sdasd@gmail.com",
-      "telefone": "48988245520",
-      "cargo": "asdas",
-      "dataIngresso": "2004-09-01"
-    },
-    {
       "id": "3539",
       "nome": "LIGIA VITALI BINATTI",
       "email": "dsdsd@gmail.com",
@@ -17,7 +9,16 @@
       "dataIngresso": "2001-01-10"
     }
   ],
-  "empresas": [],
+  "empresas": [
+    {
+      "id": "ca2a",
+      "razaoSocial": "r43t54yh5uj",
+      "cnpj": "00000000000000",
+      "endereco": "thyjuikol",
+      "telefone": "48991900130",
+      "email": "zanotti.junior@hotmal.com"
+    }
+  ],
   "funcoes": [],
   "avaliacao": [],
   "controleInterno": [
@@ -68,18 +69,34 @@
         }
       ],
       "nomeUsuario": "teste23"
+    },
+    {
+      "id": "c254",
+      "data": [
+        {
+          "id": 1762112252256,
+          "nomeUsuario": "sss",
+          "ingresso": "2025-11-04",
+          "primeiraAval": "2025-11-03",
+          "segundaAval": "2025-11-17",
+          "primeiraEntrevistaPais": "2025-11-10",
+          "segundaEntrevistaPais": "2025-11-09",
+          "resultado": "2025-11-17"
+        }
+      ],
+      "nomeUsuario": "sss"
     }
   ],
   "avaliacaoExperiencia1": [
     {
       "id": "93de",
       "formData": {
-        "nome": "ewew",
+        "nome": "ewewsd12",
         "dataEntrada": "2001-01-10",
         "dataAvaliacao": "2001-01-10",
         "observacoes": "sasa",
         "situacoesIrritacao": "sasa",
-        "nomeAvaliador": "sass"
+        "nomeAvaliador": "sasssd"
       },
       "questoes": [
         {
@@ -313,7 +330,7 @@
           "resposta": ""
         }
       ],
-      "nome": "ewew"
+      "nome": "ewewsd12"
     },
     {
       "id": "749f",
@@ -569,7 +586,7 @@
         "dataAvaliacao": "2001-01-10",
         "observacoes": "sasa",
         "situacoesIrritacao": "sa\\zsa",
-        "nomeAvaliador": "sasa"
+        "nomeAvaliador": "sasaerftgyhujikolçp~´][4"
       },
       "questoes": [
         {
@@ -814,7 +831,7 @@
       "empresa": "dsadsde",
       "responsavelRH": "dsdsde",
       "contatoCom": "dsdsd",
-      "parecerGeral": "dsadss",
+      "parecerGeral": "dsadsssss",
       "id": "6c85"
     }
   ],
@@ -848,6 +865,22 @@
           "funcao": "vfgb",
           "contatoRH": "vfgb",
           "provavelDataDesligamento": "2025-11-17"
+        }
+      ]
+    },
+    {
+      "id": "0a82",
+      "anoReferencia": "2025",
+      "usuarios": [
+        {
+          "id": 1,
+          "numero": "01",
+          "nome": "ddsfdsfds",
+          "dataAdmissao": "2025-11-03",
+          "empresa": "dcfv",
+          "funcao": "vfefvvfv",
+          "contatoRH": "vffv",
+          "provavelDataDesligamento": "2025-11-03"
         }
       ]
     }

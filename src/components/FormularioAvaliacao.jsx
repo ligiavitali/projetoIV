@@ -1,16 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateFormularioAvaliacao, resetFormulariosData, fetchControleInternoList, saveControleInterno, deleteControleInterno } from '../redux/slices/formulariosSlice';
-import FormularioListagem from './FormularioListagem';
+import { updateFormularioAvaliacao, fetchControleInternoList, saveControleInterno, deleteControleInterno } from '../redux/slices/formulariosSlice';
 
 const FormularioAvaliacao = () => {
   const dispatch = useDispatch();
-  // O estado do formulário de avaliação será um array de objetos
   const { formularioAvaliacao: formData, controleInternoList, loading, error } = useSelector((state) => state.formularios);
   
-  // Estrutura do formulário de edição
   const avaliacoes = formData.data || [{
-    id: Date.now(), // Usar Date.now() para garantir um ID temporário único para novo registro
+    id: Date.now(),
     nomeUsuario: "",
     ingresso: "",
     primeiraAval: "",
@@ -19,6 +16,8 @@ const FormularioAvaliacao = () => {
     segundaEntrevistaPais: "",
     resultado: "",
   }];
+
+  const [mensagem, setMensagem] = useState("");
 
   useEffect(() => {
     dispatch(fetchControleInternoList());
@@ -56,26 +55,32 @@ const FormularioAvaliacao = () => {
     dispatch(updateFormularioAvaliacao({ data: item.data, id: item.id }));
   };
 
+  const handleVisualizar = (item) => {
+    const detalhes = Object.entries(item)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join("\n");
+    alert(detalhes);
+  };
+
   const handleExcluir = async (id) => {
     if (window.confirm("Tem certeza que deseja excluir este registro?")) {
       await dispatch(deleteControleInterno(id));
-      dispatch(fetchControleInternoList()); // Recarrega a lista
+      dispatch(fetchControleInternoList());
     }
   };
 
   const salvarFormulario = () => {
     const dataToSave = {
-      id: formData.id, // ID para edição/criação
+      id: formData.id,
       data: avaliacoes,
-      // Adicionar um campo de identificação para a lista
       nomeUsuario: avaliacoes.map(a => a.nomeUsuario).filter(n => n).join(', ') || 'Registro Sem Nome',
     };
 
     dispatch(saveControleInterno(dataToSave))
       .unwrap()
       .then(() => {
-        alert("Formulário de avaliação salvo com sucesso!");
-        dispatch(fetchControleInternoList()); // Recarrega a lista após salvar
+        setMensagem("Formulário de avaliação salvo com sucesso!");
+        dispatch(fetchControleInternoList());
         dispatch(updateFormularioAvaliacao({ data: [{
           id: Date.now(),
           nomeUsuario: "",
@@ -85,16 +90,15 @@ const FormularioAvaliacao = () => {
           primeiraEntrevistaPais: "",
           segundaEntrevistaPais: "",
           resultado: "",
-        }], id: undefined })); // Limpa o formulário de edição
+        }], id: undefined }));
       })
       .catch((err) => {
-        alert(`Erro ao salvar formulário: ${err.message || 'Erro desconhecido'}`);
+        setMensagem(`Erro ao salvar formulário: ${err.message || 'Erro desconhecido'}`);
         console.error("Erro ao salvar:", err);
       });
   };
 
   const limparFormulario = () => {
-    // Limpa o formulário de avaliação no Redux
     dispatch(updateFormularioAvaliacao({ data: [{
       id: Date.now(),
       nomeUsuario: "",
@@ -107,13 +111,8 @@ const FormularioAvaliacao = () => {
     }], id: undefined }));
   };
 
-  if (loading) {
-    return <div className="loading-message">Carregando Formulário de Avaliação...</div>;
-  }
-
-  if (error) {
-    return <div className="error-message">Erro ao carregar formulário: {error.message}</div>;
-  }
+  if (loading) return <div>Carregando Formulário de Avaliação...</div>;
+  if (error) return <div>Erro ao carregar formulário: {error.message}</div>;
 
   return (
     <div className="formulario-container">
@@ -122,16 +121,12 @@ const FormularioAvaliacao = () => {
         <p className="ano">2025</p>
       </div>
 
+      {mensagem && <p className="mensagem-sucesso">{mensagem}</p>}
+
       <div className="formulario-actions">
-        <button onClick={adicionarLinha} className="btn-add">
-          ➕ Adicionar Linha
-        </button>
-        <button onClick={salvarFormulario} className="btn-save">
-          💾 Salvar Formulário
-        </button>
-        <button onClick={limparFormulario} className="btn-clear">
-          🗑️ Limpar Tudo
-        </button>
+        <button onClick={adicionarLinha} className="btn-add">Adicionar Linha</button>
+        <button onClick={salvarFormulario} className="btn-save">Salvar Formulário</button>
+        <button onClick={limparFormulario} className="btn-clear">Limpar Tudo</button>
       </div>
 
       <div className="table-container">
@@ -151,128 +146,38 @@ const FormularioAvaliacao = () => {
           <tbody>
             {avaliacoes.map((avaliacao) => (
               <tr key={avaliacao.id}>
+                <td><input type="text" value={avaliacao.nomeUsuario} onChange={(e) => handleInputChange(avaliacao.id, "nomeUsuario", e.target.value)} className="table-input" /></td>
+                <td><input type="date" value={avaliacao.ingresso} onChange={(e) => handleInputChange(avaliacao.id, "ingresso", e.target.value)} className="table-input" /></td>
+                <td><input type="date" value={avaliacao.primeiraAval} onChange={(e) => handleInputChange(avaliacao.id, "primeiraAval", e.target.value)} className="table-input" /></td>
+                <td><input type="date" value={avaliacao.segundaAval} onChange={(e) => handleInputChange(avaliacao.id, "segundaAval", e.target.value)} className="table-input" /></td>
+                <td><input type="date" value={avaliacao.primeiraEntrevistaPais} onChange={(e) => handleInputChange(avaliacao.id, "primeiraEntrevistaPais", e.target.value)} className="table-input" /></td>
+                <td><input type="date" value={avaliacao.segundaEntrevistaPais} onChange={(e) => handleInputChange(avaliacao.id, "segundaEntrevistaPais", e.target.value)} className="table-input" /></td>
+                <td><input type="date" value={avaliacao.resultado} onChange={(e) => handleInputChange(avaliacao.id, "resultado", e.target.value)} className="table-input" /></td>
                 <td>
-                  <input
-                    type="text"
-                    value={avaliacao.nomeUsuario}
-                    onChange={(e) =>
-                      handleInputChange(
-                        avaliacao.id,
-                        "nomeUsuario",
-                        e.target.value
-                      )
-                    }
-                    placeholder="Nome completo"
-                    className="table-input"
-                  />
-                </td>
-                <td>
-                  <input
-                    type="date"
-                    value={avaliacao.ingresso}
-                    onChange={(e) =>
-                      handleInputChange(
-                        avaliacao.id,
-                        "ingresso",
-                        e.target.value
-                      )
-                    }
-                    className="table-input"
-                  />
-                </td>
-                <td>
-                  <input
-                    type="date"
-                    value={avaliacao.primeiraAval}
-                    onChange={(e) =>
-                      handleInputChange(
-                        avaliacao.id,
-                        "primeiraAval",
-                        e.target.value
-                      )
-                    }
-                    className="table-input"
-                  />
-                </td>
-                <td>
-                  <input
-                    type="date"
-                    value={avaliacao.segundaAval}
-                    onChange={(e) =>
-                      handleInputChange(
-                        avaliacao.id,
-                        "segundaAval",
-                        e.target.value
-                      )
-                    }
-                    className="table-input"
-                  />
-                </td>
-                <td>
-                  <input
-                    type="date"
-                    value={avaliacao.primeiraEntrevistaPais}
-                    onChange={(e) =>
-                      handleInputChange(
-                        avaliacao.id,
-                        "primeiraEntrevistaPais",
-                        e.target.value
-                      )
-                    }
-                    className="table-input"
-                  />
-                </td>
-                <td>
-                  <input
-                    type="date"
-                    value={avaliacao.segundaEntrevistaPais}
-                    onChange={(e) =>
-                      handleInputChange(
-                        avaliacao.id,
-                        "segundaEntrevistaPais",
-                        e.target.value
-                      )
-                    }
-                    className="table-input"
-                  />
-                </td>
-                <td>
-                  <input
-                    type="date"
-                    value={avaliacao.resultado}
-                    onChange={(e) =>
-                      handleInputChange(
-                        avaliacao.id,
-                        "resultado",
-                        e.target.value
-                      )
-                    }
-                    className="table-input"
-                  />
-                </td>
-                <td>
-                  <button
-                    onClick={() => removerLinha(avaliacao.id)}
-                    className="btn-remove"
-                    disabled={avaliacoes.length === 1}
-                  >
-                    ❌
-                  </button>
+                  <button className="btn-excluir" onClick={() => removerLinha(avaliacao.id)} disabled={avaliacoes.length === 1}>Excluir</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      
-      <FormularioListagem 
-        data={controleInternoList} 
-        collectionName="controleInterno" 
-        onEdit={handleEditar} 
-        onDelete={handleExcluir}
-        title="Registros Salvos"
-        displayFields={['nomeUsuario']}
-      />
+
+      <div className="lista-registros">
+        {controleInternoList.length === 0 ? (
+          <p>Nenhum registro salvo.</p>
+        ) : (
+          <ul>
+            {controleInternoList.map((item) => (
+              <li key={item.id}>
+                {item.nomeUsuario}{" "}
+                <button className="btn-editar" onClick={() => handleEditar(item)}>Editar</button>{" "}
+                <button className="btn-visualizar" onClick={() => handleVisualizar(item)}>Visualizar</button>{" "}
+                <button className="btn-excluir" onClick={() => handleExcluir(item.id)}>Excluir</button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 };

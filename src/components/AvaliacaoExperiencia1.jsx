@@ -6,7 +6,6 @@ import {
   saveAvaliacaoExperiencia1,
   deleteAvaliacaoExperiencia1
 } from '../redux/slices/formulariosSlice';
-import FormularioListagem from './FormularioListagem';
 
 const AvaliacaoExperiencia1 = () => {
   const dispatch = useDispatch();
@@ -17,11 +16,9 @@ const AvaliacaoExperiencia1 = () => {
     error
   } = useSelector((state) => state.formularios);
 
-  // Garante que formData e questoes existam
   const reduxFormData = formState?.formData || {};
   const reduxQuestoes = formState?.questoes || [];
 
-  // Questões padrão
   const questoesIniciais = [
     { id: 1, texto: 'Atende as regras.', resposta: '' },
     { id: 2, texto: 'Socializa com o grupo.', resposta: '' },
@@ -125,6 +122,13 @@ const AvaliacaoExperiencia1 = () => {
     }
   };
 
+  const handleVisualizar = (item) => {
+    const detalhes = Object.entries(item.formData || {})
+      .map(([key, value]) => `${key}: ${value}`)
+      .join("\n");
+    alert(detalhes);
+  };
+
   const salvarFormulario = () => {
     const dataToSave = {
       id: formState.id,
@@ -214,7 +218,7 @@ const AvaliacaoExperiencia1 = () => {
             className="questao-input"
           />
           <button onClick={adicionarQuestao} className="btn-add-questao">
-            ➕ Adicionar Questão
+            Adicionar Questão
           </button>
         </div>
 
@@ -243,7 +247,7 @@ const AvaliacaoExperiencia1 = () => {
                   className="btn-remove-questao"
                   title="Remover questão"
                 >
-                  ❌
+                  Excluir
                 </button>
               )}
             </div>
@@ -285,18 +289,32 @@ const AvaliacaoExperiencia1 = () => {
 
       <div className="form-actions">
         <button onClick={salvarFormulario} className="btn-save">
-          💾 Salvar Avaliação
+          Salvar Avaliação
         </button>
       </div>
 
-      <FormularioListagem
-        data={avaliacaoExperiencia1List}
-        collectionName="avaliacaoExperiencia1"
-        onEdit={handleEditar}
-        onDelete={handleExcluir}
-        title="Registros Salvos"
-        displayFields={['nome']}
-      />
+      <div className="lista-registros">
+        {avaliacaoExperiencia1List.length === 0 ? (
+          <p>Nenhum registro salvo.</p>
+        ) : (
+          <ul>
+            {avaliacaoExperiencia1List.map((item) => (
+              <li key={item.id}>
+                {item.formData?.nome || 'Sem nome'}{" "}
+                <button className="btn-editar" onClick={() => handleEditar(item)}>
+                  Editar
+                </button>{" "}
+                <button className="btn-visualizar" onClick={() => handleVisualizar(item)}>
+                  Visualizar
+                </button>{" "}
+                <button className="btn-excluir" onClick={() => handleExcluir(item.id)}>
+                  Excluir
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 };

@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateFichaAcompanhamento, resetFormulariosData, fetchFichaAcompanhamentoList, saveFichaAcompanhamento, deleteFichaAcompanhamento } from '../redux/slices/formulariosSlice';
-import FormularioListagem from './FormularioListagem';
+import { updateFichaAcompanhamento, fetchFichaAcompanhamentoList, saveFichaAcompanhamento, deleteFichaAcompanhamento } from '../redux/slices/formulariosSlice';
 
 const FichaAcompanhamento = () => {
   const dispatch = useDispatch();
@@ -22,8 +21,15 @@ const FichaAcompanhamento = () => {
   const handleExcluir = async (id) => {
     if (window.confirm("Tem certeza que deseja excluir este registro?")) {
       await dispatch(deleteFichaAcompanhamento(id));
-      dispatch(fetchFichaAcompanhamentoList()); // Recarrega a lista
+      dispatch(fetchFichaAcompanhamentoList());
     }
+  };
+
+  const handleVisualizar = (item) => {
+    const detalhes = Object.entries(item)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join("\n");
+    alert(detalhes);
   };
 
   const salvarFormulario = () => {
@@ -31,8 +37,8 @@ const FichaAcompanhamento = () => {
       .unwrap()
       .then(() => {
         alert('Ficha de Acompanhamento salva com sucesso!');
-        dispatch(fetchFichaAcompanhamentoList()); // Recarrega a lista após salvar
-        dispatch(updateFichaAcompanhamento({ nome: '', dataAdmissao: '', dataVisita: '', empresa: '', responsavelRH: '', contatoCom: '', parecerGeral: '', id: undefined })); // Limpa o formulário de edição
+        dispatch(fetchFichaAcompanhamentoList());
+        dispatch(updateFichaAcompanhamento({ nome: '', dataAdmissao: '', dataVisita: '', empresa: '', responsavelRH: '', contatoCom: '', parecerGeral: '', id: undefined }));
       })
       .catch((err) => {
         alert(`Erro ao salvar ficha: ${err.message || 'Erro desconhecido'}`);
@@ -41,17 +47,11 @@ const FichaAcompanhamento = () => {
   };
 
   const limparFormulario = () => {
-    // Limpa o formulário de edição
     dispatch(updateFichaAcompanhamento({ nome: '', dataAdmissao: '', dataVisita: '', empresa: '', responsavelRH: '', contatoCom: '', parecerGeral: '', id: undefined }));
   };
 
-  if (loading) {
-    return <div className="loading-message">Carregando Ficha de Acompanhamento...</div>;
-  }
-
-  if (error) {
-    return <div className="error-message">Erro ao carregar ficha: {error.message}</div>;
-  }
+  if (loading) return <div className="loading-message">Carregando Ficha de Acompanhamento...</div>;
+  if (error) return <div className="error-message">Erro ao carregar ficha: {error.message}</div>;
 
   return (
     <div className="ficha-container">
@@ -142,35 +142,28 @@ const FichaAcompanhamento = () => {
       </div>
 
       <div className="form-actions">
-        <button onClick={salvarFormulario} className="btn-save">
-          💾 Salvar Ficha
-        </button>
-        <button onClick={limparFormulario} className="btn-clear">
-          🗑️ Limpar Formulário
-        </button>
+        <button onClick={salvarFormulario} className="btn-save">Salvar Ficha</button>
+        <button onClick={limparFormulario} className="btn-clear">Limpar Formulário</button>
       </div>
 
-      <div className="info-section">        
-        <div className="info-card">
-          <h3>Contatos Importantes</h3>
-          <p><strong>Instituto:</strong> (48) 3433-8235</p>
-          <p><strong>E-mail:</strong> educ.especial@ibest.com.br</p>
-          <p><strong>Endereço:</strong> Rua Lúcia Milioli, 211 - Santa Bárbara</p>
-          <p><strong>CEP:</strong> 88802-020 - Criciúma - SC</p>
-        </div>
+      <div className="lista-registros">
+        {fichaAcompanhamentoList.length === 0 ? (
+          <p>Nenhum registro salvo.</p>
+        ) : (
+          <ul>
+            {fichaAcompanhamentoList.map((item) => (
+              <li key={item.id}>
+                {item.nome || 'Sem nome'} - {item.empresa || 'Sem empresa'} - {item.dataVisita || 'Sem data'}{" "}
+                <button className="btn-editar" onClick={() => handleEditar(item)}>Editar</button>{" "}
+                <button className="btn-visualizar" onClick={() => handleVisualizar(item)}>Visualizar</button>{" "}
+                <button className="btn-excluir" onClick={() => handleExcluir(item.id)}>Excluir</button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
-      
-      <FormularioListagem 
-        data={fichaAcompanhamentoList} 
-        collectionName="fichaAcompanhamento" 
-        onEdit={handleEditar} 
-        onDelete={handleExcluir}
-        title="Registros Salvos"
-        displayFields={['nome', 'empresa', 'dataVisita']}
-      />
     </div>
   );
 };
 
 export default FichaAcompanhamento;
-

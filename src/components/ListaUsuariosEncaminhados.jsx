@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateListaUsuariosEncaminhados, fetchListaUsuariosEncaminhadosList, saveListaUsuariosEncaminhados, deleteListaUsuariosEncaminhados } from '../redux/slices/formulariosSlice';
-import FormularioListagem from './FormularioListagem';
 
 const ListaUsuariosEncaminhados = () => {
   const dispatch = useDispatch();
@@ -40,7 +39,6 @@ const ListaUsuariosEncaminhados = () => {
   const removerLinha = (id) => {
     if (usuarios.length > 1) {
       const novosUsuarios = usuarios.filter(usuario => usuario.id !== id);
-      // Renumerar os usuários
       const updatedUsuarios = novosUsuarios.map((usuario, index) => ({
         ...usuario,
         numero: String(index + 1).padStart(2, '0')
@@ -53,10 +51,16 @@ const ListaUsuariosEncaminhados = () => {
     dispatch(updateListaUsuariosEncaminhados({ ...item, id: item.id }));
   };
 
+  const handleVisualizar = (item) => {
+    const detalhes = `Ano de Referência: ${item.anoReferencia}\n` +
+      item.usuarios.map(u => `${u.numero} - ${u.nome} - ${u.empresa} - ${u.funcao} - ${u.contatoRH} - ${u.provavelDataDesligamento}`).join('\n');
+    alert(detalhes);
+  };
+
   const handleExcluir = async (id) => {
     if (window.confirm("Tem certeza que deseja excluir este registro?")) {
       await dispatch(deleteListaUsuariosEncaminhados(id));
-      dispatch(fetchListaUsuariosEncaminhadosList()); // Recarrega a lista
+      dispatch(fetchListaUsuariosEncaminhadosList());
     }
   };
 
@@ -65,8 +69,21 @@ const ListaUsuariosEncaminhados = () => {
       .unwrap()
       .then(() => {
         alert('Lista de Usuários Encaminhados salva com sucesso!');
-        dispatch(fetchListaUsuariosEncaminhadosList()); // Recarrega a lista após salvar
-        dispatch(updateListaUsuariosEncaminhados({ anoReferencia: '2025', usuarios: [{ id: 1, numero: '01', nome: '', dataAdmissao: '', empresa: '', funcao: '', contatoRH: '', provavelDataDesligamento: '' }], id: undefined })); // Limpa o formulário de edição
+        dispatch(fetchListaUsuariosEncaminhadosList());
+        dispatch(updateListaUsuariosEncaminhados({
+          anoReferencia: '2025',
+          usuarios: [{
+            id: 1,
+            numero: '01',
+            nome: '',
+            dataAdmissao: '',
+            empresa: '',
+            funcao: '',
+            contatoRH: '',
+            provavelDataDesligamento: ''
+          }],
+          id: undefined
+        }));
       })
       .catch((err) => {
         alert(`Erro ao salvar lista: ${err.message || 'Erro desconhecido'}`);
@@ -91,13 +108,8 @@ const ListaUsuariosEncaminhados = () => {
     }));
   };
 
-  if (loading) {
-    return <div className="loading-message">Carregando Lista de Usuários Encaminhados...</div>;
-  }
-
-  if (error) {
-    return <div className="error-message">Erro ao carregar lista: {error.message}</div>;
-  }
+  if (loading) return <div className="loading-message">Carregando Lista de Usuários Encaminhados...</div>;
+  if (error) return <div className="error-message">Erro ao carregar lista: {error.message}</div>;
 
   return (
     <div className="lista-container">
@@ -120,13 +132,9 @@ const ListaUsuariosEncaminhados = () => {
       </div>
 
       <div className="lista-actions">
-        <button onClick={adicionarLinha} className="btn-add">
-          ➕ Adicionar Usuário
-        </button>
-        <button onClick={salvarLista} className="btn-save">
-          💾 Salvar Lista
-        </button>
-
+        <button onClick={adicionarLinha} className="btn-add">Adicionar Usuário</button>
+        <button onClick={salvarLista} className="btn-save">Salvar Lista</button>
+        <button onClick={limparLista} className="btn-clear">Limpar Lista</button>
       </div>
 
       <div className="table-container">
@@ -147,85 +155,39 @@ const ListaUsuariosEncaminhados = () => {
             {usuarios.map((usuario) => (
               <tr key={usuario.id}>
                 <td className="numero-cell">{usuario.numero}</td>
+                <td><input type="text" value={usuario.nome} onChange={(e) => handleInputChange(usuario.id, 'nome', e.target.value)} className="table-input"/></td>
+                <td><input type="date" value={usuario.dataAdmissao} onChange={(e) => handleInputChange(usuario.id, 'dataAdmissao', e.target.value)} className="table-input date-input"/></td>
+                <td><input type="text" value={usuario.empresa} onChange={(e) => handleInputChange(usuario.id, 'empresa', e.target.value)} className="table-input"/></td>
+                <td><input type="text" value={usuario.funcao} onChange={(e) => handleInputChange(usuario.id, 'funcao', e.target.value)} className="table-input"/></td>
+                <td><input type="text" value={usuario.contatoRH} onChange={(e) => handleInputChange(usuario.id, 'contatoRH', e.target.value)} className="table-input"/></td>
+                <td><input type="date" value={usuario.provavelDataDesligamento} onChange={(e) => handleInputChange(usuario.id, 'provavelDataDesligamento', e.target.value)} className="table-input date-input"/></td>
                 <td>
-                  <input
-                    type="text"
-                    value={usuario.nome}
-                    onChange={(e) => handleInputChange(usuario.id, 'nome', e.target.value)}
-                    placeholder="Nome completo"
-                    className="table-input"
-                  />
-                </td>
-                <td>
-                  <input
-                    type="date"
-                    value={usuario.dataAdmissao}
-                    onChange={(e) => handleInputChange(usuario.id, 'dataAdmissao', e.target.value)}
-                    className="table-input date-input"
-                  />
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    value={usuario.empresa}
-                    onChange={(e) => handleInputChange(usuario.id, 'empresa', e.target.value)}
-                    placeholder="Nome da empresa"
-                    className="table-input"
-                  />
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    value={usuario.funcao}
-                    onChange={(e) => handleInputChange(usuario.id, 'funcao', e.target.value)}
-                    placeholder="Função/cargo"
-                    className="table-input"
-                  />
-                </td>
-                <td>
-                  <input
-                    type="text"
-                    value={usuario.contatoRH}
-                    onChange={(e) => handleInputChange(usuario.id, 'contatoRH', e.target.value)}
-                    placeholder="Contato do RH"
-                    className="table-input"
-                  />
-                </td>
-                <td>
-                  <input
-                    type="date"
-                    value={usuario.provavelDataDesligamento}
-                    onChange={(e) => handleInputChange(usuario.id, 'provavelDataDesligamento', e.target.value)}
-                    className="table-input date-input"
-                  />
-                </td>
-                <td>
-                  <button
-                    onClick={() => removerLinha(usuario.id)}
-                    className="btn-remove"
-                    disabled={usuarios.length === 1}
-                    title="Remover usuário"
-                  >
-                    ❌
-                  </button>
+                  <button onClick={() => removerLinha(usuario.id)} className="btn-excluir" disabled={usuarios.length === 1}>Excluir</button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      
-      <FormularioListagem 
-        data={listaUsuariosEncaminhadosList} 
-        collectionName="listaUsuariosEncaminhados" 
-        onEdit={handleEditar} 
-        onDelete={handleExcluir}
-        title="Registros Salvos"
-        displayFields={['anoReferencia', 'usuarios']}
-      />
+
+      <div className="lista-registros">
+        {listaUsuariosEncaminhadosList.length === 0 ? (
+          <p>Nenhum registro salvo.</p>
+        ) : (
+          <ul>
+            {listaUsuariosEncaminhadosList.map((item) => (
+              <li key={item.id}>
+                Ano: {item.anoReferencia} - Usuários: {item.usuarios.length}{" "}
+                <button className="btn-editar" onClick={() => handleEditar(item)}>Editar</button>{" "}
+                <button className="btn-visualizar" onClick={() => handleVisualizar(item)}>Visualizar</button>{" "}
+                <button className="btn-excluir" onClick={() => handleExcluir(item.id)}>Excluir</button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 };
 
 export default ListaUsuariosEncaminhados;
-

@@ -26,25 +26,71 @@ const FichaAcompanhamento = () => {
   };
 
   const handleVisualizar = (item) => {
-    const detalhes = Object.entries(item)
-      .map(([key, value]) => `${key}: ${value}`)
-      .join("\n");
-    alert(detalhes);
+  const detalhes = Object.entries(item)
+    .map(([key, value]) => {
+      // Verifica se o valor parece uma data
+      const data = new Date(value);
+      if (!isNaN(data) && typeof value === "string" && value.includes("-")) {
+        const dia = String(data.getDate()).padStart(2, "0");
+        const mes = String(data.getMonth() + 1).padStart(2, "0");
+        const ano = data.getFullYear();
+        return `${key}: ${dia}/${mes}/${ano}`;
+      }
+      return `${key}: ${value}`;
+    })
+    .join("\n");
+
+  alert(detalhes);
+};
+
+
+const salvarFormulario = () => {
+  const { nome, dataAdmissao, dataVisita, empresa, responsavelRH, contatoCom, parecerGeral } = formData;
+
+  // Lista de campos obrigatórios com rótulos amigáveis
+  const camposObrigatorios = {
+    nome: "Nome",
+    dataAdmissao: "Data de Admissão",
+    dataVisita: "Data da Visita",
+    empresa: "Empresa",
+    responsavelRH: "Responsável RH",
+    contatoCom: "Contato com",
+    parecerGeral: "Parecer Geral"
   };
 
-  const salvarFormulario = () => {
-    dispatch(saveFichaAcompanhamento(formData))
-      .unwrap()
-      .then(() => {
-        alert('Ficha de Acompanhamento salva com sucesso!');
-        dispatch(fetchFichaAcompanhamentoList());
-        dispatch(updateFichaAcompanhamento({ nome: '', dataAdmissao: '', dataVisita: '', empresa: '', responsavelRH: '', contatoCom: '', parecerGeral: '', id: undefined }));
-      })
-      .catch((err) => {
-        alert(`Erro ao salvar ficha: ${err.message || 'Erro desconhecido'}`);
-        console.error("Erro ao salvar:", err);
-      });
-  };
+  // Verifica quais campos estão vazios
+  const camposVazios = Object.entries(camposObrigatorios)
+    .filter(([campo]) => !formData?.[campo]?.trim())
+    .map(([_, label]) => label);
+
+  if (camposVazios.length > 0) {
+    alert(`Preencha os seguintes campos antes de salvar:\n\n• ${camposVazios.join("\n• ")}`);
+    return; // interrompe o salvamento
+  }
+
+  // Se tudo estiver válido, prossegue com o dispatch
+  dispatch(saveFichaAcompanhamento(formData))
+    .unwrap()
+    .then(() => {
+      alert('Ficha de Acompanhamento salva com sucesso!');
+      dispatch(fetchFichaAcompanhamentoList());
+      dispatch(updateFichaAcompanhamento({
+        nome: '',
+        dataAdmissao: '',
+        dataVisita: '',
+        empresa: '',
+        responsavelRH: '',
+        contatoCom: '',
+        parecerGeral: '',
+        id: undefined
+      }));
+    })
+    .catch((err) => {
+      alert(`Erro ao salvar ficha: ${err.message || 'Erro desconhecido'}`);
+      console.error("Erro ao salvar:", err);
+    });
+};
+
 
   const limparFormulario = () => {
     dispatch(updateFichaAcompanhamento({ nome: '', dataAdmissao: '', dataVisita: '', empresa: '', responsavelRH: '', contatoCom: '', parecerGeral: '', id: undefined }));

@@ -52,253 +52,25 @@
         }
       ],
       "nomeUsuario": "teste ligai"
+    },
+    {
+      "id": "f59a",
+      "data": [
+        {
+          "id": 1762090907364,
+          "nomeUsuario": "teste23",
+          "ingresso": "2025-11-18",
+          "primeiraAval": "2025-11-26",
+          "segundaAval": "2025-11-17",
+          "primeiraEntrevistaPais": "2025-11-18",
+          "segundaEntrevistaPais": "2025-11-24",
+          "resultado": "2025-11-18"
+        }
+      ],
+      "nomeUsuario": "teste23"
     }
   ],
   "avaliacaoExperiencia1": [
-    {
-      "id": "38f5",
-      "formData": {
-        "nome": "merda 2",
-        "dataEntrada": "2001-01-10",
-        "dataAvaliacao": "2001-01-10",
-        "observacoes": "merfda",
-        "situacoesIrritacao": "merda",
-        "nomeAvaliador": "cuu"
-      },
-      "questoes": [
-        {
-          "id": 1,
-          "texto": "Atende as regras.",
-          "resposta": ""
-        },
-        {
-          "id": 2,
-          "texto": "Socializa com o grupo.",
-          "resposta": "Sim"
-        },
-        {
-          "id": 3,
-          "texto": "Isola-se do grupo.",
-          "resposta": "Sim"
-        },
-        {
-          "id": 4,
-          "texto": "Possui tolerância a frustração.",
-          "resposta": ""
-        },
-        {
-          "id": 5,
-          "texto": "Respeita colegas e professores.",
-          "resposta": ""
-        },
-        {
-          "id": 6,
-          "texto": "Faz relatos fantasiosos.",
-          "resposta": ""
-        },
-        {
-          "id": 7,
-          "texto": "Concentra-se nas atividades.",
-          "resposta": ""
-        },
-        {
-          "id": 8,
-          "texto": "Tem iniciativa.",
-          "resposta": ""
-        },
-        {
-          "id": 9,
-          "texto": "Sonolência durante as atividades.",
-          "resposta": ""
-        },
-        {
-          "id": 10,
-          "texto": "Alterações intensas de humor.",
-          "resposta": ""
-        },
-        {
-          "id": 11,
-          "texto": "Oscilações repentinas de humor.",
-          "resposta": ""
-        },
-        {
-          "id": 12,
-          "texto": "Irrita-se com facilidade.",
-          "resposta": ""
-        },
-        {
-          "id": 13,
-          "texto": "Ansiedade.",
-          "resposta": ""
-        },
-        {
-          "id": 14,
-          "texto": "Escuta colegas.",
-          "resposta": ""
-        },
-        {
-          "id": 15,
-          "texto": "Segue orientação dos professores.",
-          "resposta": ""
-        },
-        {
-          "id": 16,
-          "texto": "Mantém-se em sala de aula.",
-          "resposta": ""
-        },
-        {
-          "id": 17,
-          "texto": "Desloca-se muito na sala.",
-          "resposta": ""
-        },
-        {
-          "id": 18,
-          "texto": "Fala demasiadamente.",
-          "resposta": ""
-        },
-        {
-          "id": 19,
-          "texto": "É pontual.",
-          "resposta": ""
-        },
-        {
-          "id": 20,
-          "texto": "É assíduo.",
-          "resposta": ""
-        },
-        {
-          "id": 21,
-          "texto": "Demonstra desejo de trabalhar.",
-          "resposta": ""
-        },
-        {
-          "id": 22,
-          "texto": "Apropria-se indevidamente do que não é seu.",
-          "resposta": ""
-        },
-        {
-          "id": 23,
-          "texto": "Hábito de banho diário.",
-          "resposta": ""
-        },
-        {
-          "id": 24,
-          "texto": "Hábito de escovação dental.",
-          "resposta": ""
-        },
-        {
-          "id": 25,
-          "texto": "Cuidado com aparência e uniforme.",
-          "resposta": ""
-        },
-        {
-          "id": 26,
-          "texto": "Autonomia nos hábitos de higiene.",
-          "resposta": ""
-        },
-        {
-          "id": 27,
-          "texto": "Oscilações de comportamento sem medicação.",
-          "resposta": ""
-        },
-        {
-          "id": 28,
-          "texto": "Possui acesso regular às medicações.",
-          "resposta": ""
-        },
-        {
-          "id": 29,
-          "texto": "Traz materiais organizados.",
-          "resposta": ""
-        },
-        {
-          "id": 30,
-          "texto": "Usa transporte coletivo.",
-          "resposta": ""
-        },
-        {
-          "id": 31,
-          "texto": "Tem iniciativa diante das atividades.",
-          "resposta": ""
-        },
-        {
-          "id": 32,
-          "texto": "Localiza-se no espaço da instituição.",
-          "resposta": ""
-        },
-        {
-          "id": 33,
-          "texto": "Situa-se nas trocas de sala e atividades.",
-          "resposta": ""
-        },
-        {
-          "id": 34,
-          "texto": "Interage par a par.",
-          "resposta": ""
-        },
-        {
-          "id": 35,
-          "texto": "Interage em grupo.",
-          "resposta": ""
-        },
-        {
-          "id": 36,
-          "texto": "Cria conflitos e intrigas.",
-          "resposta": ""
-        },
-        {
-          "id": 37,
-          "texto": "Promove harmonia.",
-          "resposta": ""
-        },
-        {
-          "id": 38,
-          "texto": "Faz intrigas entre colegas e professores.",
-          "resposta": ""
-        },
-        {
-          "id": 39,
-          "texto": "Interesse em atividades extraclasses.",
-          "resposta": ""
-        },
-        {
-          "id": 40,
-          "texto": "Família apoia a instituição.",
-          "resposta": ""
-        },
-        {
-          "id": 41,
-          "texto": "Família demonstra superproteção.",
-          "resposta": ""
-        },
-        {
-          "id": 42,
-          "texto": "Usuário traz relatos negativos da família.",
-          "resposta": ""
-        },
-        {
-          "id": 43,
-          "texto": "Usuário traz relatos positivos da família.",
-          "resposta": ""
-        },
-        {
-          "id": 44,
-          "texto": "Família incentiva autonomia.",
-          "resposta": ""
-        },
-        {
-          "id": 45,
-          "texto": "Família incentiva inserção no mercado.",
-          "resposta": ""
-        },
-        {
-          "id": 46,
-          "texto": "Traz documentos assinados pela família.",
-          "resposta": ""
-        }
-      ],
-      "nome": "merda 2"
-    },
     {
       "id": "93de",
       "formData": {
@@ -542,6 +314,250 @@
         }
       ],
       "nome": "ewew"
+    },
+    {
+      "id": "749f",
+      "formData": {
+        "nome": "fderbht",
+        "dataEntrada": "2025-11-03",
+        "dataAvaliacao": "2025-11-03",
+        "observacoes": "frrgtfv",
+        "situacoesIrritacao": "vfvbgg",
+        "nomeAvaliador": "vbg"
+      },
+      "questoes": [
+        {
+          "id": 1,
+          "texto": "Atende as regras.",
+          "resposta": "Não"
+        },
+        {
+          "id": 2,
+          "texto": "Socializa com o grupo.",
+          "resposta": "Sim"
+        },
+        {
+          "id": 3,
+          "texto": "Isola-se do grupo.",
+          "resposta": "Sim"
+        },
+        {
+          "id": 4,
+          "texto": "Possui tolerância a frustração.",
+          "resposta": "Não"
+        },
+        {
+          "id": 5,
+          "texto": "Respeita colegas e professores.",
+          "resposta": "Não"
+        },
+        {
+          "id": 6,
+          "texto": "Faz relatos fantasiosos.",
+          "resposta": "Não"
+        },
+        {
+          "id": 7,
+          "texto": "Concentra-se nas atividades.",
+          "resposta": "Sim"
+        },
+        {
+          "id": 8,
+          "texto": "Tem iniciativa.",
+          "resposta": "Sim"
+        },
+        {
+          "id": 9,
+          "texto": "Sonolência durante as atividades.",
+          "resposta": "Não"
+        },
+        {
+          "id": 10,
+          "texto": "Alterações intensas de humor.",
+          "resposta": "Sim"
+        },
+        {
+          "id": 11,
+          "texto": "Oscilações repentinas de humor.",
+          "resposta": "Sim"
+        },
+        {
+          "id": 12,
+          "texto": "Irrita-se com facilidade.",
+          "resposta": "Não"
+        },
+        {
+          "id": 13,
+          "texto": "Ansiedade.",
+          "resposta": "Sim"
+        },
+        {
+          "id": 14,
+          "texto": "Escuta colegas.",
+          "resposta": "Sim"
+        },
+        {
+          "id": 15,
+          "texto": "Segue orientação dos professores.",
+          "resposta": "Sim"
+        },
+        {
+          "id": 16,
+          "texto": "Mantém-se em sala de aula.",
+          "resposta": "Não"
+        },
+        {
+          "id": 17,
+          "texto": "Desloca-se muito na sala.",
+          "resposta": "Não"
+        },
+        {
+          "id": 18,
+          "texto": "Fala demasiadamente.",
+          "resposta": "Sim"
+        },
+        {
+          "id": 19,
+          "texto": "É pontual.",
+          "resposta": "Não"
+        },
+        {
+          "id": 20,
+          "texto": "É assíduo.",
+          "resposta": "Não"
+        },
+        {
+          "id": 21,
+          "texto": "Demonstra desejo de trabalhar.",
+          "resposta": "Sim"
+        },
+        {
+          "id": 22,
+          "texto": "Apropria-se indevidamente do que não é seu.",
+          "resposta": "Sim"
+        },
+        {
+          "id": 23,
+          "texto": "Hábito de banho diário.",
+          "resposta": "Sim"
+        },
+        {
+          "id": 24,
+          "texto": "Hábito de escovação dental.",
+          "resposta": "Sim"
+        },
+        {
+          "id": 25,
+          "texto": "Cuidado com aparência e uniforme.",
+          "resposta": "Sim"
+        },
+        {
+          "id": 26,
+          "texto": "Autonomia nos hábitos de higiene.",
+          "resposta": "Não"
+        },
+        {
+          "id": 27,
+          "texto": "Oscilações de comportamento sem medicação.",
+          "resposta": "Raras vezes"
+        },
+        {
+          "id": 28,
+          "texto": "Possui acesso regular às medicações.",
+          "resposta": "Maioria das vezes"
+        },
+        {
+          "id": 29,
+          "texto": "Traz materiais organizados.",
+          "resposta": ""
+        },
+        {
+          "id": 30,
+          "texto": "Usa transporte coletivo.",
+          "resposta": ""
+        },
+        {
+          "id": 31,
+          "texto": "Tem iniciativa diante das atividades.",
+          "resposta": ""
+        },
+        {
+          "id": 32,
+          "texto": "Localiza-se no espaço da instituição.",
+          "resposta": ""
+        },
+        {
+          "id": 33,
+          "texto": "Situa-se nas trocas de sala e atividades.",
+          "resposta": ""
+        },
+        {
+          "id": 34,
+          "texto": "Interage par a par.",
+          "resposta": ""
+        },
+        {
+          "id": 35,
+          "texto": "Interage em grupo.",
+          "resposta": ""
+        },
+        {
+          "id": 36,
+          "texto": "Cria conflitos e intrigas.",
+          "resposta": ""
+        },
+        {
+          "id": 37,
+          "texto": "Promove harmonia.",
+          "resposta": ""
+        },
+        {
+          "id": 38,
+          "texto": "Faz intrigas entre colegas e professores.",
+          "resposta": ""
+        },
+        {
+          "id": 39,
+          "texto": "Interesse em atividades extraclasses.",
+          "resposta": ""
+        },
+        {
+          "id": 40,
+          "texto": "Família apoia a instituição.",
+          "resposta": ""
+        },
+        {
+          "id": 41,
+          "texto": "Família demonstra superproteção.",
+          "resposta": ""
+        },
+        {
+          "id": 42,
+          "texto": "Usuário traz relatos negativos da família.",
+          "resposta": ""
+        },
+        {
+          "id": 43,
+          "texto": "Usuário traz relatos positivos da família.",
+          "resposta": ""
+        },
+        {
+          "id": 44,
+          "texto": "Família incentiva autonomia.",
+          "resposta": ""
+        },
+        {
+          "id": 45,
+          "texto": "Família incentiva inserção no mercado.",
+          "resposta": ""
+        },
+        {
+          "id": 46,
+          "texto": "Traz documentos assinados pela família.",
+          "resposta": ""
+        }
+      ],
+      "nome": "fderbht"
     }
   ],
   "avaliacaoExperiencia2": [
@@ -792,56 +808,46 @@
   ],
   "fichaAcompanhamento": [
     {
-      "id": "6c85",
       "nome": "ewsewe",
       "dataAdmissao": "2001-01-10",
       "dataVisita": "2001-01-10",
       "empresa": "dsadsde",
-      "responsavelRH": "dsdsd",
+      "responsavelRH": "dsdsde",
       "contatoCom": "dsdsd",
-      "parecerGeral": "dsad"
+      "parecerGeral": "dsadss",
+      "id": "6c85"
     }
   ],
   "listaUsuariosEncaminhados": [
     {
-      "id": "33fc",
+      "id": "62ad",
       "anoReferencia": "2025",
       "usuarios": [
         {
           "id": 1,
           "numero": "01",
-          "nome": "sasa",
-          "dataAdmissao": "",
-          "empresa": "sasas",
-          "funcao": "sasa",
-          "contatoRH": "sasa",
-          "provavelDataDesligamento": "2001-01-10"
-        },
-        {
-          "id": 1761864996074,
-          "numero": "02",
-          "nome": "",
-          "dataAdmissao": "",
-          "empresa": "",
-          "funcao": "",
-          "contatoRH": "",
-          "provavelDataDesligamento": ""
+          "nome": "e2rf3tsd",
+          "dataAdmissao": "2025-11-26",
+          "empresa": "dfregf",
+          "funcao": "frgt",
+          "contatoRH": "gt",
+          "provavelDataDesligamento": "2025-11-24"
         }
       ]
     },
     {
-      "id": "15e6",
+      "id": "fd2d",
       "anoReferencia": "2025",
       "usuarios": [
         {
           "id": 1,
           "numero": "01",
-          "nome": "ewew",
-          "dataAdmissao": "2025-11-01",
-          "empresa": "eweewew",
-          "funcao": "ewe",
-          "contatoRH": "ewew",
-          "provavelDataDesligamento": "2025-11-01"
+          "nome": "dfwe",
+          "dataAdmissao": "",
+          "empresa": "vfegb",
+          "funcao": "vfgb",
+          "contatoRH": "vfgb",
+          "provavelDataDesligamento": "2025-11-17"
         }
       ]
     }

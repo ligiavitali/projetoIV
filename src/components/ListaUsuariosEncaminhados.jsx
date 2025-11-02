@@ -51,11 +51,25 @@ const ListaUsuariosEncaminhados = () => {
     dispatch(updateListaUsuariosEncaminhados({ ...item, id: item.id }));
   };
 
-  const handleVisualizar = (item) => {
-    const detalhes = `Ano de Referência: ${item.anoReferencia}\n` +
-      item.usuarios.map(u => `${u.numero} - ${u.nome} - ${u.empresa} - ${u.funcao} - ${u.contatoRH} - ${u.provavelDataDesligamento}`).join('\n');
-    alert(detalhes);
-  };
+ const handleVisualizar = (item) => {
+  const detalhes = `Ano de Referência: ${item.anoReferencia}\n` +
+    item.usuarios.map(u => {
+      let dataFormatada = u.provavelDataDesligamento;
+
+      // Se for uma data válida, formata para dd/mm/yyyy
+      const data = new Date(u.provavelDataDesligamento);
+      if (!isNaN(data)) {
+        const dia = String(data.getDate()).padStart(2, "0");
+        const mes = String(data.getMonth() + 1).padStart(2, "0");
+        const ano = data.getFullYear();
+        dataFormatada = `${dia}/${mes}/${ano}`;
+      }
+
+      return `${u.numero} - ${u.nome} - ${u.empresa} - ${u.funcao} - ${u.contatoRH} - ${dataFormatada}`;
+    }).join('\n');
+
+  alert(detalhes);
+};
 
   const handleExcluir = async (id) => {
     if (window.confirm("Tem certeza que deseja excluir este registro?")) {
@@ -64,32 +78,74 @@ const ListaUsuariosEncaminhados = () => {
     }
   };
 
-  const salvarLista = () => {
-    dispatch(saveListaUsuariosEncaminhados({ id, anoReferencia, usuarios }))
-      .unwrap()
-      .then(() => {
-        alert('Lista de Usuários Encaminhados salva com sucesso!');
-        dispatch(fetchListaUsuariosEncaminhadosList());
-        dispatch(updateListaUsuariosEncaminhados({
-          anoReferencia: '2025',
-          usuarios: [{
-            id: 1,
-            numero: '01',
-            nome: '',
-            dataAdmissao: '',
-            empresa: '',
-            funcao: '',
-            contatoRH: '',
-            provavelDataDesligamento: ''
-          }],
-          id: undefined
-        }));
-      })
-      .catch((err) => {
-        alert(`Erro ao salvar lista: ${err.message || 'Erro desconhecido'}`);
-        console.error("Erro ao salvar:", err);
-      });
-  };
+const salvarLista = () => {
+  // Valida se há pelo menos um usuário
+  if (!usuarios || usuarios.length === 0) {
+    alert("Adicione pelo menos um usuário antes de salvar.");
+    return;
+  }
+
+  // Valida se o Ano de Referência está preenchido
+  if (!anoReferencia?.trim()) {
+    alert("O campo 'Ano de Referência' é obrigatório.");
+    return;
+  }
+
+  // Checa quais usuários têm campos obrigatórios em branco
+  const usuariosComCamposVazios = usuarios
+    .map((u, index) => {
+      const camposObrigatorios = {
+        numero: "Número",
+        nome: "Nome",
+        empresa: "Empresa",
+        funcao: "Função",
+        contatoRH: "Contato RH",
+        provavelDataDesligamento: "Provável Data de Desligamento"
+      };
+
+      const camposVazios = Object.entries(camposObrigatorios)
+        .filter(([campo]) => !u[campo]?.trim())
+        .map(([_, label]) => `• ${label}`);
+
+      if (camposVazios.length > 0) {
+        return `Usuário ${u.numero || index + 1}:\n${camposVazios.join("\n")}`;
+      }
+      return null;
+    })
+    .filter(Boolean);
+
+  if (usuariosComCamposVazios.length > 0) {
+    alert(`Preencha os campos obrigatórios:\n\n${usuariosComCamposVazios.join("\n\n")}`);
+    return;
+  }
+
+  // Se passou nas validações, salva normalmente
+  dispatch(saveListaUsuariosEncaminhados({ id, anoReferencia, usuarios }))
+    .unwrap()
+    .then(() => {
+      alert('Lista de Usuários Encaminhados salva com sucesso!');
+      dispatch(fetchListaUsuariosEncaminhadosList());
+      dispatch(updateListaUsuariosEncaminhados({
+        anoReferencia: '2025',
+        usuarios: [{
+          id: 1,
+          numero: '01',
+          nome: '',
+          dataAdmissao: '',
+          empresa: '',
+          funcao: '',
+          contatoRH: '',
+          provavelDataDesligamento: ''
+        }],
+        id: undefined
+      }));
+    })
+    .catch((err) => {
+      alert(`Erro ao salvar lista: ${err.message || 'Erro desconhecido'}`);
+      console.error("Erro ao salvar:", err);
+    });
+};
+
 
   const limparLista = () => {
     dispatch(updateListaUsuariosEncaminhados({

@@ -122,39 +122,76 @@ const AvaliacaoExperiencia1 = () => {
     }
   };
 
-  const handleVisualizar = (item) => {
-    const detalhes = Object.entries(item.formData || {})
-      .map(([key, value]) => `${key}: ${value}`)
-      .join("\n");
-    alert(detalhes);
-  };
+ const handleVisualizar = (item) => {
+  const detalhes = Object.entries(item.formData || {})
+    .map(([key, value]) => {
+      // Verifica se o valor é uma data válida
+      const data = new Date(value);
+      if (!isNaN(data)) {
+        // Formata no padrão brasileiro: dd/mm/yyyy
+        const dia = String(data.getDate()).padStart(2, "0");
+        const mes = String(data.getMonth() + 1).padStart(2, "0");
+        const ano = data.getFullYear();
+        return `${key}: ${dia}/${mes}/${ano}`;
+      }
+      return `${key}: ${value}`;
+    })
+    .join("\n");
+
+  alert(detalhes);
+};
+
 
   const salvarFormulario = () => {
-    const dataToSave = {
-      id: formState.id,
-      formData: reduxFormData,
-      questoes: questoes,
-      nome: reduxFormData?.nome || 'Registro Sem Nome'
-    };
+  const { nome, dataAdmissao, dataInicio, dataFim, empresa, funcao, responsavelRH } = reduxFormData || {};
 
-    dispatch(saveAvaliacaoExperiencia1(dataToSave))
-      .unwrap()
-      .then(() => {
-        alert('Avaliação Experiência 1 salva com sucesso!');
-        dispatch(fetchAvaliacaoExperiencia1List());
-        dispatch(
-          updateAvaliacaoExperiencia1({
-            formData: {},
-            questoes: questoesIniciais,
-            id: undefined
-          })
-        );
-      })
-      .catch((err) => {
-        alert(`Erro ao salvar: ${err.message || 'Erro desconhecido'}`);
-        console.error('Erro ao salvar:', err);
-      });
+  // Lista de campos obrigatórios com rótulos amigáveis
+  const camposObrigatorios = {
+    nome: "Nome",
+    dataAdmissao: "Data de Admissão",
+    dataInicio: "Data de Início",
+    dataFim: "Data de Fim",
+    empresa: "Empresa",
+    funcao: "Função",
+    responsavelRH: "Responsável RH"
   };
+
+  // Verifica quais estão vazios
+  const camposVazios = Object.entries(camposObrigatorios)
+    .filter(([campo]) => !reduxFormData?.[campo]?.trim())
+    .map(([_, label]) => label);
+
+  if (camposVazios.length > 0) {
+    alert(`Preencha os seguintes campos antes de salvar:\n\n• ${camposVazios.join("\n• ")}`);
+    return;
+  }
+
+  const dataToSave = {
+    id: formState.id,
+    formData: reduxFormData,
+    questoes: questoes,
+    nome: reduxFormData?.nome || 'Registro Sem Nome'
+  };
+
+  dispatch(saveAvaliacaoExperiencia1(dataToSave))
+    .unwrap()
+    .then(() => {
+      alert('Avaliação Experiência 1 salva com sucesso!');
+      dispatch(fetchAvaliacaoExperiencia1List());
+      dispatch(
+        updateAvaliacaoExperiencia1({
+          formData: {},
+          questoes: questoesIniciais,
+          id: undefined
+        })
+      );
+    })
+    .catch((err) => {
+      alert(`Erro ao salvar: ${err.message || 'Erro desconhecido'}`);
+      console.error('Erro ao salvar:', err);
+    });
+};
+
 
   if (loading) {
     return <div className="loading-message">Carregando Avaliação Experiência 1...</div>;

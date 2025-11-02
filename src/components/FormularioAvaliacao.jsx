@@ -70,18 +70,52 @@ const FormularioAvaliacao = () => {
   };
 
   const salvarFormulario = () => {
-    const dataToSave = {
-      id: formData.id,
-      data: avaliacoes,
-      nomeUsuario: avaliacoes.map(a => a.nomeUsuario).filter(n => n).join(', ') || 'Registro Sem Nome',
-    };
+  if (!avaliacoes || avaliacoes.length === 0) {
+    alert("Adicione pelo menos uma avaliação antes de salvar.");
+    return;
+  }
 
-    dispatch(saveControleInterno(dataToSave))
-      .unwrap()
-      .then(() => {
-        setMensagem("Formulário de avaliação salvo com sucesso!");
-        dispatch(fetchControleInternoList());
-        dispatch(updateFormularioAvaliacao({ data: [{
+  const avaliacoesInvalidas = avaliacoes
+    .map((a, index) => {
+      const camposObrigatorios = {
+        nomeUsuario: "Nome do Usuário",
+        ingresso: "Ingresso",
+        primeiraAval: "Primeira Avaliação",
+        segundaAval: "Segunda Avaliação",
+        primeiraEntrevistaPais: "Primeira Entrevista com Pais",
+        segundaEntrevistaPais: "Segunda Entrevista com Pais",
+        resultado: "Resultado"
+      };
+
+      const camposVazios = Object.entries(camposObrigatorios)
+        .filter(([campo]) => !a[campo]?.trim())
+        .map(([_, label]) => `• ${label}`);
+
+      if (camposVazios.length > 0) {
+        return `Avaliação ${index + 1}:\n${camposVazios.join("\n")}`;
+      }
+      return null;
+    })
+    .filter(Boolean);
+
+  if (avaliacoesInvalidas.length > 0) {
+    alert(`Preencha os campos obrigatórios:\n\n${avaliacoesInvalidas.join("\n\n")}`);
+    return;
+  }
+
+  const dataToSave = {
+    id: formData.id,
+    data: avaliacoes,
+    nomeUsuario: avaliacoes.map(a => a.nomeUsuario).filter(n => n).join(', ') || 'Registro Sem Nome',
+  };
+
+  dispatch(saveControleInterno(dataToSave))
+    .unwrap()
+    .then(() => {
+      alert("Formulário de avaliação salvo com sucesso!");
+      dispatch(fetchControleInternoList());
+      dispatch(updateFormularioAvaliacao({ 
+        data: [{
           id: Date.now(),
           nomeUsuario: "",
           ingresso: "",
@@ -90,13 +124,16 @@ const FormularioAvaliacao = () => {
           primeiraEntrevistaPais: "",
           segundaEntrevistaPais: "",
           resultado: "",
-        }], id: undefined }));
-      })
-      .catch((err) => {
-        setMensagem(`Erro ao salvar formulário: ${err.message || 'Erro desconhecido'}`);
-        console.error("Erro ao salvar:", err);
-      });
-  };
+        }],
+        id: undefined 
+      }));
+    })
+    .catch((err) => {
+      alert(`Erro ao salvar formulário: ${err.message || 'Erro desconhecido'}`);
+      console.error("Erro ao salvar:", err);
+    });
+};
+
 
   const limparFormulario = () => {
     dispatch(updateFormularioAvaliacao({ data: [{

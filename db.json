@@ -19,72 +19,63 @@
       "email": "zanotti.junior@hotmal.com"
     }
   ],
-  "funcoes": [],
-  "avaliacao": [],
+  "funcoes": [
+    {
+      "id": "a31a",
+      "titulo": "asdas",
+      "descricao": "asdas",
+      "departamento": "asdas",
+      "nivel": "asdas"
+    },
+    {
+      "id": "ef39",
+      "titulo": "asdas",
+      "descricao": "asdas",
+      "departamento": "asdas",
+      "nivel": "asdasd"
+    }
+  ],
+  "avaliacao": [
+    {
+      "id": "6329",
+      "tipo": "asdas",
+      "criterios": "asdas",
+      "periodo": "asdas",
+      "responsavel": "asdasd"
+    }
+  ],
   "controleInterno": [
     {
-      "id": "fbfd",
+      "id": "12bb",
       "data": [
         {
-          "id": 1762044032706,
-          "nomeUsuario": "teste",
-          "ingresso": "2001-01-10",
-          "primeiraAval": "2000-01-10",
-          "segundaAval": "2001-01-10",
-          "primeiraEntrevistaPais": "20001-01-10",
-          "segundaEntrevistaPais": "2000-01-10",
-          "resultado": "2011-01-01"
+          "id": 1762128047344,
+          "nomeUsuario": "asdas",
+          "ingresso": "2025-11-02",
+          "primeiraAval": "2025-11-02",
+          "segundaAval": "2025-11-02",
+          "primeiraEntrevistaPais": "2025-11-02",
+          "segundaEntrevistaPais": "2025-11-02",
+          "resultado": "2025-11-02"
         }
       ],
-      "nomeUsuario": "teste"
+      "nomeUsuario": "asdas"
     },
     {
-      "id": "73ea",
+      "id": "fb0a",
       "data": [
         {
-          "id": 1762045304369,
-          "nomeUsuario": "teste ligai",
-          "ingresso": "2001-01-10",
-          "primeiraAval": "2001-01-10",
-          "segundaAval": "2001-01-10",
-          "primeiraEntrevistaPais": "2001-01-10",
-          "segundaEntrevistaPais": "2001-01-10",
-          "resultado": "2001-01-10"
+          "id": 1762129140359,
+          "nomeUsuario": "qweqweq",
+          "ingresso": "2025-11-02",
+          "primeiraAval": "2025-11-02",
+          "segundaAval": "2025-11-02",
+          "primeiraEntrevistaPais": "2025-11-02",
+          "segundaEntrevistaPais": "2025-11-02",
+          "resultado": "2025-11-02"
         }
       ],
-      "nomeUsuario": "teste ligai"
-    },
-    {
-      "id": "f59a",
-      "data": [
-        {
-          "id": 1762090907364,
-          "nomeUsuario": "teste23",
-          "ingresso": "2025-11-18",
-          "primeiraAval": "2025-11-26",
-          "segundaAval": "2025-11-17",
-          "primeiraEntrevistaPais": "2025-11-18",
-          "segundaEntrevistaPais": "2025-11-24",
-          "resultado": "2025-11-18"
-        }
-      ],
-      "nomeUsuario": "teste23"
-    },
-    {
-      "id": "c254",
-      "data": [
-        {
-          "id": 1762112252256,
-          "nomeUsuario": "sss",
-          "ingresso": "2025-11-04",
-          "primeiraAval": "2025-11-03",
-          "segundaAval": "2025-11-17",
-          "primeiraEntrevistaPais": "2025-11-10",
-          "segundaEntrevistaPais": "2025-11-09",
-          "resultado": "2025-11-17"
-        }
-      ],
-      "nomeUsuario": "sss"
+      "nomeUsuario": "qweqweq"
     }
   ],
   "avaliacaoExperiencia1": [
@@ -837,50 +828,34 @@
   ],
   "listaUsuariosEncaminhados": [
     {
-      "id": "62ad",
-      "anoReferencia": "2025",
+      "id": "9298",
+      "anoReferencia": "2024",
       "usuarios": [
         {
           "id": 1,
           "numero": "01",
-          "nome": "e2rf3tsd",
-          "dataAdmissao": "2025-11-26",
-          "empresa": "dfregf",
-          "funcao": "frgt",
-          "contatoRH": "gt",
-          "provavelDataDesligamento": "2025-11-24"
+          "nome": "lucas",
+          "dataAdmissao": "0004-02-10",
+          "empresa": "seila",
+          "funcao": "puta",
+          "contatoRH": "85468416",
+          "provavelDataDesligamento": "2004-09-01"
         }
       ]
     },
     {
-      "id": "fd2d",
+      "id": "9019",
       "anoReferencia": "2025",
       "usuarios": [
         {
           "id": 1,
           "numero": "01",
-          "nome": "dfwe",
-          "dataAdmissao": "",
-          "empresa": "vfegb",
-          "funcao": "vfgb",
-          "contatoRH": "vfgb",
-          "provavelDataDesligamento": "2025-11-17"
-        }
-      ]
-    },
-    {
-      "id": "0a82",
-      "anoReferencia": "2025",
-      "usuarios": [
-        {
-          "id": 1,
-          "numero": "01",
-          "nome": "ddsfdsfds",
-          "dataAdmissao": "2025-11-03",
-          "empresa": "dcfv",
-          "funcao": "vfefvvfv",
-          "contatoRH": "vffv",
-          "provavelDataDesligamento": "2025-11-03"
+          "nome": "paulo",
+          "dataAdmissao": "2024-09-01",
+          "empresa": "asdas",
+          "funcao": "asdas",
+          "contatoRH": "asdas",
+          "provavelDataDesligamento": "2025-09-01"
         }
       ]
     }

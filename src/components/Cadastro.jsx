@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from 'react-redux';
-import { updateCadastroAbaData, resetCadastroData } from '../redux/slices/cadastroSlice';
+import { useDispatch, useSelector } from "react-redux";
+import { updateCadastroAbaData } from "../redux/slices/cadastroSlice";
 import {
   pessoasSchema,
   empresasSchema,
@@ -11,13 +11,15 @@ import {
 const Cadastro = () => {
   const dispatch = useDispatch();
   const { cadastroData } = useSelector((state) => state.cadastro);
-  
-  const [activeTab, setActiveTab] = useState("pessoas");
-  // O formData local é substituído por cadastroData do Redux
-  const formData = cadastroData;
 
+  const [activeTab, setActiveTab] = useState("pessoas");
+  const formData = cadastroData;
   const [errors, setErrors] = useState({});
   const [registros, setRegistros] = useState([]);
+
+  // Estado da telinha (visualização)
+  const [visualizando, setVisualizando] = useState(false);
+  const [itemVisualizado, setItemVisualizado] = useState(null);
 
   const carregarDados = async () => {
     try {
@@ -35,10 +37,7 @@ const Cadastro = () => {
 
   const handleChange = (tab, field, value) => {
     dispatch(updateCadastroAbaData({ aba: tab, data: { [field]: value } }));
-    setErrors((prev) => ({
-      ...prev,
-      [field]: "",
-    }));
+    setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
   const handleSubmit = async (e) => {
@@ -55,7 +54,6 @@ const Cadastro = () => {
       };
 
       const schema = schemaMap[activeTab];
-
       await schema.validate(data, { abortEarly: false });
 
       const metodo = data.id ? "PUT" : "POST";
@@ -70,10 +68,14 @@ const Cadastro = () => {
       if (response.ok) {
         alert(`Dados de ${activeTab} salvos com sucesso!`);
         carregarDados();
-        // Limpar o estado do formulário no Redux
-        dispatch(updateCadastroAbaData({ aba: activeTab, data: Object.fromEntries(
-          Object.keys(formData[activeTab]).map((key) => [key, ""])
-        )}));
+        dispatch(
+          updateCadastroAbaData({
+            aba: activeTab,
+            data: Object.fromEntries(
+              Object.keys(formData[activeTab]).map((key) => [key, ""])
+            ),
+          })
+        );
         setErrors({});
       } else {
         alert("Erro ao salvar dados!");
@@ -92,7 +94,8 @@ const Cadastro = () => {
   };
 
   const handleExcluir = async (id) => {
-    if (!window.confirm("Tem certeza que deseja excluir este registro?")) return;
+    if (!window.confirm("Tem certeza que deseja excluir este registro?"))
+      return;
     try {
       const response = await fetch(`http://localhost:5000/${activeTab}/${id}`, {
         method: "DELETE",
@@ -109,21 +112,24 @@ const Cadastro = () => {
   };
 
   const handleVisualizar = (item) => {
-    const detalhes = Object.entries(item)
-      .map(([key, value]) => `${key}: ${value}`)
-      .join("\n");
-    alert(detalhes);
+    setItemVisualizado(item);
+    setVisualizando(true);
+  };
+
+  const fecharVisualizacao = () => {
+    setVisualizando(false);
+    setItemVisualizado(null);
   };
 
   const handleEditar = (item) => {
-    // Carregar dados para edição no Redux
     dispatch(updateCadastroAbaData({ aba: activeTab, data: { ...item } }));
   };
 
-  // 🔹 Renderização dos formulários com mensagens de erro
+  // Renderiza erros de campo
   const renderFieldError = (field) =>
     errors[field] && <p className="error-message">{errors[field]}</p>;
 
+  // Formulários
   const renderPessoasForm = () => (
     <form onSubmit={handleSubmit}>
       <div className="form-row">
@@ -156,7 +162,9 @@ const Cadastro = () => {
           <input
             type="tel"
             value={formData.pessoas.telefone}
-            onChange={(e) => handleChange("pessoas", "telefone", e.target.value)}
+            onChange={(e) =>
+              handleChange("pessoas", "telefone", e.target.value)
+            }
             placeholder="(11) 99999-9999"
           />
           {renderFieldError("telefone")}
@@ -179,7 +187,9 @@ const Cadastro = () => {
         <input
           type="date"
           value={formData.pessoas.dataIngresso}
-          onChange={(e) => handleChange("pessoas", "dataIngresso", e.target.value)}
+          onChange={(e) =>
+            handleChange("pessoas", "dataIngresso", e.target.value)
+          }
         />
         {renderFieldError("dataIngresso")}
       </div>
@@ -198,7 +208,9 @@ const Cadastro = () => {
           <input
             type="text"
             value={formData.empresas.razaoSocial}
-            onChange={(e) => handleChange("empresas", "razaoSocial", e.target.value)}
+            onChange={(e) =>
+              handleChange("empresas", "razaoSocial", e.target.value)
+            }
             placeholder="Digite a razão social"
           />
           {renderFieldError("razaoSocial")}
@@ -233,7 +245,9 @@ const Cadastro = () => {
           <input
             type="tel"
             value={formData.empresas.telefone}
-            onChange={(e) => handleChange("empresas", "telefone", e.target.value)}
+            onChange={(e) =>
+              handleChange("empresas", "telefone", e.target.value)
+            }
             placeholder="(11) 3333-3333"
           />
           {renderFieldError("telefone")}
@@ -276,7 +290,9 @@ const Cadastro = () => {
           <input
             type="text"
             value={formData.funcoes.departamento}
-            onChange={(e) => handleChange("funcoes", "departamento", e.target.value)}
+            onChange={(e) =>
+              handleChange("funcoes", "departamento", e.target.value)
+            }
             placeholder="Digite o departamento"
           />
           {renderFieldError("departamento")}
@@ -300,7 +316,9 @@ const Cadastro = () => {
           <input
             type="text"
             value={formData.funcoes.descricao}
-            onChange={(e) => handleChange("funcoes", "descricao", e.target.value)}
+            onChange={(e) =>
+              handleChange("funcoes", "descricao", e.target.value)
+            }
             placeholder="Descreva as responsabilidades"
           />
           {renderFieldError("descricao")}
@@ -332,7 +350,9 @@ const Cadastro = () => {
           <input
             type="text"
             value={formData.avaliacao.periodo}
-            onChange={(e) => handleChange("avaliacao", "periodo", e.target.value)}
+            onChange={(e) =>
+              handleChange("avaliacao", "periodo", e.target.value)
+            }
             placeholder="Ex: 1º semestre / 2025"
           />
           {renderFieldError("periodo")}
@@ -345,7 +365,9 @@ const Cadastro = () => {
           <input
             type="text"
             value={formData.avaliacao.criterios}
-            onChange={(e) => handleChange("avaliacao", "criterios", e.target.value)}
+            onChange={(e) =>
+              handleChange("avaliacao", "criterios", e.target.value)
+            }
             placeholder="Digite os critérios de avaliação"
           />
           {renderFieldError("criterios")}
@@ -356,7 +378,9 @@ const Cadastro = () => {
           <input
             type="text"
             value={formData.avaliacao.responsavel}
-            onChange={(e) => handleChange("avaliacao", "responsavel", e.target.value)}
+            onChange={(e) =>
+              handleChange("avaliacao", "responsavel", e.target.value)
+            }
             placeholder="Digite o nome do responsável"
           />
           {renderFieldError("responsavel")}
@@ -411,31 +435,61 @@ const Cadastro = () => {
           {activeTab === "funcoes" && renderFuncoesForm()}
           {activeTab === "avaliacao" && renderAvaliacaoForm()}
 
-          <div className="lista-registros">
-  {registros.length === 0 ? (
-    <p>Nenhum registro encontrado.</p>
-  ) : (
-    <ul>
-      {registros.map((item) => (
-        <li key={item.id}>
-          {renderRegistroItem(item)}{" "}
-          <button className="btn-editar" onClick={() => handleEditar(item)}>
-            Editar
-          </button>{" "}
-          <button className="btn-visualizar" onClick={() => handleVisualizar(item)}>
-            Visualizar
-          </button>
-          <button className="btn-excluir" onClick={() => handleExcluir(item.id)}>
-            Excluir
-          </button>{" "}
-        </li>
-      ))}
-    </ul>
-  )}
-</div>
-
+          <div className="lista-container">
+            <h2>Registros Salvos</h2>
+            {registros.length === 0 ? (
+              <p className="sem-registros">Nenhum registro encontrado.</p>
+            ) : (
+              <div className="cards-lista">
+                {registros.map((item) => (
+                  <div key={item.id} className="card-registro">
+                    <p className="registro-info">{renderRegistroItem(item)}</p>
+                    <div className="acoes-card">
+                      <button
+                        className="btn-editar"
+                        onClick={() => handleEditar(item)}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        className="btn-visualizar"
+                        onClick={() => handleVisualizar(item)}
+                      >
+                        Visualizar
+                      </button>
+                      <button
+                        className="btn-excluir"
+                        onClick={() => handleExcluir(item.id)}
+                      >
+                        Excluir
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
+      {/* Telinha de visualização */}
+      {visualizando && (
+        <div className="overlay-visualizar">
+          <div className="visualizar-card">
+            <h3>Detalhes do Registro</h3>
+            <div className="visualizar-conteudo">
+              {Object.entries(itemVisualizado).map(([key, value]) => (
+                <p key={key}>
+                  <strong>{key}:</strong> {value || "—"}
+                </p>
+              ))}
+            </div>
+            <button className="btn-fechar" onClick={fecharVisualizacao}>
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

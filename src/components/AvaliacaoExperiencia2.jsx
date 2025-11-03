@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   updateAvaliacaoExperiencia2,
   fetchAvaliacaoExperiencia2List,
   saveAvaliacaoExperiencia2,
-  deleteAvaliacaoExperiencia2
-} from '../redux/slices/formulariosSlice';
+  deleteAvaliacaoExperiencia2,
+} from "../redux/slices/formulariosSlice";
 
 const AvaliacaoExperiencia2 = () => {
   const dispatch = useDispatch();
@@ -13,72 +13,101 @@ const AvaliacaoExperiencia2 = () => {
     avaliacaoExperiencia2: formState,
     avaliacaoExperiencia2List,
     loading,
-    error
+    error,
   } = useSelector((state) => state.formularios);
 
   const reduxFormData = formState?.formData || {};
   const reduxQuestoes = formState?.questoes || [];
 
   const questoesIniciais = [
-    { id: 1, texto: 'Atende as regras.', resposta: '' },
-    { id: 2, texto: 'Socializa com o grupo.', resposta: '' },
-    { id: 3, texto: 'Isola-se do grupo.', resposta: '' },
-    { id: 4, texto: 'Possui tolerância a frustração.', resposta: '' },
-    { id: 5, texto: 'Respeita colegas e professores.', resposta: '' },
-    { id: 6, texto: 'Faz relatos fantasiosos.', resposta: '' },
-    { id: 7, texto: 'Concentra-se nas atividades.', resposta: '' },
-    { id: 8, texto: 'Tem iniciativa.', resposta: '' },
-    { id: 9, texto: 'Sonolência durante as atividades.', resposta: '' },
-    { id: 10, texto: 'Alterações intensas de humor.', resposta: '' },
-    { id: 11, texto: 'Oscilações repentinas de humor.', resposta: '' },
-    { id: 12, texto: 'Irrita-se com facilidade.', resposta: '' },
-    { id: 13, texto: 'Ansiedade.', resposta: '' },
-    { id: 14, texto: 'Escuta colegas.', resposta: '' },
-    { id: 15, texto: 'Segue orientação dos professores.', resposta: '' },
-    { id: 16, texto: 'Mantém-se em sala de aula.', resposta: '' },
-    { id: 17, texto: 'Desloca-se muito na sala.', resposta: '' },
-    { id: 18, texto: 'Fala demasiadamente.', resposta: '' },
-    { id: 19, texto: 'É pontual.', resposta: '' },
-    { id: 20, texto: 'É assíduo.', resposta: '' },
-    { id: 21, texto: 'Demonstra desejo de trabalhar.', resposta: '' },
-    { id: 22, texto: 'Apropria-se indevidamente do que não é seu.', resposta: '' },
-    { id: 23, texto: 'Hábito de banho diário.', resposta: '' },
-    { id: 24, texto: 'Hábito de escovação dental.', resposta: '' },
-    { id: 25, texto: 'Cuidado com aparência e uniforme.', resposta: '' },
-    { id: 26, texto: 'Autonomia nos hábitos de higiene.', resposta: '' },
-    { id: 27, texto: 'Oscilações de comportamento sem medicação.', resposta: '' },
-    { id: 28, texto: 'Possui acesso regular às medicações.', resposta: '' },
-    { id: 29, texto: 'Traz materiais organizados.', resposta: '' },
-    { id: 30, texto: 'Usa transporte coletivo.', resposta: '' },
-    { id: 31, texto: 'Tem iniciativa diante das atividades.', resposta: '' },
-    { id: 32, texto: 'Localiza-se no espaço da instituição.', resposta: '' },
-    { id: 33, texto: 'Situa-se nas trocas de sala e atividades.', resposta: '' },
-    { id: 34, texto: 'Interage par a par.', resposta: '' },
-    { id: 35, texto: 'Interage em grupo.', resposta: '' },
-    { id: 36, texto: 'Cria conflitos e intrigas.', resposta: '' },
-    { id: 37, texto: 'Promove harmonia.', resposta: '' },
-    { id: 38, texto: 'Faz intrigas entre colegas e professores.', resposta: '' },
-    { id: 39, texto: 'Interesse em atividades extraclasses.', resposta: '' },
-    { id: 40, texto: 'Família apoia a instituição.', resposta: '' },
-    { id: 41, texto: 'Família demonstra superproteção.', resposta: '' },
-    { id: 42, texto: 'Usuário traz relatos negativos da família.', resposta: '' },
-    { id: 43, texto: 'Usuário traz relatos positivos da família.', resposta: '' },
-    { id: 44, texto: 'Família incentiva autonomia.', resposta: '' },
-    { id: 45, texto: 'Família incentiva inserção no mercado.', resposta: '' },
-    { id: 46, texto: 'Traz documentos assinados pela família.', resposta: '' }
+    { id: 1, texto: "Atende as regras.", resposta: "" },
+    { id: 2, texto: "Socializa com o grupo.", resposta: "" },
+    { id: 3, texto: "Isola-se do grupo.", resposta: "" },
+    { id: 4, texto: "Possui tolerância a frustração.", resposta: "" },
+    { id: 5, texto: "Respeita colegas e professores.", resposta: "" },
+    { id: 6, texto: "Faz relatos fantasiosos.", resposta: "" },
+    { id: 7, texto: "Concentra-se nas atividades.", resposta: "" },
+    { id: 8, texto: "Tem iniciativa.", resposta: "" },
+    { id: 9, texto: "Sonolência durante as atividades.", resposta: "" },
+    { id: 10, texto: "Alterações intensas de humor.", resposta: "" },
+    { id: 11, texto: "Oscilações repentinas de humor.", resposta: "" },
+    { id: 12, texto: "Irrita-se com facilidade.", resposta: "" },
+    { id: 13, texto: "Ansiedade.", resposta: "" },
+    { id: 14, texto: "Escuta colegas.", resposta: "" },
+    { id: 15, texto: "Segue orientação dos professores.", resposta: "" },
+    { id: 16, texto: "Mantém-se em sala de aula.", resposta: "" },
+    { id: 17, texto: "Desloca-se muito na sala.", resposta: "" },
+    { id: 18, texto: "Fala demasiadamente.", resposta: "" },
+    { id: 19, texto: "É pontual.", resposta: "" },
+    { id: 20, texto: "É assíduo.", resposta: "" },
+    { id: 21, texto: "Demonstra desejo de trabalhar.", resposta: "" },
+    {
+      id: 22,
+      texto: "Apropria-se indevidamente do que não é seu.",
+      resposta: "",
+    },
+    { id: 23, texto: "Hábito de banho diário.", resposta: "" },
+    { id: 24, texto: "Hábito de escovação dental.", resposta: "" },
+    { id: 25, texto: "Cuidado com aparência e uniforme.", resposta: "" },
+    { id: 26, texto: "Autonomia nos hábitos de higiene.", resposta: "" },
+    {
+      id: 27,
+      texto: "Oscilações de comportamento sem medicação.",
+      resposta: "",
+    },
+    { id: 28, texto: "Possui acesso regular às medicações.", resposta: "" },
+    { id: 29, texto: "Traz materiais organizados.", resposta: "" },
+    { id: 30, texto: "Usa transporte coletivo.", resposta: "" },
+    { id: 31, texto: "Tem iniciativa diante das atividades.", resposta: "" },
+    { id: 32, texto: "Localiza-se no espaço da instituição.", resposta: "" },
+    {
+      id: 33,
+      texto: "Situa-se nas trocas de sala e atividades.",
+      resposta: "",
+    },
+    { id: 34, texto: "Interage par a par.", resposta: "" },
+    { id: 35, texto: "Interage em grupo.", resposta: "" },
+    { id: 36, texto: "Cria conflitos e intrigas.", resposta: "" },
+    { id: 37, texto: "Promove harmonia.", resposta: "" },
+    {
+      id: 38,
+      texto: "Faz intrigas entre colegas e professores.",
+      resposta: "",
+    },
+    { id: 39, texto: "Interesse em atividades extraclasses.", resposta: "" },
+    { id: 40, texto: "Família apoia a instituição.", resposta: "" },
+    { id: 41, texto: "Família demonstra superproteção.", resposta: "" },
+    {
+      id: 42,
+      texto: "Usuário traz relatos negativos da família.",
+      resposta: "",
+    },
+    {
+      id: 43,
+      texto: "Usuário traz relatos positivos da família.",
+      resposta: "",
+    },
+    { id: 44, texto: "Família incentiva autonomia.", resposta: "" },
+    { id: 45, texto: "Família incentiva inserção no mercado.", resposta: "" },
+    { id: 46, texto: "Traz documentos assinados pela família.", resposta: "" },
   ];
 
   const questoes = reduxQuestoes.length > 0 ? reduxQuestoes : questoesIniciais;
-  const [questaoAberta, setQuestaoAberta] = useState('');
+  const [visualizando, setVisualizando] = useState(false);
+  const [itemVisualizado, setItemVisualizado] = useState(null);
 
   useEffect(() => {
     dispatch(fetchAvaliacaoExperiencia2List());
   }, [dispatch]);
 
-  const opcoes = ['Sim', 'Não', 'Maioria das vezes', 'Raras vezes'];
+  const opcoes = ["Sim", "Não", "Maioria das vezes", "Raras vezes"];
 
   const handleInputChange = (field, value) => {
-    dispatch(updateAvaliacaoExperiencia2({ formData: { ...reduxFormData, [field]: value } }));
+    dispatch(
+      updateAvaliacaoExperiencia2({
+        formData: { ...reduxFormData, [field]: value },
+      })
+    );
   };
 
   const handleQuestaoChange = (id, value) => {
@@ -86,18 +115,6 @@ const AvaliacaoExperiencia2 = () => {
       q.id === id ? { ...q, resposta: value } : q
     );
     dispatch(updateAvaliacaoExperiencia2({ questoes: updatedQuestoes }));
-  };
-
-  const adicionarQuestao = () => {
-    if (questaoAberta.trim()) {
-      const novaQuestao = {
-        id: questoes.length + 1,
-        texto: questaoAberta,
-        resposta: ''
-      };
-      dispatch(updateAvaliacaoExperiencia2({ questoes: [...questoes, novaQuestao] }));
-      setQuestaoAberta('');
-    }
   };
 
   const removerQuestao = (id) => {
@@ -110,105 +127,92 @@ const AvaliacaoExperiencia2 = () => {
       updateAvaliacaoExperiencia2({
         formData: item.formData,
         questoes: item.questoes,
-        id: item.id
+        id: item.id,
       })
     );
   };
 
   const handleExcluir = async (id) => {
-    if (window.confirm('Tem certeza que deseja excluir este registro?')) {
+    if (window.confirm("Tem certeza que deseja excluir este registro?")) {
       await dispatch(deleteAvaliacaoExperiencia2(id));
       dispatch(fetchAvaliacaoExperiencia2List());
     }
   };
 
- const handleVisualizar = (item) => {
-  const detalhes = Object.entries(item.formData || {})
-    .map(([key, value]) => {
-      // Verifica se o valor é uma data válida
-      const data = new Date(value);
-      if (!isNaN(data)) {
-        // Formata no padrão brasileiro: dd/mm/yyyy
-        const dia = String(data.getDate()).padStart(2, "0");
-        const mes = String(data.getMonth() + 1).padStart(2, "0");
-        const ano = data.getFullYear();
-        return `${key}: ${dia}/${mes}/${ano}`;
-      }
-      return `${key}: ${value}`;
-    })
-    .join("\n");
+  const handleVisualizar = (item) => {
+    setItemVisualizado(item);
+    setVisualizando(true);
+  };
 
-  alert(detalhes);
-};
-
+  const fecharVisualizacao = () => {
+    setVisualizando(false);
+    setItemVisualizado(null);
+  };
 
   const salvarFormulario = () => {
-  const { nome, dataAdmissao, dataInicio, dataFim, empresa, funcao, responsavelRH } = reduxFormData || {};
-
-  // Campos obrigatórios com rótulos amigáveis
-  const camposObrigatorios = {
-    nome: "Nome",
-    dataAdmissao: "Data de Admissão",
-    dataInicio: "Data de Início",
-    dataFim: "Data de Fim",
-    empresa: "Empresa",
-    funcao: "Função",
-    responsavelRH: "Responsável RH"
-  };
-
-  // Validação só quando for novo registro
-  if (!formState.id) {
-    const camposVazios = Object.entries(camposObrigatorios)
-      .filter(([campo]) => {
-        const valor = reduxFormData?.[campo];
-        // Se for string, checa se está vazia; se não, checa se é null/undefined
-        return typeof valor === "string" ? valor.trim() === "" : !valor;
-      })
-      .map(([_, label]) => label);
-
-    if (camposVazios.length > 0) {
-      alert(`Preencha os seguintes campos antes de salvar:\n\n• ${camposVazios.join("\n• ")}`);
-      return;
-    }
-  }
-
-  // Monta os dados para salvar
-  const dataToSave = {
-    id: formState.id,
-    formData: reduxFormData,
-    questoes: questoes,
-    nome: reduxFormData?.nome || 'Registro Sem Nome'
-  };
-
-  // Salva via Redux
-  dispatch(saveAvaliacaoExperiencia2(dataToSave))
-    .unwrap()
-    .then(() => {
-      alert('Avaliação Experiência 2 salva com sucesso!');
-      dispatch(fetchAvaliacaoExperiencia2List());
-      dispatch(
-        updateAvaliacaoExperiencia2({
-          formData: {},
-          questoes: questoesIniciais,
-          id: undefined
+    const camposObrigatorios = {
+      nome: "Nome",
+      dataAdmissao: "Data de Admissão",
+      dataInicio: "Data de Início",
+      dataFim: "Data de Fim",
+      empresa: "Empresa",
+      funcao: "Função",
+      responsavelRH: "Responsável RH",
+    };
+    if (!formState.id) {
+      const camposVazios = Object.entries(camposObrigatorios)
+        .filter(([campo]) => {
+          const valor = reduxFormData?.[campo];
+          return typeof valor === "string" ? valor.trim() === "" : !valor;
         })
-      );
-    })
-    .catch((err) => {
-      alert(`Erro ao salvar: ${err.message || 'Erro desconhecido'}`);
-      console.error('Erro ao salvar:', err);
-    });
-};
+        .map(([_, label]) => label);
 
+      if (camposVazios.length > 0) {
+        alert(
+          `Preencha os seguintes campos antes de salvar:\n\n• ${camposVazios.join(
+            "\n• "
+          )}`
+        );
+        return;
+      }
+    }
 
+    const dataToSave = {
+      id: formState.id,
+      formData: reduxFormData,
+      questoes: questoes,
+      nome: reduxFormData?.nome || "Registro Sem Nome",
+    };
 
-  if (loading) {
-    return <div className="loading-message">Carregando Avaliação Experiência 2...</div>;
-  }
+    dispatch(saveAvaliacaoExperiencia2(dataToSave))
+      .unwrap()
+      .then(() => {
+        alert("Avaliação Experiência 2 salva com sucesso!");
+        dispatch(fetchAvaliacaoExperiencia2List());
+        dispatch(
+          updateAvaliacaoExperiencia2({
+            formData: {},
+            questoes: questoesIniciais,
+            id: undefined,
+          })
+        );
+      })
+      .catch((err) => {
+        alert(`Erro ao salvar: ${err.message || "Erro desconhecido"}`);
+        console.error("Erro ao salvar:", err);
+      });
+  };
 
-  if (error) {
-    return <div className="error-message">Erro ao carregar: {error.message}</div>;
-  }
+  if (loading)
+    return (
+      <div className="loading-message">
+        Carregando Avaliação Experiência 2...
+      </div>
+    );
+  if (error)
+    return (
+      <div className="error-message">Erro ao carregar: {error.message}</div>
+    );
 
   return (
     <div className="avaliacao-container">
@@ -225,8 +229,8 @@ const AvaliacaoExperiencia2 = () => {
             <label>Nome:</label>
             <input
               type="text"
-              value={reduxFormData.nome || ''}
-              onChange={(e) => handleInputChange('nome', e.target.value)}
+              value={reduxFormData.nome || ""}
+              onChange={(e) => handleInputChange("nome", e.target.value)}
               placeholder="Nome completo do usuário"
             />
           </div>
@@ -237,16 +241,18 @@ const AvaliacaoExperiencia2 = () => {
             <label>Data da entrada:</label>
             <input
               type="date"
-              value={reduxFormData.dataEntrada || ''}
-              onChange={(e) => handleInputChange('dataEntrada', e.target.value)}
+              value={reduxFormData.dataEntrada || ""}
+              onChange={(e) => handleInputChange("dataEntrada", e.target.value)}
             />
           </div>
           <div className="form-group">
             <label>1ª Avaliação:</label>
             <input
               type="date"
-              value={reduxFormData.dataAvaliacao || ''}
-              onChange={(e) => handleInputChange('dataAvaliacao', e.target.value)}
+              value={reduxFormData.dataAvaliacao || ""}
+              onChange={(e) =>
+                handleInputChange("dataAvaliacao", e.target.value)
+              }
             />
           </div>
         </div>
@@ -254,20 +260,6 @@ const AvaliacaoExperiencia2 = () => {
 
       <div className="questoes-section">
         <h3>Questionário</h3>
-
-        <div className="add-questao">
-          <input
-            type="text"
-            value={questaoAberta}
-            onChange={(e) => setQuestaoAberta(e.target.value)}
-            placeholder="Digite uma nova questão..."
-            className="questao-input"
-          />
-          <button onClick={adicionarQuestao} className="btn-add-questao">
-            Adicionar Questão
-          </button>
-        </div>
-
         <div className="questoes-list">
           {questoes.map((questao) => (
             <div key={questao.id} className="questao-item">
@@ -281,7 +273,9 @@ const AvaliacaoExperiencia2 = () => {
                       name={`questao-${questao.id}`}
                       value={opcao}
                       checked={questao.resposta === opcao}
-                      onChange={(e) => handleQuestaoChange(questao.id, e.target.value)}
+                      onChange={(e) =>
+                        handleQuestaoChange(questao.id, e.target.value)
+                      }
                     />
                     <span>{opcao}</span>
                   </label>
@@ -304,8 +298,8 @@ const AvaliacaoExperiencia2 = () => {
       <div className="questao-especial">
         <h4>47 - O usuário tem perfil para esta instituição? Por quê?</h4>
         <textarea
-          value={reduxFormData.observacoes || ''}
-          onChange={(e) => handleInputChange('observacoes', e.target.value)}
+          value={reduxFormData.observacoes || ""}
+          onChange={(e) => handleInputChange("observacoes", e.target.value)}
           placeholder="Descreva sua opinião..."
           rows="4"
         />
@@ -314,8 +308,10 @@ const AvaliacaoExperiencia2 = () => {
       <div className="questao-especial">
         <h4>Em que situações demonstra irritação?</h4>
         <textarea
-          value={reduxFormData.situacoesIrritacao || ''}
-          onChange={(e) => handleInputChange('situacoesIrritacao', e.target.value)}
+          value={reduxFormData.situacoesIrritacao || ""}
+          onChange={(e) =>
+            handleInputChange("situacoesIrritacao", e.target.value)
+          }
           placeholder="Descreva as situações..."
           rows="3"
         />
@@ -326,8 +322,8 @@ const AvaliacaoExperiencia2 = () => {
           <label>Nome do professor(a):</label>
           <input
             type="text"
-            value={reduxFormData.nomeAvaliador || ''}
-            onChange={(e) => handleInputChange('nomeAvaliador', e.target.value)}
+            value={reduxFormData.nomeAvaliador || ""}
+            onChange={(e) => handleInputChange("nomeAvaliador", e.target.value)}
             placeholder="Nome completo do avaliador"
           />
         </div>
@@ -346,14 +342,23 @@ const AvaliacaoExperiencia2 = () => {
           <ul>
             {avaliacaoExperiencia2List.map((item) => (
               <li key={item.id}>
-                {item.formData?.nome || 'Sem nome'}{" "}
-                <button className="btn-editar" onClick={() => handleEditar(item)}>
+                {item.formData?.nome || "Sem nome"}{" "}
+                <button
+                  className="btn-editar"
+                  onClick={() => handleEditar(item)}
+                >
                   Editar
                 </button>{" "}
-                <button className="btn-visualizar" onClick={() => handleVisualizar(item)}>
+                <button
+                  className="btn-visualizar"
+                  onClick={() => handleVisualizar(item)}
+                >
                   Visualizar
                 </button>{" "}
-                <button className="btn-excluir" onClick={() => handleExcluir(item.id)}>
+                <button
+                  className="btn-excluir"
+                  onClick={() => handleExcluir(item.id)}
+                >
                   Excluir
                 </button>
               </li>
@@ -361,6 +366,51 @@ const AvaliacaoExperiencia2 = () => {
           </ul>
         )}
       </div>
+
+      {visualizando && (
+        <div className="overlay-visualizar">
+          <div className="visualizar-card">
+            <h3>Detalhes do Registro</h3>
+            <div className="visualizar-conteudo">
+              {itemVisualizado &&
+                Object.entries(itemVisualizado.formData || {}).map(
+                  ([key, value]) => {
+                    const data = new Date(value);
+                    const valorFormatado = !isNaN(data)
+                      ? `${String(data.getDate()).padStart(2, "0")}/${String(
+                          data.getMonth() + 1
+                        ).padStart(2, "0")}/${data.getFullYear()}`
+                      : value;
+                    return (
+                      <p key={key}>
+                        <strong>{key}:</strong> {valorFormatado || "—"}
+                      </p>
+                    );
+                  }
+                )}
+
+              {itemVisualizado?.questoes && (
+                <div className="visualizar-questoes">
+                  <h4>Questões</h4>
+                  {itemVisualizado.questoes.map((q) => (
+                    <p key={q.id}>
+                      <strong>
+                        {q.id} - {q.texto}:
+                      </strong>{" "}
+                      {q.resposta || "—"}
+                    </p>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="acoes-card">
+              <button className="btn-fechar" onClick={fecharVisualizacao}>
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

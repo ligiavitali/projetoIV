@@ -1,10 +1,23 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { updateFichaAcompanhamento, fetchFichaAcompanhamentoList, saveFichaAcompanhamento, deleteFichaAcompanhamento } from '../redux/slices/formulariosSlice';
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  updateFichaAcompanhamento,
+  fetchFichaAcompanhamentoList,
+  saveFichaAcompanhamento,
+  deleteFichaAcompanhamento,
+} from "../redux/slices/formulariosSlice";
 
 const FichaAcompanhamento = () => {
   const dispatch = useDispatch();
-  const { fichaAcompanhamento: formData, fichaAcompanhamentoList, loading, error } = useSelector((state) => state.formularios);
+  const {
+    fichaAcompanhamento: formData,
+    fichaAcompanhamentoList,
+    loading,
+    error,
+  } = useSelector((state) => state.formularios);
+
+  const [visualizando, setVisualizando] = useState(false);
+  const [itemVisualizado, setItemVisualizado] = useState(null);
 
   useEffect(() => {
     dispatch(fetchFichaAcompanhamentoList());
@@ -26,78 +39,100 @@ const FichaAcompanhamento = () => {
   };
 
   const handleVisualizar = (item) => {
-  const detalhes = Object.entries(item)
-    .map(([key, value]) => {
-      // Verifica se o valor parece uma data
-      const data = new Date(value);
-      if (!isNaN(data) && typeof value === "string" && value.includes("-")) {
-        const dia = String(data.getDate()).padStart(2, "0");
-        const mes = String(data.getMonth() + 1).padStart(2, "0");
-        const ano = data.getFullYear();
-        return `${key}: ${dia}/${mes}/${ano}`;
-      }
-      return `${key}: ${value}`;
-    })
-    .join("\n");
-
-  alert(detalhes);
-};
-
-
-const salvarFormulario = () => {
-  const { nome, dataAdmissao, dataVisita, empresa, responsavelRH, contatoCom, parecerGeral } = formData;
-
-  // Lista de campos obrigatórios com rótulos amigáveis
-  const camposObrigatorios = {
-    nome: "Nome",
-    dataAdmissao: "Data de Admissão",
-    dataVisita: "Data da Visita",
-    empresa: "Empresa",
-    responsavelRH: "Responsável RH",
-    contatoCom: "Contato com",
-    parecerGeral: "Parecer Geral"
+    setItemVisualizado(item);
+    setVisualizando(true);
   };
 
-  // Verifica quais campos estão vazios
-  const camposVazios = Object.entries(camposObrigatorios)
-    .filter(([campo]) => !formData?.[campo]?.trim())
-    .map(([_, label]) => label);
+  const fecharVisualizacao = () => {
+    setVisualizando(false);
+    setItemVisualizado(null);
+  };
 
-  if (camposVazios.length > 0) {
-    alert(`Preencha os seguintes campos antes de salvar:\n\n• ${camposVazios.join("\n• ")}`);
-    return; // interrompe o salvamento
-  }
+  const salvarFormulario = () => {
+    const {
+      nome,
+      dataAdmissao,
+      dataVisita,
+      empresa,
+      responsavelRH,
+      contatoCom,
+      parecerGeral,
+    } = formData;
 
-  // Se tudo estiver válido, prossegue com o dispatch
-  dispatch(saveFichaAcompanhamento(formData))
-    .unwrap()
-    .then(() => {
-      alert('Ficha de Acompanhamento salva com sucesso!');
-      dispatch(fetchFichaAcompanhamentoList());
-      dispatch(updateFichaAcompanhamento({
-        nome: '',
-        dataAdmissao: '',
-        dataVisita: '',
-        empresa: '',
-        responsavelRH: '',
-        contatoCom: '',
-        parecerGeral: '',
-        id: undefined
-      }));
-    })
-    .catch((err) => {
-      alert(`Erro ao salvar ficha: ${err.message || 'Erro desconhecido'}`);
-      console.error("Erro ao salvar:", err);
-    });
-};
+    const camposObrigatorios = {
+      nome: "Nome",
+      dataAdmissao: "Data de Admissão",
+      dataVisita: "Data da Visita",
+      empresa: "Empresa",
+      responsavelRH: "Responsável RH",
+      contatoCom: "Contato com",
+      parecerGeral: "Parecer Geral",
+    };
 
+    const camposVazios = Object.entries(camposObrigatorios)
+      .filter(([campo]) => !formData?.[campo]?.trim())
+      .map(([_, label]) => label);
+
+    if (camposVazios.length > 0) {
+      alert(
+        `Preencha os seguintes campos antes de salvar:\n\n• ${camposVazios.join(
+          "\n• "
+        )}`
+      );
+      return;
+    }
+
+    dispatch(saveFichaAcompanhamento(formData))
+      .unwrap()
+      .then(() => {
+        alert("Ficha de Acompanhamento salva com sucesso!");
+        dispatch(fetchFichaAcompanhamentoList());
+        dispatch(
+          updateFichaAcompanhamento({
+            nome: "",
+            dataAdmissao: "",
+            dataVisita: "",
+            empresa: "",
+            responsavelRH: "",
+            contatoCom: "",
+            parecerGeral: "",
+            id: undefined,
+          })
+        );
+      })
+      .catch((err) => {
+        alert(`Erro ao salvar ficha: ${err.message || "Erro desconhecido"}`);
+        console.error("Erro ao salvar:", err);
+      });
+  };
 
   const limparFormulario = () => {
-    dispatch(updateFichaAcompanhamento({ nome: '', dataAdmissao: '', dataVisita: '', empresa: '', responsavelRH: '', contatoCom: '', parecerGeral: '', id: undefined }));
+    dispatch(
+      updateFichaAcompanhamento({
+        nome: "",
+        dataAdmissao: "",
+        dataVisita: "",
+        empresa: "",
+        responsavelRH: "",
+        contatoCom: "",
+        parecerGeral: "",
+        id: undefined,
+      })
+    );
   };
 
-  if (loading) return <div className="loading-message">Carregando Ficha de Acompanhamento...</div>;
-  if (error) return <div className="error-message">Erro ao carregar ficha: {error.message}</div>;
+  if (loading)
+    return (
+      <div className="loading-message">
+        Carregando Ficha de Acompanhamento...
+      </div>
+    );
+  if (error)
+    return (
+      <div className="error-message">
+        Erro ao carregar ficha: {error.message}
+      </div>
+    );
 
   return (
     <div className="ficha-container">
@@ -115,7 +150,7 @@ const salvarFormulario = () => {
             <input
               type="text"
               value={formData.nome}
-              onChange={(e) => handleInputChange('nome', e.target.value)}
+              onChange={(e) => handleInputChange("nome", e.target.value)}
               placeholder="Nome completo do usuário"
             />
           </div>
@@ -127,7 +162,9 @@ const salvarFormulario = () => {
             <input
               type="date"
               value={formData.dataAdmissao}
-              onChange={(e) => handleInputChange('dataAdmissao', e.target.value)}
+              onChange={(e) =>
+                handleInputChange("dataAdmissao", e.target.value)
+              }
             />
           </div>
           <div className="form-group">
@@ -135,7 +172,7 @@ const salvarFormulario = () => {
             <input
               type="date"
               value={formData.dataVisita}
-              onChange={(e) => handleInputChange('dataVisita', e.target.value)}
+              onChange={(e) => handleInputChange("dataVisita", e.target.value)}
             />
           </div>
         </div>
@@ -146,7 +183,7 @@ const salvarFormulario = () => {
             <input
               type="text"
               value={formData.empresa}
-              onChange={(e) => handleInputChange('empresa', e.target.value)}
+              onChange={(e) => handleInputChange("empresa", e.target.value)}
               placeholder="Nome da empresa"
             />
           </div>
@@ -158,7 +195,9 @@ const salvarFormulario = () => {
             <input
               type="text"
               value={formData.responsavelRH}
-              onChange={(e) => handleInputChange('responsavelRH', e.target.value)}
+              onChange={(e) =>
+                handleInputChange("responsavelRH", e.target.value)
+              }
               placeholder="Nome do responsável pelo RH"
             />
           </div>
@@ -167,7 +206,7 @@ const salvarFormulario = () => {
             <input
               type="text"
               value={formData.contatoCom}
-              onChange={(e) => handleInputChange('contatoCom', e.target.value)}
+              onChange={(e) => handleInputChange("contatoCom", e.target.value)}
               placeholder="Pessoa de contato"
             />
           </div>
@@ -178,7 +217,9 @@ const salvarFormulario = () => {
             <label>Parecer Geral:</label>
             <textarea
               value={formData.parecerGeral}
-              onChange={(e) => handleInputChange('parecerGeral', e.target.value)}
+              onChange={(e) =>
+                handleInputChange("parecerGeral", e.target.value)
+              }
               placeholder="Descreva o parecer geral sobre o acompanhamento..."
               rows="8"
               className="parecer-textarea"
@@ -188,8 +229,12 @@ const salvarFormulario = () => {
       </div>
 
       <div className="form-actions">
-        <button onClick={salvarFormulario} className="btn-save">Salvar Ficha</button>
-        <button onClick={limparFormulario} className="btn-clear">Limpar Formulário</button>
+        <button onClick={salvarFormulario} className="btn-save">
+          Salvar Ficha
+        </button>
+        <button onClick={limparFormulario} className="btn-clear">
+          Limpar Formulário
+        </button>
       </div>
 
       <div className="lista-registros">
@@ -199,15 +244,65 @@ const salvarFormulario = () => {
           <ul>
             {fichaAcompanhamentoList.map((item) => (
               <li key={item.id}>
-                {item.nome || 'Sem nome'} - {item.empresa || 'Sem empresa'} - {item.dataVisita || 'Sem data'}{" "}
-                <button className="btn-editar" onClick={() => handleEditar(item)}>Editar</button>{" "}
-                <button className="btn-visualizar" onClick={() => handleVisualizar(item)}>Visualizar</button>{" "}
-                <button className="btn-excluir" onClick={() => handleExcluir(item.id)}>Excluir</button>
+                {item.nome || "Sem nome"} - {item.empresa || "Sem empresa"} -{" "}
+                {item.dataVisita || "Sem data"}{" "}
+                <button
+                  className="btn-editar"
+                  onClick={() => handleEditar(item)}
+                >
+                  Editar
+                </button>{" "}
+                <button
+                  className="btn-visualizar"
+                  onClick={() => handleVisualizar(item)}
+                >
+                  Visualizar
+                </button>{" "}
+                <button
+                  className="btn-excluir"
+                  onClick={() => handleExcluir(item.id)}
+                >
+                  Excluir
+                </button>
               </li>
             ))}
           </ul>
         )}
       </div>
+
+      {/* Telinha de visualização */}
+      {visualizando && (
+        <div className="overlay-visualizar">
+          <div className="visualizar-card">
+            <h3>Detalhes do Registro</h3>
+            <div className="visualizar-conteudo">
+              {itemVisualizado &&
+                Object.entries(itemVisualizado || {}).map(([key, value]) => {
+                  const data = new Date(value);
+                  const valorFormatado =
+                    !isNaN(data) &&
+                    typeof value === "string" &&
+                    value.includes("-")
+                      ? `${String(data.getDate()).padStart(2, "0")}/${String(
+                          data.getMonth() + 1
+                        ).padStart(2, "0")}/${data.getFullYear()}`
+                      : value;
+
+                  return (
+                    <p key={key}>
+                      <strong>{key}:</strong> {valorFormatado || "—"}
+                    </p>
+                  );
+                })}
+            </div>
+            <div className="acoes-card">
+              <button className="btn-fechar" onClick={fecharVisualizacao}>
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

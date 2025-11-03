@@ -30,8 +30,6 @@ const FormularioAvaliacao = () => {
   ];
 
   const [mensagem, setMensagem] = useState("");
-
-  // Estados da telinha de visualização
   const [visualizando, setVisualizando] = useState(false);
   const [itemVisualizado, setItemVisualizado] = useState(null);
 
@@ -166,6 +164,14 @@ const FormularioAvaliacao = () => {
     );
   };
 
+  // 🧩 Função para formatar datas em dd/mm/aaaa
+  const formatarData = (dataISO) => {
+    if (!dataISO) return "—";
+    const [ano, mes, dia] = dataISO.split("-");
+    if (!ano || !mes || !dia) return "—";
+    return `${dia}/${mes}/${ano}`;
+  };
+
   if (loading) return <div>Carregando Formulário de Avaliação...</div>;
   if (error) return <div>Erro ao carregar formulário: {error.message}</div>;
 
@@ -178,7 +184,6 @@ const FormularioAvaliacao = () => {
       {mensagem && <p className="mensagem-sucesso">{mensagem}</p>}
 
       <div className="formulario-actions">
-        {/* Botão de adicionar linha removido */}
         <button onClick={salvarFormulario} className="btn-save">
           Salvar Formulário
         </button>
@@ -198,7 +203,6 @@ const FormularioAvaliacao = () => {
               <th>1ª Entrevista Pais</th>
               <th>2ª Entrevista Pais</th>
               <th>Resultado</th>
-              {/* Ações dentro do formulário removidas */}
             </tr>
           </thead>
           <tbody>
@@ -355,26 +359,28 @@ const FormularioAvaliacao = () => {
                       {avaliacao.nomeUsuario || "—"}
                     </p>
                     <p>
-                      <strong>Ingresso:</strong> {avaliacao.ingresso || "—"}
+                      <strong>Ingresso:</strong>{" "}
+                      {formatarData(avaliacao.ingresso)}
                     </p>
                     <p>
                       <strong>1ª Avaliação:</strong>{" "}
-                      {avaliacao.primeiraAval || "—"}
+                      {formatarData(avaliacao.primeiraAval)}
                     </p>
                     <p>
                       <strong>2ª Avaliação:</strong>{" "}
-                      {avaliacao.segundaAval || "—"}
+                      {formatarData(avaliacao.segundaAval)}
                     </p>
                     <p>
                       <strong>1ª Entrevista Pais:</strong>{" "}
-                      {avaliacao.primeiraEntrevistaPais || "—"}
+                      {formatarData(avaliacao.primeiraEntrevistaPais)}
                     </p>
                     <p>
                       <strong>2ª Entrevista Pais:</strong>{" "}
-                      {avaliacao.segundaEntrevistaPais || "—"}
+                      {formatarData(avaliacao.segundaEntrevistaPais)}
                     </p>
                     <p>
-                      <strong>Resultado:</strong> {avaliacao.resultado || "—"}
+                      <strong>Resultado:</strong>{" "}
+                      {formatarData(avaliacao.resultado)}
                     </p>
                     <hr />
                   </div>

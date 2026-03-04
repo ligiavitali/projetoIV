@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import FormularioAvaliacao from './FormularioAvaliacao';
-import AvaliacaoExperiencia1 from './AvaliacaoExperiencia1';
-import AvaliacaoExperiencia2 from './AvaliacaoExperiencia2';
+import AvaliacaoExperiencia from './AvaliacaoExperiencia';
 import FichaAcompanhamento from './FichaAcompanhamento';
 import ListaUsuariosEncaminhados from './ListaUsuariosEncaminhados';
 
@@ -15,14 +14,9 @@ const Formularios = () => {
       component: <FormularioAvaliacao />
     },
     {
-      id: 'avaliacao-exp1',
-      label: 'Avaliação Experiência 1',
-      component: <AvaliacaoExperiencia1 />
-    },
-    {
-      id: 'avaliacao-exp2',
-      label: 'Avaliação Experiência 2',
-      component: <AvaliacaoExperiencia2 />
+      id: 'avaliacao-experiencia',
+      label: 'Avaliação Experiência',
+      component: <AvaliacaoExperiencia />
     },
     {
       id: 'ficha-acompanhamento',

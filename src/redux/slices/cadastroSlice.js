@@ -2,10 +2,32 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   cadastroData: {
-    pessoas: { nome: '', email: '', telefone: '', cargo: '', dataIngresso: '' },
-    empresas: { razaoSocial: '', cnpj: '', endereco: '', telefone: '', email: '' },
-    funcoes: { titulo: '', descricao: '', departamento: '', nivel: '' },
-    avaliacao: { tipo: '', criterios: '', periodo: '', responsavel: '' },
+    pessoas: {
+      nome: '',
+      email: '',
+      telefone: '',
+      cpf: '',
+      cargo: '',
+      dataIngresso: '',
+      data_nascimento: '',
+      nome_responsavel: '',
+      telefone_responsavel: '',
+      usa_medicamento: '',
+      info_medicamentos: '',
+      status: '',
+    },
+    empresas: {
+      nome_fantasia: '',
+      razao_social: '',
+      cnpj: '',
+      endereco: '',
+      telefone: '',
+      contato_rh_nome: '',
+      contato_rh_email: '',
+      status: '',
+    },
+    funcoes: { titulo: '', descricao: '', departamento: '', nivel: '', status: '' },
+    avaliacao: { tipo: '', criterios: '', periodo: '', responsavel: '', status: '' },
   },
   registerData: {
     email: '',

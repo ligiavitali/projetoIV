@@ -40,6 +40,26 @@ const Cadastro = () => {
     setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
+  const formatCpf = (value) => {
+    const digits = value.replace(/\D/g, "").slice(0, 11);
+    return digits
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+  };
+
+  const formatTelefone = (value) => {
+    const digits = value.replace(/\D/g, "").slice(0, 11);
+    if (digits.length <= 10) {
+      return digits
+        .replace(/(\d{2})(\d)/, "($1) $2")
+        .replace(/(\d{4})(\d)/, "$1-$2");
+    }
+    return digits
+      .replace(/(\d{2})(\d)/, "($1) $2")
+      .replace(/(\d{5})(\d)/, "$1-$2");
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const url = `http://localhost:5000/${activeTab}`;
@@ -163,7 +183,7 @@ const Cadastro = () => {
             type="tel"
             value={formData.pessoas.telefone}
             onChange={(e) =>
-              handleChange("pessoas", "telefone", e.target.value)
+              handleChange("pessoas", "telefone", formatTelefone(e.target.value))
             }
             placeholder="(11) 99999-9999"
           />
@@ -171,27 +191,156 @@ const Cadastro = () => {
         </div>
 
         <div className="form-group">
-          <label>Cargo</label>
+          <label>CPF</label>
           <input
             type="text"
-            value={formData.pessoas.cargo}
-            onChange={(e) => handleChange("pessoas", "cargo", e.target.value)}
-            placeholder="Digite o cargo"
+            value={formData.pessoas.cpf}
+            onChange={(e) =>
+              handleChange("pessoas", "cpf", formatCpf(e.target.value))
+            }
+            placeholder="000.000.000-00"
           />
-          {renderFieldError("cargo")}
+          {renderFieldError("cpf")}
         </div>
       </div>
 
-      <div className="form-group">
-        <label>Data de Ingresso</label>
-        <input
-          type="date"
-          value={formData.pessoas.dataIngresso}
-          onChange={(e) =>
-            handleChange("pessoas", "dataIngresso", e.target.value)
-          }
-        />
-        {renderFieldError("dataIngresso")}
+      <div className="form-row">
+        <div className="form-group">
+          <label>Perfil</label>
+          <select
+            value={formData.pessoas.cargo}
+            onChange={(e) => {
+              const novoCargo = e.target.value;
+              handleChange("pessoas", "cargo", novoCargo);
+              if (novoCargo !== "Aluno") {
+                handleChange("pessoas", "dataIngresso", "");
+                handleChange("pessoas", "data_nascimento", "");
+                handleChange("pessoas", "nome_responsavel", "");
+                handleChange("pessoas", "telefone_responsavel", "");
+                handleChange("pessoas", "usa_medicamento", "");
+                handleChange("pessoas", "info_medicamentos", "");
+              }
+            }}
+          >
+            <option value="">Selecione</option>
+            <option value="Professor">Professor</option>
+            <option value="Aluno">Aluno</option>
+          </select>
+          {renderFieldError("cargo")}
+        </div>
+
+        {formData.pessoas.cargo === "Aluno" && (
+          <div className="form-group">
+            <label>Data de Ingresso</label>
+            <input
+              type="date"
+              value={formData.pessoas.dataIngresso}
+              onChange={(e) =>
+                handleChange("pessoas", "dataIngresso", e.target.value)
+              }
+            />
+            {renderFieldError("dataIngresso")}
+          </div>
+        )}
+      </div>
+
+      {formData.pessoas.cargo === "Aluno" && (
+        <>
+          <div className="form-row">
+            <div className="form-group">
+              <label>Data de Nascimento</label>
+              <input
+                type="date"
+                value={formData.pessoas.data_nascimento}
+                onChange={(e) =>
+                  handleChange("pessoas", "data_nascimento", e.target.value)
+                }
+              />
+              {renderFieldError("data_nascimento")}
+            </div>
+
+            <div className="form-group">
+              <label>Nome do Responsável</label>
+              <input
+                type="text"
+                value={formData.pessoas.nome_responsavel}
+                onChange={(e) =>
+                  handleChange("pessoas", "nome_responsavel", e.target.value)
+                }
+                placeholder="Digite o nome do responsável"
+              />
+              {renderFieldError("nome_responsavel")}
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label>Telefone do Responsável</label>
+              <input
+                type="tel"
+                value={formData.pessoas.telefone_responsavel}
+                onChange={(e) =>
+                  handleChange(
+                    "pessoas",
+                    "telefone_responsavel",
+                    formatTelefone(e.target.value)
+                  )
+                }
+                placeholder="(11) 99999-9999"
+              />
+              {renderFieldError("telefone_responsavel")}
+            </div>
+
+            <div className="form-group">
+              <label>Usa Medicamento?</label>
+              <select
+                value={formData.pessoas.usa_medicamento}
+                onChange={(e) => {
+                  const usaMedicamento = e.target.value;
+                  handleChange("pessoas", "usa_medicamento", usaMedicamento);
+                  if (usaMedicamento !== "Sim") {
+                    handleChange("pessoas", "info_medicamentos", "");
+                  }
+                }}
+              >
+                <option value="">Selecione</option>
+                <option value="Sim">Sim</option>
+                <option value="Não">Não</option>
+              </select>
+              {renderFieldError("usa_medicamento")}
+            </div>
+          </div>
+
+          {formData.pessoas.usa_medicamento === "Sim" && (
+            <div className="form-group">
+              <label>Informações dos Medicamentos</label>
+              <input
+                type="text"
+                value={formData.pessoas.info_medicamentos}
+                onChange={(e) =>
+                  handleChange("pessoas", "info_medicamentos", e.target.value)
+                }
+                placeholder="Informe os medicamentos utilizados"
+              />
+              {renderFieldError("info_medicamentos")}
+            </div>
+          )}
+        </>
+      )}
+
+      <div className="form-row">
+        <div className="form-group">
+          <label>Status</label>
+          <select
+            value={formData.pessoas.status}
+            onChange={(e) => handleChange("pessoas", "status", e.target.value)}
+          >
+            <option value="">Selecione</option>
+            <option value="Ativo">Ativo</option>
+            <option value="Inativo">Inativo</option>
+          </select>
+          {renderFieldError("status")}
+        </div>
       </div>
 
       <button type="submit" className="submit-btn">
@@ -204,17 +353,34 @@ const Cadastro = () => {
     <form onSubmit={handleSubmit}>
       <div className="form-row">
         <div className="form-group">
+          <label>Nome Fantasia</label>
+          <input
+            type="text"
+            value={formData.empresas.nome_fantasia}
+            onChange={(e) =>
+              handleChange("empresas", "nome_fantasia", e.target.value)
+            }
+            placeholder="Digite o nome fantasia"
+          />
+          {renderFieldError("nome_fantasia")}
+        </div>
+
+        <div className="form-group">
           <label>Razão Social</label>
           <input
             type="text"
-            value={formData.empresas.razaoSocial}
+            value={formData.empresas.razao_social}
             onChange={(e) =>
-              handleChange("empresas", "razaoSocial", e.target.value)
+              handleChange("empresas", "razao_social", e.target.value)
             }
             placeholder="Digite a razão social"
           />
-          {renderFieldError("razaoSocial")}
+          {renderFieldError("razao_social")}
         </div>
+
+      </div>
+
+      <div className="form-row">
 
         <div className="form-group">
           <label>CNPJ</label>
@@ -226,17 +392,19 @@ const Cadastro = () => {
           />
           {renderFieldError("cnpj")}
         </div>
-      </div>
 
-      <div className="form-group">
-        <label>Endereço</label>
-        <input
-          type="text"
-          value={formData.empresas.endereco}
-          onChange={(e) => handleChange("empresas", "endereco", e.target.value)}
-          placeholder="Digite o endereço completo"
-        />
-        {renderFieldError("endereco")}
+        <div className="form-group">
+          <label>Endereço</label>
+          <input
+            type="text"
+            value={formData.empresas.endereco}
+            onChange={(e) =>
+              handleChange("empresas", "endereco", e.target.value)
+            }
+            placeholder="Digite o endereço completo"
+          />
+          {renderFieldError("endereco")}
+        </div>
       </div>
 
       <div className="form-row">
@@ -246,7 +414,11 @@ const Cadastro = () => {
             type="tel"
             value={formData.empresas.telefone}
             onChange={(e) =>
-              handleChange("empresas", "telefone", e.target.value)
+              handleChange(
+                "empresas",
+                "telefone",
+                formatTelefone(e.target.value)
+              )
             }
             placeholder="(11) 3333-3333"
           />
@@ -254,14 +426,46 @@ const Cadastro = () => {
         </div>
 
         <div className="form-group">
-          <label>E-mail</label>
+          <label>Nome do Contato RH</label>
+          <input
+            type="text"
+            value={formData.empresas.contato_rh_nome}
+            onChange={(e) =>
+              handleChange("empresas", "contato_rh_nome", e.target.value)
+            }
+            placeholder="Digite o nome do contato do RH"
+          />
+          {renderFieldError("contato_rh_nome")}
+        </div>
+      </div>
+
+      <div className="form-row">
+        <div className="form-group">
+          <label>E-mail do Contato RH</label>
           <input
             type="email"
-            value={formData.empresas.email}
-            onChange={(e) => handleChange("empresas", "email", e.target.value)}
-            placeholder="contato@empresa.com"
+            value={formData.empresas.contato_rh_email}
+            onChange={(e) =>
+              handleChange("empresas", "contato_rh_email", e.target.value)
+            }
+            placeholder="contato.rh@empresa.com"
           />
-          {renderFieldError("email")}
+          {renderFieldError("contato_rh_email")}
+        </div>
+      </div>
+
+      <div className="form-row">
+        <div className="form-group">
+          <label>Status</label>
+          <select
+            value={formData.empresas.status}
+            onChange={(e) => handleChange("empresas", "status", e.target.value)}
+          >
+            <option value="">Selecione</option>
+            <option value="Ativo">Ativo</option>
+            <option value="Inativo">Inativo</option>
+          </select>
+          {renderFieldError("status")}
         </div>
       </div>
 
@@ -325,6 +529,21 @@ const Cadastro = () => {
         </div>
       </div>
 
+      <div className="form-row">
+        <div className="form-group">
+          <label>Status</label>
+          <select
+            value={formData.funcoes.status}
+            onChange={(e) => handleChange("funcoes", "status", e.target.value)}
+          >
+            <option value="">Selecione</option>
+            <option value="Ativo">Ativo</option>
+            <option value="Inativo">Inativo</option>
+          </select>
+          {renderFieldError("status")}
+        </div>
+      </div>
+
       <button type="submit" className="submit-btn">
         Salvar Função
       </button>
@@ -335,7 +554,7 @@ const Cadastro = () => {
     <form onSubmit={handleSubmit}>
       <div className="form-row">
         <div className="form-group">
-          <label>Tipo de Avaliação</label>
+          <label>Itens</label>
           <input
             type="text"
             value={formData.avaliacao.tipo}
@@ -344,51 +563,25 @@ const Cadastro = () => {
           />
           {renderFieldError("tipo")}
         </div>
-
-        <div className="form-group">
-          <label>Período</label>
-          <input
-            type="text"
-            value={formData.avaliacao.periodo}
-            onChange={(e) =>
-              handleChange("avaliacao", "periodo", e.target.value)
-            }
-            placeholder="Ex: 1º semestre / 2025"
-          />
-          {renderFieldError("periodo")}
-        </div>
       </div>
 
       <div className="form-row">
         <div className="form-group">
-          <label>Critérios</label>
-          <input
-            type="text"
-            value={formData.avaliacao.criterios}
-            onChange={(e) =>
-              handleChange("avaliacao", "criterios", e.target.value)
-            }
-            placeholder="Digite os critérios de avaliação"
-          />
-          {renderFieldError("criterios")}
-        </div>
-
-        <div className="form-group">
-          <label>Responsável</label>
-          <input
-            type="text"
-            value={formData.avaliacao.responsavel}
-            onChange={(e) =>
-              handleChange("avaliacao", "responsavel", e.target.value)
-            }
-            placeholder="Digite o nome do responsável"
-          />
-          {renderFieldError("responsavel")}
+          <label>Status</label>
+          <select
+            value={formData.avaliacao.status}
+            onChange={(e) => handleChange("avaliacao", "status", e.target.value)}
+          >
+            <option value="">Selecione</option>
+            <option value="Ativo">Ativo</option>
+            <option value="Inativo">Inativo</option>
+          </select>
+          {renderFieldError("status")}
         </div>
       </div>
 
       <button type="submit" className="submit-btn">
-        Salvar Avaliação
+        Salvar Item a Ser Avaliado
       </button>
     </form>
   );
@@ -397,15 +590,15 @@ const Cadastro = () => {
     { id: "pessoas", label: "Pessoas" },
     { id: "empresas", label: "Empresas" },
     { id: "funcoes", label: "Funções" },
-    { id: "avaliacao", label: "Avaliação" },
+    { id: "avaliacao", label: "Itens a serem avaliados" },
   ];
 
   const renderRegistroItem = (item) => {
     const campos = {
       pessoas: `${item.nome} — ${item.email}`,
-      empresas: `${item.razaoSocial} — ${item.cnpj}`,
+      empresas: `${item.nome_fantasia || item.razao_social} — ${item.cnpj}`,
       funcoes: `${item.titulo} — ${item.departamento}`,
-      avaliacao: `${item.tipo} — ${item.responsavel}`,
+      avaliacao: `${item.tipo} — ${item.status || "Sem status"}`,
     };
     return campos[activeTab];
   };

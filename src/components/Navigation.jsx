@@ -1,6 +1,7 @@
 import Logo from '../assets/img/Logo.jpeg';
 import { useDispatch } from 'react-redux';
 import { logout } from '../redux/slices/userSlice';
+import { Users } from 'lucide-react';
 
 const Navigation = ({ currentPage, setCurrentPage, userEmail }) => {
   const dispatch = useDispatch();
@@ -37,6 +38,15 @@ const Navigation = ({ currentPage, setCurrentPage, userEmail }) => {
           <div className="user-info">
             <span className="user-email">{userEmail}</span>
           </div>
+          <button
+            type="button"
+            className={`nav-icon-btn ${currentPage === 'usuarios-sistema' ? 'active' : ''}`}
+            onClick={() => setCurrentPage('usuarios-sistema')}
+            title="Gerenciar usuários"
+            aria-label="Gerenciar usuários"
+          >
+            <Users size={16} />
+          </button>
           <button onClick={handleLogout} className="logout-btn">
             Sair
           </button>

@@ -212,6 +212,32 @@ body {
   font-size: 0.875rem;
 }
 
+.nav-icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--white);
+  color: var(--medium-gray);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.nav-icon-btn:hover {
+  background: var(--light-blue);
+  color: var(--primary-blue);
+  border-color: var(--primary-blue);
+}
+
+.nav-icon-btn.active {
+  background: var(--primary-blue);
+  color: var(--white);
+  border-color: var(--primary-blue);
+}
+
 .logout-btn {
   background-color: var(--danger-red);
   color: var(--white);
@@ -1061,6 +1087,27 @@ body {
   color: var(--primary-blue);
   margin-bottom: 1.5rem;
   font-size: 1.25rem;
+}
+
+.questionario-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+}
+
+.btn-ditar-questionario {
+  background-color: var(--primary-blue);
+  color: var(--white);
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-ditar-questionario:hover {
+  background-color: var(--secondary-blue);
 }
 
 .admin-controls {

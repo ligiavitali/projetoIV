@@ -8,6 +8,7 @@ import Cadastro from './components/Cadastro'; // cadastro interno com abas
 import Formularios from './components/Formularios';
 import Navigation from './components/Navigation';
 import ForgotPassword from './components/ForgotPassword';
+import GerenciarUsuarios from './components/GerenciarUsuarios';
 
 import './App.css';
 
@@ -29,6 +30,8 @@ function App() {
         return <Formularios />;
       case 'cadastro':
         return <Cadastro />; // quando clicar dentro do dashboard
+      case 'usuarios-sistema':
+        return <GerenciarUsuarios />;
       default:
         return <Formularios />;
     }

@@ -95,6 +95,8 @@ const AvaliacaoExperiencia1 = () => {
   const questoes = reduxQuestoes.length > 0 ? reduxQuestoes : questoesIniciais;
   const [visualizando, setVisualizando] = useState(false);
   const [itemVisualizado, setItemVisualizado] = useState(null);
+  const [editandoQuestionario, setEditandoQuestionario] = useState(false);
+  const [novaQuestaoTexto, setNovaQuestaoTexto] = useState("");
 
   useEffect(() => {
     dispatch(fetchAvaliacaoExperiencia1List());
@@ -120,6 +122,28 @@ const AvaliacaoExperiencia1 = () => {
   const removerQuestao = (id) => {
     const updatedQuestoes = questoes.filter((q) => q.id !== id);
     dispatch(updateAvaliacaoExperiencia1({ questoes: updatedQuestoes }));
+  };
+
+  const adicionarQuestao = () => {
+    const textoLimpo = novaQuestaoTexto.trim();
+
+    if (!textoLimpo) {
+      alert("Digite o texto da pergunta para adicionar ao questionário.");
+      return;
+    }
+
+    const proximoId = questoes.reduce(
+      (maiorId, questao) => Math.max(maiorId, Number(questao.id) || 0),
+      0
+    ) + 1;
+
+    const updatedQuestoes = [
+      ...questoes,
+      { id: proximoId, texto: textoLimpo, resposta: "", personalizada: true },
+    ];
+
+    dispatch(updateAvaliacaoExperiencia1({ questoes: updatedQuestoes }));
+    setNovaQuestaoTexto("");
   };
 
   const handleEditar = (item) => {
@@ -176,10 +200,14 @@ const AvaliacaoExperiencia1 = () => {
       return;
     }
 
+    const questoesParaSalvar = questoes.map(({ personalizada, ...questao }) =>
+      questao
+    );
+
     const dataToSave = {
       id: formState.id,
       formData: reduxFormData,
-      questoes: questoes,
+      questoes: questoesParaSalvar,
       nome: reduxFormData?.nome || "Registro Sem Nome",
     };
 
@@ -272,10 +300,10 @@ const AvaliacaoExperiencia1 = () => {
                   </label>
                 ))}
               </div>
-              {questao.id > 46 && (
+              {editandoQuestionario && questao.personalizada && (
                 <button
                   onClick={() => removerQuestao(questao.id)}
-                  className="btn-remove-questao"
+                  className="btn-excluir"
                   title="Remover questão"
                 >
                   Excluir
@@ -283,6 +311,43 @@ const AvaliacaoExperiencia1 = () => {
               )}
             </div>
           ))}
+
+          <div className="admin-controls">
+            <div className="questionario-actions">
+              <button
+                type="button"
+                className="btn-editar"
+                  onClick={() => setEditandoQuestionario((prev) => !prev)}
+              >
+                  {editandoQuestionario ? "Fechar" : "Editar"}
+              </button>
+            </div>
+
+            {editandoQuestionario && (
+              <div className="add-questao">
+                <input
+                  type="text"
+                  className="questao-input"
+                  value={novaQuestaoTexto}
+                  onChange={(e) => setNovaQuestaoTexto(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      adicionarQuestao();
+                    }
+                  }}
+                  placeholder="Digite uma nova pergunta do questionário"
+                />
+                <button
+                  type="button"
+                  className="btn-editar"
+                  onClick={adicionarQuestao}
+                >
+                  Adicionar pergunta
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

@@ -7,6 +7,17 @@ import {
   funcoesSchema,
   avaliacaoSchema,
 } from "../utils/validationSchemas";
+import { normalizeDatesInPayload } from "../lib/dateUtils";
+import ActionMenu from "./ActionMenu";
+import SearchInput from "./SearchInput";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+const endpointMap = {
+  pessoas: "pessoas",
+  empresas: "empresas",
+  funcoes: "funcoes-cargos",
+  avaliacao: "itens-avaliacao",
+};
 
 const Cadastro = () => {
   const dispatch = useDispatch();
@@ -16,6 +27,7 @@ const Cadastro = () => {
   const formData = cadastroData;
   const [errors, setErrors] = useState({});
   const [registros, setRegistros] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Estado da telinha (visualização)
   const [visualizando, setVisualizando] = useState(false);
@@ -23,9 +35,10 @@ const Cadastro = () => {
 
   const carregarDados = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/${activeTab}`);
+      const endpoint = endpointMap[activeTab] || activeTab;
+      const response = await fetch(`${API_URL}/${endpoint}`);
       const data = await response.json();
-      setRegistros(data);
+      setRegistros(normalizeDatesInPayload(data));
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
     }
@@ -33,6 +46,10 @@ const Cadastro = () => {
 
   useEffect(() => {
     carregarDados();
+  }, [activeTab]);
+
+  useEffect(() => {
+    setSearchTerm("");
   }, [activeTab]);
 
   const handleChange = (tab, field, value) => {
@@ -62,7 +79,8 @@ const Cadastro = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const url = `http://localhost:5000/${activeTab}`;
+    const endpointName = endpointMap[activeTab] || activeTab;
+    const url = `${API_URL}/${endpointName}`;
     const data = formData[activeTab];
 
     try {
@@ -117,7 +135,8 @@ const Cadastro = () => {
     if (!window.confirm("Tem certeza que deseja excluir este registro?"))
       return;
     try {
-      const response = await fetch(`http://localhost:5000/${activeTab}/${id}`, {
+      const endpointName = endpointMap[activeTab] || activeTab;
+      const response = await fetch(`${API_URL}/${endpointName}/${id}`, {
         method: "DELETE",
       });
       if (response.ok) {
@@ -441,6 +460,23 @@ const Cadastro = () => {
 
       <div className="form-row">
         <div className="form-group">
+          <label>Número Contato RH</label>
+          <input
+            type="tel"
+            value={formData.empresas.contato_rh_telefone}
+            onChange={(e) =>
+              handleChange(
+                "empresas",
+                "contato_rh_telefone",
+                formatTelefone(e.target.value)
+              )
+            }
+            placeholder="(11) 99999-9999"
+          />
+          {renderFieldError("contato_rh_telefone")}
+        </div>
+
+        <div className="form-group">
           <label>E-mail do Contato RH</label>
           <input
             type="email"
@@ -593,14 +629,38 @@ const Cadastro = () => {
     { id: "avaliacao", label: "Itens a serem avaliados" },
   ];
 
-  const renderRegistroItem = (item) => {
-    const campos = {
-      pessoas: `${item.nome} — ${item.email}`,
-      empresas: `${item.nome_fantasia || item.razao_social} — ${item.cnpj}`,
-      funcoes: `${item.titulo} — ${item.departamento}`,
-      avaliacao: `${item.tipo} — ${item.status || "Sem status"}`,
+  const getRegistroNome = (item) => {
+    const nomes = {
+      pessoas: item.nome,
+      empresas: item.nome_fantasia || item.razao_social,
+      funcoes: item.titulo || item.titulo_funcao,
+      avaliacao: item.tipo,
     };
-    return campos[activeTab];
+    return (nomes[activeTab] || "").toLowerCase();
+  };
+
+  const filteredRegistros = registros.filter((item) =>
+    getRegistroNome(item).includes(searchTerm.toLowerCase())
+  );
+
+  const getRegistroMainInfo = (item) => {
+    const labels = {
+      pessoas: item.nome || "Sem nome",
+      empresas: item.nome_fantasia || item.razao_social || "Sem nome",
+      funcoes: item.titulo || item.titulo_funcao || "Sem titulo",
+      avaliacao: item.tipo || "Sem descricao",
+    };
+    return labels[activeTab];
+  };
+
+  const getRegistroSecondaryInfo = (item) => {
+    const labels = {
+      pessoas: item.email || item.telefone || "Sem contato",
+      empresas: item.email_empresa || item.cnpj || "Sem contato",
+      funcoes: item.departamento || item.status || "Sem detalhe",
+      avaliacao: item.status || "Sem status",
+    };
+    return labels[activeTab];
   };
 
   return (
@@ -630,33 +690,26 @@ const Cadastro = () => {
 
           <div className="lista-container">
             <h2>Registros Salvos</h2>
-            {registros.length === 0 ? (
+            <SearchInput
+              value={searchTerm}
+              onChange={setSearchTerm}
+              placeholder="Pesquisar pelo nome..."
+            />
+            {filteredRegistros.length === 0 ? (
               <p className="sem-registros">Nenhum registro encontrado.</p>
             ) : (
-              <div className="cards-lista">
-                {registros.map((item) => (
-                  <div key={item.id} className="card-registro">
-                    <p className="registro-info">{renderRegistroItem(item)}</p>
-                    <div className="acoes-card">
-                      <button
-                        className="btn-editar"
-                        onClick={() => handleEditar(item)}
-                      >
-                        Editar
-                      </button>
-                      <button
-                        className="btn-visualizar"
-                        onClick={() => handleVisualizar(item)}
-                      >
-                        Visualizar
-                      </button>
-                      <button
-                        className="btn-excluir"
-                        onClick={() => handleExcluir(item.id)}
-                      >
-                        Excluir
-                      </button>
+              <div className="record-list">
+                {filteredRegistros.map((item) => (
+                  <div key={item.id} className="record-row">
+                    <div className="record-main">
+                      <p className="record-title">{getRegistroMainInfo(item)}</p>
+                      <p className="record-subtitle">{getRegistroSecondaryInfo(item)}</p>
                     </div>
+                    <ActionMenu
+                      onEdit={() => handleEditar(item)}
+                      onView={() => handleVisualizar(item)}
+                      onDelete={() => handleExcluir(item.id)}
+                    />
                   </div>
                 ))}
               </div>

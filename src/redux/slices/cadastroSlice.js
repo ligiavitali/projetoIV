@@ -23,6 +23,7 @@ const initialState = {
       endereco: '',
       telefone: '',
       contato_rh_nome: '',
+      contato_rh_telefone: '',
       contato_rh_email: '',
       status: '',
     },

@@ -77,6 +77,10 @@ export const empresasSchema = yup.object().shape({
     .required("O telefone é obrigatório")
     .matches(/^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/, "Formato de telefone inválido"),
   contato_rh_nome: yup.string().required("O nome do contato do RH é obrigatório"),
+  contato_rh_telefone: yup
+    .string()
+    .required("O telefone do contato do RH é obrigatório")
+    .matches(/^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/, "Formato de telefone inválido"),
   contato_rh_email: yup
     .string()
     .email("E-mail inválido")

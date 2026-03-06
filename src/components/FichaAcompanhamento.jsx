@@ -6,6 +6,9 @@ import {
   saveFichaAcompanhamento,
   deleteFichaAcompanhamento,
 } from "../redux/slices/formulariosSlice";
+import useCadastroOptions from "../hooks/useCadastroOptions";
+import ActionMenu from "./ActionMenu";
+import SearchInput from "./SearchInput";
 
 const FichaAcompanhamento = () => {
   const dispatch = useDispatch();
@@ -15,9 +18,11 @@ const FichaAcompanhamento = () => {
     loading,
     error,
   } = useSelector((state) => state.formularios);
+  const { alunos, empresas } = useCadastroOptions();
 
   const [visualizando, setVisualizando] = useState(false);
   const [itemVisualizado, setItemVisualizado] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     dispatch(fetchFichaAcompanhamentoList());
@@ -25,6 +30,35 @@ const FichaAcompanhamento = () => {
 
   const handleInputChange = (field, value) => {
     dispatch(updateFichaAcompanhamento({ [field]: value }));
+  };
+
+  const handleAlunoChange = (nomeAluno) => {
+    const alunoSelecionado = alunos.find((aluno) => aluno.nome === nomeAluno);
+    dispatch(
+      updateFichaAcompanhamento({
+        nome: nomeAluno,
+        dataAdmissao: alunoSelecionado?.data_ingresso || formData.dataAdmissao || "",
+      })
+    );
+  };
+
+  const handleEmpresaChange = (nomeEmpresa) => {
+    const empresaSelecionada = empresas.find(
+      (empresa) => (empresa.nome_fantasia || empresa.razao_social) === nomeEmpresa
+    );
+
+    const contatoEmpresa =
+      empresaSelecionada?.telefone_responsavel_rh ||
+      empresaSelecionada?.email_responsavel_rh ||
+      "";
+
+    dispatch(
+      updateFichaAcompanhamento({
+        empresa: nomeEmpresa,
+        responsavelRH: empresaSelecionada?.nome_responsavel_rh || "",
+        contatoCom: contatoEmpresa,
+      })
+    );
   };
 
   const handleEditar = (item) => {
@@ -134,6 +168,10 @@ const FichaAcompanhamento = () => {
       </div>
     );
 
+  const filteredList = fichaAcompanhamentoList.filter((item) =>
+    (item.nome || "").toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="ficha-container">
       <div className="ficha-header">
@@ -147,12 +185,17 @@ const FichaAcompanhamento = () => {
         <div className="form-row">
           <div className="form-group full-width">
             <label>Nome:</label>
-            <input
-              type="text"
+            <select
               value={formData.nome}
-              onChange={(e) => handleInputChange("nome", e.target.value)}
-              placeholder="Nome completo do usuário"
-            />
+              onChange={(e) => handleAlunoChange(e.target.value)}
+            >
+              <option value="">Selecione o aluno</option>
+              {alunos.map((aluno) => (
+                <option key={aluno.id} value={aluno.nome}>
+                  {aluno.nome}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -180,12 +223,20 @@ const FichaAcompanhamento = () => {
         <div className="form-row">
           <div className="form-group full-width">
             <label>Empresa:</label>
-            <input
-              type="text"
+            <select
               value={formData.empresa}
-              onChange={(e) => handleInputChange("empresa", e.target.value)}
-              placeholder="Nome da empresa"
-            />
+              onChange={(e) => handleEmpresaChange(e.target.value)}
+            >
+              <option value="">Selecione a empresa</option>
+              {empresas.map((empresa) => {
+                const nomeEmpresa = empresa.nome_fantasia || empresa.razao_social;
+                return (
+                  <option key={empresa.id} value={nomeEmpresa}>
+                    {nomeEmpresa}
+                  </option>
+                );
+              })}
+            </select>
           </div>
         </div>
 
@@ -238,35 +289,31 @@ const FichaAcompanhamento = () => {
       </div>
 
       <div className="lista-registros">
-        {fichaAcompanhamentoList.length === 0 ? (
+        <SearchInput
+          value={searchTerm}
+          onChange={setSearchTerm}
+          placeholder="Pesquisar pelo nome..."
+        />
+        {filteredList.length === 0 ? (
           <p>Nenhum registro salvo.</p>
         ) : (
-          <ul>
-            {fichaAcompanhamentoList.map((item) => (
-              <li key={item.id}>
-                {item.nome || "Sem nome"} - {item.empresa || "Sem empresa"} -{" "}
-                {item.dataVisita || "Sem data"}{" "}
-                <button
-                  className="btn-editar"
-                  onClick={() => handleEditar(item)}
-                >
-                  Editar
-                </button>{" "}
-                <button
-                  className="btn-visualizar"
-                  onClick={() => handleVisualizar(item)}
-                >
-                  Visualizar
-                </button>{" "}
-                <button
-                  className="btn-excluir"
-                  onClick={() => handleExcluir(item.id)}
-                >
-                  Excluir
-                </button>
-              </li>
+          <div className="record-list">
+            {filteredList.map((item) => (
+              <div key={item.id} className="record-row">
+                <div className="record-main">
+                  <p className="record-title">{item.nome || "Sem nome"}</p>
+                  <p className="record-subtitle">
+                    {item.empresa || "Sem empresa"} - {item.dataVisita || "Sem data"}
+                  </p>
+                </div>
+                <ActionMenu
+                  onEdit={() => handleEditar(item)}
+                  onView={() => handleVisualizar(item)}
+                  onDelete={() => handleExcluir(item.id)}
+                />
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
 

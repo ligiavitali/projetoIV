@@ -6,6 +6,9 @@ import {
   saveAvaliacaoExperiencia1,
   deleteAvaliacaoExperiencia1,
 } from "../redux/slices/formulariosSlice";
+import useCadastroOptions from "../hooks/useCadastroOptions";
+import ActionMenu from "./ActionMenu";
+import SearchInput from "./SearchInput";
 
 const AvaliacaoExperiencia1 = () => {
   const dispatch = useDispatch();
@@ -15,6 +18,7 @@ const AvaliacaoExperiencia1 = () => {
     loading,
     error,
   } = useSelector((state) => state.formularios);
+  const { alunos, professores } = useCadastroOptions();
 
   const reduxFormData = formState?.formData || {};
   const reduxQuestoes = formState?.questoes || [];
@@ -97,6 +101,7 @@ const AvaliacaoExperiencia1 = () => {
   const [itemVisualizado, setItemVisualizado] = useState(null);
   const [editandoQuestionario, setEditandoQuestionario] = useState(false);
   const [novaQuestaoTexto, setNovaQuestaoTexto] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     dispatch(fetchAvaliacaoExperiencia1List());
@@ -108,6 +113,33 @@ const AvaliacaoExperiencia1 = () => {
     dispatch(
       updateAvaliacaoExperiencia1({
         formData: { ...reduxFormData, [field]: value },
+      })
+    );
+  };
+
+  const handleAlunoChange = (nomeAluno) => {
+    const alunoSelecionado = alunos.find((aluno) => aluno.nome === nomeAluno);
+    dispatch(
+      updateAvaliacaoExperiencia1({
+        formData: {
+          ...reduxFormData,
+          id_pessoa_aluno: alunoSelecionado?.id || "",
+          nome: nomeAluno,
+          dataEntrada: alunoSelecionado?.data_ingresso || reduxFormData.dataEntrada || "",
+        },
+      })
+    );
+  };
+
+  const handleProfessorChange = (nomeProfessor) => {
+    const professorSelecionado = professores.find((professor) => professor.nome === nomeProfessor);
+    dispatch(
+      updateAvaliacaoExperiencia1({
+        formData: {
+          ...reduxFormData,
+          id_pessoa_professor: professorSelecionado?.id || "",
+          nomeAvaliador: nomeProfessor,
+        },
       })
     );
   };
@@ -233,6 +265,11 @@ const AvaliacaoExperiencia1 = () => {
   if (loading) return <div>Carregando Avaliação Experiência 1...</div>;
   if (error) return <div>Erro ao carregar: {error.message}</div>;
 
+  const filteredList = avaliacaoExperiencia1List.filter((item) => {
+    const nome = item.formData?.nome || "";
+    return nome.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+
   return (
     <div className="avaliacao-container">
       <div className="avaliacao-header">
@@ -246,12 +283,17 @@ const AvaliacaoExperiencia1 = () => {
         <div className="form-row">
           <div className="form-group">
             <label>Nome:</label>
-            <input
-              type="text"
+            <select
               value={reduxFormData.nome || ""}
-              onChange={(e) => handleInputChange("nome", e.target.value)}
-              placeholder="Nome completo do usuário"
-            />
+              onChange={(e) => handleAlunoChange(e.target.value)}
+            >
+              <option value="">Selecione o aluno</option>
+              {alunos.map((aluno) => (
+                <option key={aluno.id} value={aluno.nome}>
+                  {aluno.nome}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -376,12 +418,17 @@ const AvaliacaoExperiencia1 = () => {
       <div className="form-section">
         <div className="form-group">
           <label>Nome do professor(a):</label>
-          <input
-            type="text"
+          <select
             value={reduxFormData.nomeAvaliador || ""}
-            onChange={(e) => handleInputChange("nomeAvaliador", e.target.value)}
-            placeholder="Nome completo do avaliador"
-          />
+            onChange={(e) => handleProfessorChange(e.target.value)}
+          >
+            <option value="">Selecione o professor</option>
+            {professores.map((professor) => (
+              <option key={professor.id} value={professor.nome}>
+                {professor.nome}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -392,34 +439,31 @@ const AvaliacaoExperiencia1 = () => {
       </div>
 
       <div className="lista-registros">
-        {avaliacaoExperiencia1List.length === 0 ? (
+        <SearchInput
+          value={searchTerm}
+          onChange={setSearchTerm}
+          placeholder="Pesquisar pelo nome..."
+        />
+        {filteredList.length === 0 ? (
           <p>Nenhum registro salvo.</p>
         ) : (
-          <ul>
-            {avaliacaoExperiencia1List.map((item) => (
-              <li key={item.id}>
-                {item.formData?.nome || "Sem nome"}{" "}
-                <button
-                  className="btn-editar"
-                  onClick={() => handleEditar(item)}
-                >
-                  Editar
-                </button>{" "}
-                <button
-                  className="btn-visualizar"
-                  onClick={() => handleVisualizar(item)}
-                >
-                  Visualizar
-                </button>{" "}
-                <button
-                  className="btn-excluir"
-                  onClick={() => handleExcluir(item.id)}
-                >
-                  Excluir
-                </button>
-              </li>
+          <div className="record-list">
+            {filteredList.map((item) => (
+              <div key={item.id} className="record-row">
+                <div className="record-main">
+                  <p className="record-title">{item.formData?.nome || "Sem nome"}</p>
+                  <p className="record-subtitle">
+                    Avaliador: {item.formData?.nomeAvaliador || "Sem avaliador"}
+                  </p>
+                </div>
+                <ActionMenu
+                  onEdit={() => handleEditar(item)}
+                  onView={() => handleVisualizar(item)}
+                  onDelete={() => handleExcluir(item.id)}
+                />
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
 

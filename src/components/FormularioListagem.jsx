@@ -1,9 +1,12 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
-import { updateFormularioAvaliacao, updateAvaliacaoExperiencia1, updateAvaliacaoExperiencia2, updateFichaAcompanhamento, updateListaUsuariosEncaminhados } from '../redux/slices/formulariosSlice';
+import { useMemo, useState } from 'react';
+import ActionMenu from './ActionMenu';
+import SearchInput from './SearchInput';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 const FormularioListagem = ({ data, collectionName, onEdit, onDelete, title, displayFields }) => {
-  const dispatch = useDispatch();
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleVisualizar = (item) => {
     // Exibir todos os campos do item, exceto o ID
@@ -25,7 +28,7 @@ const FormularioListagem = ({ data, collectionName, onEdit, onDelete, title, dis
     if (!window.confirm("Tem certeza que deseja excluir este registro?")) return;
     
     try {
-      const response = await fetch(`http://localhost:5000/${collectionName}/${id}`, {
+      const response = await fetch(`${API_URL}/${collectionName}/${id}`, {
         method: "DELETE",
       });
       
@@ -40,7 +43,7 @@ const FormularioListagem = ({ data, collectionName, onEdit, onDelete, title, dis
       }
     } catch (error) {
       console.error("Erro ao excluir registro:", error);
-      alert("Erro ao excluir registro. Verifique se o JSON Server está rodando.");
+      alert("Erro ao excluir registro. Verifique a conexao com o backend.");
     }
   };
 
@@ -50,11 +53,26 @@ const FormularioListagem = ({ data, collectionName, onEdit, onDelete, title, dis
   // Limita o número de colunas para não quebrar o layout
   const visibleFields = fields.slice(0, 5);
 
+  const filteredData = useMemo(
+    () =>
+      data.filter((item) => {
+        const firstField = visibleFields[0];
+        const value = item?.[firstField];
+        return String(value || '').toLowerCase().includes(searchTerm.toLowerCase());
+      }),
+    [data, visibleFields, searchTerm]
+  );
+
   return (
     <div className="listagem-container">
       <h3>{title}</h3>
+      <SearchInput
+        value={searchTerm}
+        onChange={setSearchTerm}
+        placeholder="Pesquisar pelo nome..."
+      />
       
-      {data.length === 0 ? (
+      {filteredData.length === 0 ? (
         <p>Nenhum registro encontrado.</p>
       ) : (
         <div className="table-container">
@@ -68,21 +86,17 @@ const FormularioListagem = ({ data, collectionName, onEdit, onDelete, title, dis
               </tr>
             </thead>
             <tbody>
-              {data.map((item) => (
+              {filteredData.map((item) => (
                 <tr key={item.id}>
                   {visibleFields.map(field => (
                     <td key={field}>{item[field] ? (typeof item[field] === 'object' ? '[Objeto]' : item[field].toString().substring(0, 50)) : '-'}</td>
                   ))}
                   <td className="actions-cell">
-                    <button onClick={() => onEdit(item)} className="btn-edit" title="Editar">
-                      ✏️
-                    </button>
-                    <button onClick={() => handleVisualizar(item)} className="btn-view" title="Visualizar Detalhes">
-                      👁️
-                    </button>
-                    <button onClick={() => handleExcluir(item.id)} className="btn-delete" title="Excluir">
-                      ❌
-                    </button>
+                    <ActionMenu
+                      onEdit={() => onEdit(item)}
+                      onView={() => handleVisualizar(item)}
+                      onDelete={() => handleExcluir(item.id)}
+                    />
                   </td>
                 </tr>
               ))}

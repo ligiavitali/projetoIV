@@ -6,6 +6,9 @@ import {
   saveControleInterno,
   deleteControleInterno,
 } from "../redux/slices/formulariosSlice";
+import useCadastroOptions from "../hooks/useCadastroOptions";
+import ActionMenu from "./ActionMenu";
+import SearchInput from "./SearchInput";
 
 const FormularioAvaliacao = () => {
   const dispatch = useDispatch();
@@ -15,10 +18,12 @@ const FormularioAvaliacao = () => {
     loading,
     error,
   } = useSelector((state) => state.formularios);
+  const { alunos } = useCadastroOptions();
 
   const avaliacoes = formData.data || [
     {
       id: Date.now(),
+      id_pessoa_aluno: "",
       nomeUsuario: "",
       ingresso: "",
       primeiraAval: "",
@@ -32,6 +37,7 @@ const FormularioAvaliacao = () => {
   const [mensagem, setMensagem] = useState("");
   const [visualizando, setVisualizando] = useState(false);
   const [itemVisualizado, setItemVisualizado] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     dispatch(fetchControleInternoList());
@@ -44,8 +50,44 @@ const FormularioAvaliacao = () => {
     dispatch(updateFormularioAvaliacao({ data: updatedAvaliacoes }));
   };
 
+  const handleAlunoChange = (id, nomeAluno) => {
+    const alunoSelecionado = alunos.find((aluno) => aluno.nome === nomeAluno);
+    const updatedAvaliacoes = avaliacoes.map((item) => {
+      if (item.id !== id) {
+        return item;
+      }
+
+      return {
+        ...item,
+        id_pessoa_aluno: alunoSelecionado?.id || "",
+        nomeUsuario: nomeAluno,
+        ingresso: alunoSelecionado?.data_ingresso || item.ingresso || "",
+      };
+    });
+
+    dispatch(updateFormularioAvaliacao({ data: updatedAvaliacoes }));
+  };
+
   const handleEditar = (item) => {
-    dispatch(updateFormularioAvaliacao({ data: item.data, id: item.id }));
+    const aluno = alunos.find((pessoa) => pessoa.id === item.id_pessoa_aluno);
+    dispatch(
+      updateFormularioAvaliacao({
+        id: item.id,
+        data: [
+          {
+            id: item.id,
+            id_pessoa_aluno: item.id_pessoa_aluno,
+            nomeUsuario: aluno?.nome || "",
+            ingresso: item.data_entrada || "",
+            primeiraAval: item.dt_1_avaliacao || "",
+            segundaAval: item.dt_2_avaliacao || "",
+            primeiraEntrevistaPais: item.dt_1_entrevista_pais || "",
+            segundaEntrevistaPais: item.dt_2_entrevista_pais || "",
+            resultado: item.resultado || "",
+          },
+        ],
+      })
+    );
   };
 
   const handleVisualizar = (item) => {
@@ -74,7 +116,7 @@ const FormularioAvaliacao = () => {
     const avaliacoesInvalidas = avaliacoes
       .map((a, index) => {
         const camposObrigatorios = {
-          nomeUsuario: "Nome do Usuário",
+          id_pessoa_aluno: "Aluno",
           ingresso: "Ingresso",
           primeiraAval: "Primeira Avaliação",
           segundaAval: "Segunda Avaliação",
@@ -84,7 +126,13 @@ const FormularioAvaliacao = () => {
         };
 
         const camposVazios = Object.entries(camposObrigatorios)
-          .filter(([campo]) => !a[campo]?.trim())
+          .filter(([campo]) => {
+            const valor = a[campo];
+            if (typeof valor === "string") {
+              return !valor.trim();
+            }
+            return !valor;
+          })
           .map(([_, label]) => `• ${label}`);
 
         if (camposVazios.length > 0) {
@@ -103,18 +151,17 @@ const FormularioAvaliacao = () => {
       return;
     }
 
-    const dataToSave = {
-      id: formData.id,
-      data: avaliacoes,
-      nomeUsuario:
-        avaliacoes
-          .map((a) => a.nomeUsuario)
-          .filter((n) => n)
-          .join(", ") || "Registro Sem Nome",
-    };
+    const payloads = avaliacoes.map((avaliacao, index) => ({
+      ...(formData.id && index === 0 ? { id: formData.id } : {}),
+      id_pessoa_aluno: Number(avaliacao.id_pessoa_aluno),
+      dt_1_avaliacao: avaliacao.primeiraAval || null,
+      dt_2_avaliacao: avaliacao.segundaAval || null,
+      dt_1_entrevista_pais: avaliacao.primeiraEntrevistaPais || null,
+      dt_2_entrevista_pais: avaliacao.segundaEntrevistaPais || null,
+      resultado: avaliacao.resultado || null,
+    }));
 
-    dispatch(saveControleInterno(dataToSave))
-      .unwrap()
+    Promise.all(payloads.map((payload) => dispatch(saveControleInterno(payload)).unwrap()))
       .then(() => {
         alert("Formulário de avaliação salvo com sucesso!");
         dispatch(fetchControleInternoList());
@@ -123,6 +170,7 @@ const FormularioAvaliacao = () => {
             data: [
               {
                 id: Date.now(),
+                id_pessoa_aluno: "",
                 nomeUsuario: "",
                 ingresso: "",
                 primeiraAval: "",
@@ -150,6 +198,7 @@ const FormularioAvaliacao = () => {
         data: [
           {
             id: Date.now(),
+            id_pessoa_aluno: "",
             nomeUsuario: "",
             ingresso: "",
             primeiraAval: "",
@@ -174,6 +223,12 @@ const FormularioAvaliacao = () => {
 
   if (loading) return <div>Carregando Formulário de Avaliação...</div>;
   if (error) return <div>Erro ao carregar formulário: {error.message}</div>;
+
+  const filteredList = controleInternoList.filter((item) => {
+    const aluno = alunos.find((registro) => registro.id === item.id_pessoa_aluno);
+    const nome = aluno?.nome || "";
+    return nome.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   return (
     <div className="formulario-container">
@@ -209,18 +264,18 @@ const FormularioAvaliacao = () => {
             {avaliacoes.map((avaliacao) => (
               <tr key={avaliacao.id}>
                 <td>
-                  <input
-                    type="text"
+                  <select
                     value={avaliacao.nomeUsuario}
-                    onChange={(e) =>
-                      handleInputChange(
-                        avaliacao.id,
-                        "nomeUsuario",
-                        e.target.value
-                      )
-                    }
+                    onChange={(e) => handleAlunoChange(avaliacao.id, e.target.value)}
                     className="table-input"
-                  />
+                  >
+                    <option value="">Selecione o aluno</option>
+                    {alunos.map((aluno) => (
+                      <option key={aluno.id} value={aluno.nome}>
+                        {aluno.nome}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td>
                   <input
@@ -313,34 +368,37 @@ const FormularioAvaliacao = () => {
       </div>
 
       <div className="lista-registros">
-        {controleInternoList.length === 0 ? (
+        <SearchInput
+          value={searchTerm}
+          onChange={setSearchTerm}
+          placeholder="Pesquisar pelo nome..."
+        />
+        {filteredList.length === 0 ? (
           <p>Nenhum registro salvo.</p>
         ) : (
-          <ul>
-            {controleInternoList.map((item) => (
-              <li key={item.id}>
-                {item.nomeUsuario}{" "}
-                <button
-                  className="btn-editar"
-                  onClick={() => handleEditar(item)}
-                >
-                  Editar
-                </button>{" "}
-                <button
-                  className="btn-visualizar"
-                  onClick={() => handleVisualizar(item)}
-                >
-                  Visualizar
-                </button>{" "}
-                <button
-                  className="btn-excluir"
-                  onClick={() => handleExcluir(item.id)}
-                >
-                  Excluir
-                </button>
-              </li>
-            ))}
-          </ul>
+          <div className="record-list">
+            {filteredList.map((item) => {
+              const nomeAluno =
+                alunos.find((aluno) => aluno.id === item.id_pessoa_aluno)?.nome ||
+                `Aluno ${item.id_pessoa_aluno}`;
+
+              return (
+                <div key={item.id} className="record-row">
+                  <div className="record-main">
+                    <p className="record-title">{nomeAluno}</p>
+                    <p className="record-subtitle">
+                      Ingresso: {formatarData(item.data_entrada)}
+                    </p>
+                  </div>
+                  <ActionMenu
+                    onEdit={() => handleEditar(item)}
+                    onView={() => handleVisualizar(item)}
+                    onDelete={() => handleExcluir(item.id)}
+                  />
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
 
@@ -350,41 +408,37 @@ const FormularioAvaliacao = () => {
           <div className="visualizar-card">
             <h3>Detalhes do Registro</h3>
             <div className="visualizar-conteudo">
-              {itemVisualizado.data && itemVisualizado.data.length > 0 ? (
-                itemVisualizado.data.map((avaliacao, index) => (
-                  <div key={avaliacao.id} className="visualizacao-item">
-                    <h4>Avaliação {index + 1}</h4>
-                    <p>
-                      <strong>Nome do Usuário:</strong>{" "}
-                      {avaliacao.nomeUsuario || "—"}
-                    </p>
-                    <p>
-                      <strong>Ingresso:</strong>{" "}
-                      {formatarData(avaliacao.ingresso)}
-                    </p>
-                    <p>
-                      <strong>1ª Avaliação:</strong>{" "}
-                      {formatarData(avaliacao.primeiraAval)}
-                    </p>
-                    <p>
-                      <strong>2ª Avaliação:</strong>{" "}
-                      {formatarData(avaliacao.segundaAval)}
-                    </p>
-                    <p>
-                      <strong>1ª Entrevista Pais:</strong>{" "}
-                      {formatarData(avaliacao.primeiraEntrevistaPais)}
-                    </p>
-                    <p>
-                      <strong>2ª Entrevista Pais:</strong>{" "}
-                      {formatarData(avaliacao.segundaEntrevistaPais)}
-                    </p>
-                    <p>
-                      <strong>Resultado:</strong>{" "}
-                      {formatarData(avaliacao.resultado)}
-                    </p>
-                    <hr />
-                  </div>
-                ))
+              {itemVisualizado ? (
+                <div className="visualizacao-item">
+                  <p>
+                    <strong>Nome do Usuário:</strong>{" "}
+                    {alunos.find((aluno) => aluno.id === itemVisualizado.id_pessoa_aluno)?.nome || "—"}
+                  </p>
+                  <p>
+                    <strong>Ingresso:</strong>{" "}
+                    {formatarData(itemVisualizado.data_entrada)}
+                  </p>
+                  <p>
+                    <strong>1ª Avaliação:</strong>{" "}
+                    {formatarData(itemVisualizado.dt_1_avaliacao)}
+                  </p>
+                  <p>
+                    <strong>2ª Avaliação:</strong>{" "}
+                    {formatarData(itemVisualizado.dt_2_avaliacao)}
+                  </p>
+                  <p>
+                    <strong>1ª Entrevista Pais:</strong>{" "}
+                    {formatarData(itemVisualizado.dt_1_entrevista_pais)}
+                  </p>
+                  <p>
+                    <strong>2ª Entrevista Pais:</strong>{" "}
+                    {formatarData(itemVisualizado.dt_2_entrevista_pais)}
+                  </p>
+                  <p>
+                    <strong>Resultado:</strong>{" "}
+                    {itemVisualizado.resultado || "—"}
+                  </p>
+                </div>
               ) : (
                 <p>Nenhum dado disponível.</p>
               )}

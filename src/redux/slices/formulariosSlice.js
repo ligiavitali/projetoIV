@@ -1,7 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { normalizeDatesInPayload } from "../../lib/dateUtils";
 
-const API_URL = "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
 
 // ===================== THUNKS ASSÍNCRONOS =====================
 
@@ -12,7 +13,7 @@ const createCRUDThunks = (nome, endpoint) => {
     async (_, { rejectWithValue }) => {
       try {
         const response = await axios.get(`${API_URL}/${endpoint}`);
-        return response.data;
+        return normalizeDatesInPayload(response.data);
       } catch (error) {
         return rejectWithValue(error.response?.data || error.message);
       }
@@ -28,7 +29,7 @@ const createCRUDThunks = (nome, endpoint) => {
           ? `${API_URL}/${endpoint}/${data.id}`
           : `${API_URL}/${endpoint}`;
         const response = await axios({ method: metodo, url, data });
-        return response.data;
+        return normalizeDatesInPayload(response.data);
       } catch (error) {
         return rejectWithValue(error.response?.data || error.message);
       }
@@ -61,25 +62,25 @@ export const {
   fetchList: fetchAvaliacaoExperiencia1List,
   saveItem: saveAvaliacaoExperiencia1,
   deleteItem: deleteAvaliacaoExperiencia1,
-} = createCRUDThunks("AvaliacaoExperiencia1", "avaliacaoExperiencia1");
+} = createCRUDThunks("AvaliacaoExperiencia1", "ficha-avaliacao-questionario");
 
 export const {
   fetchList: fetchAvaliacaoExperiencia2List,
   saveItem: saveAvaliacaoExperiencia2,
   deleteItem: deleteAvaliacaoExperiencia2,
-} = createCRUDThunks("AvaliacaoExperiencia2", "avaliacaoExperiencia2");
+} = createCRUDThunks("AvaliacaoExperiencia2", "ficha-avaliacao-questionario");
 
 export const {
   fetchList: fetchFichaAcompanhamentoList,
   saveItem: saveFichaAcompanhamento,
   deleteItem: deleteFichaAcompanhamento,
-} = createCRUDThunks("FichaAcompanhamento", "fichaAcompanhamento");
+} = createCRUDThunks("FichaAcompanhamento", "ficha-acompanhamento");
 
 export const {
   fetchList: fetchListaUsuariosEncaminhadosList,
   saveItem: saveListaUsuariosEncaminhados,
   deleteItem: deleteListaUsuariosEncaminhados,
-} = createCRUDThunks("ListaUsuariosEncaminhados", "listaUsuariosEncaminhados");
+} = createCRUDThunks("ListaUsuariosEncaminhados", "lista-encaminhados");
 
 // ===================== ESTADO INICIAL =====================
 const initialState = {

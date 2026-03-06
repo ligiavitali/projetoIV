@@ -6,6 +6,9 @@ import {
   saveListaUsuariosEncaminhados,
   deleteListaUsuariosEncaminhados,
 } from "../redux/slices/formulariosSlice";
+import useCadastroOptions from "../hooks/useCadastroOptions";
+import ActionMenu from "./ActionMenu";
+import SearchInput from "./SearchInput";
 
 const ListaUsuariosEncaminhados = () => {
   const dispatch = useDispatch();
@@ -15,10 +18,12 @@ const ListaUsuariosEncaminhados = () => {
     loading,
     error,
   } = useSelector((state) => state.formularios);
+  const { alunos, empresas, funcoes } = useCadastroOptions();
   const { anoReferencia, usuarios, id } = formData;
 
   const [visualizando, setVisualizando] = useState(false);
   const [itemVisualizado, setItemVisualizado] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     dispatch(fetchListaUsuariosEncaminhadosList());
@@ -27,6 +32,44 @@ const ListaUsuariosEncaminhados = () => {
   const handleInputChange = (id, field, value) => {
     const updatedUsuarios = usuarios.map((usuario) =>
       usuario.id === id ? { ...usuario, [field]: value } : usuario
+    );
+    dispatch(updateListaUsuariosEncaminhados({ usuarios: updatedUsuarios }));
+  };
+
+  const handleAlunoChange = (id, nomeAluno) => {
+    const alunoSelecionado = alunos.find((aluno) => aluno.nome === nomeAluno);
+    const updatedUsuarios = usuarios.map((usuario) =>
+      usuario.id === id
+        ? {
+            ...usuario,
+            id_pessoa_aluno: alunoSelecionado?.id || "",
+            nome: nomeAluno,
+            dataAdmissao: alunoSelecionado?.data_ingresso || usuario.dataAdmissao || "",
+          }
+        : usuario
+    );
+    dispatch(updateListaUsuariosEncaminhados({ usuarios: updatedUsuarios }));
+  };
+
+  const handleEmpresaChange = (id, nomeEmpresa) => {
+    const empresaSelecionada = empresas.find(
+      (empresa) => (empresa.nome_fantasia || empresa.razao_social) === nomeEmpresa
+    );
+
+    const contatoEmpresa =
+      empresaSelecionada?.telefone_responsavel_rh ||
+      empresaSelecionada?.email_responsavel_rh ||
+      empresaSelecionada?.nome_responsavel_rh ||
+      "";
+
+    const updatedUsuarios = usuarios.map((usuario) =>
+      usuario.id === id
+        ? {
+            ...usuario,
+            empresa: nomeEmpresa,
+            contatoRH: contatoEmpresa,
+          }
+        : usuario
     );
     dispatch(updateListaUsuariosEncaminhados({ usuarios: updatedUsuarios }));
   };
@@ -179,6 +222,11 @@ const ListaUsuariosEncaminhados = () => {
     (item) => item.anoReferencia === anoReferencia
   );
 
+  const registrosPesquisa = registrosFiltrados.filter((item) => {
+    const nomes = (item.usuarios || []).map((usuario) => usuario.nome || "").join(" ");
+    return nomes.toLowerCase().includes(searchTerm.toLowerCase());
+  });
+
   return (
     <div className="lista-container">
       {/* Header */}
@@ -230,14 +278,18 @@ const ListaUsuariosEncaminhados = () => {
               <tr key={usuario.id}>
                 <td className="numero-cell">{usuario.numero}</td>
                 <td>
-                  <input
-                    type="text"
+                  <select
                     value={usuario.nome}
-                    onChange={(e) =>
-                      handleInputChange(usuario.id, "nome", e.target.value)
-                    }
+                    onChange={(e) => handleAlunoChange(usuario.id, e.target.value)}
                     className="table-input"
-                  />
+                  >
+                    <option value="">Selecione o aluno</option>
+                    {alunos.map((aluno) => (
+                      <option key={aluno.id} value={aluno.nome}>
+                        {aluno.nome}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td>
                   <input
@@ -254,24 +306,37 @@ const ListaUsuariosEncaminhados = () => {
                   />
                 </td>
                 <td>
-                  <input
-                    type="text"
+                  <select
                     value={usuario.empresa}
-                    onChange={(e) =>
-                      handleInputChange(usuario.id, "empresa", e.target.value)
-                    }
+                    onChange={(e) => handleEmpresaChange(usuario.id, e.target.value)}
                     className="table-input"
-                  />
+                  >
+                    <option value="">Selecione a empresa</option>
+                    {empresas.map((empresa) => {
+                      const nomeEmpresa = empresa.nome_fantasia || empresa.razao_social;
+                      return (
+                        <option key={empresa.id} value={nomeEmpresa}>
+                          {nomeEmpresa}
+                        </option>
+                      );
+                    })}
+                  </select>
                 </td>
                 <td>
-                  <input
-                    type="text"
+                  <select
                     value={usuario.funcao}
                     onChange={(e) =>
                       handleInputChange(usuario.id, "funcao", e.target.value)
                     }
                     className="table-input"
-                  />
+                  >
+                    <option value="">Selecione a funcao</option>
+                    {funcoes.map((funcao) => (
+                      <option key={funcao.id} value={funcao.titulo_funcao}>
+                        {funcao.titulo_funcao}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td>
                   <input
@@ -314,40 +379,36 @@ const ListaUsuariosEncaminhados = () => {
 
       {/* Lista Geral (apenas nome) */}
       <div className="lista-registros">
-        {registrosFiltrados.length === 0 ? (
+        <SearchInput
+          value={searchTerm}
+          onChange={setSearchTerm}
+          placeholder="Pesquisar pelo nome..."
+        />
+        {registrosPesquisa.length === 0 ? (
           <p>Nenhum registro salvo para o ano {anoReferencia}.</p>
         ) : (
-          <ul>
-            {registrosFiltrados.map((item) => (
-              <li key={item.id}>
-                <ul>
-                  {item.usuarios.map((u) => (
-                    <li key={u.id}>{u.nome}</li>
-                  ))}
-                </ul>
-                <div style={{ marginTop: "5px" }}>
-                  <button
-                    className="btn-editar"
-                    onClick={() => handleEditar(item)}
-                  >
-                    Editar
-                  </button>{" "}
-                  <button
-                    className="btn-visualizar"
-                    onClick={() => handleVisualizar(item)}
-                  >
-                    Visualizar
-                  </button>{" "}
-                  <button
-                    className="btn-excluir"
-                    onClick={() => handleExcluir(item.id)}
-                  >
-                    Excluir
-                  </button>
+          <div className="record-list">
+            {registrosPesquisa.map((item) => {
+              const nomes = (item.usuarios || [])
+                .map((u) => u.nome)
+                .filter(Boolean)
+                .join(", ");
+
+              return (
+                <div key={item.id} className="record-row">
+                  <div className="record-main">
+                    <p className="record-title">Ano {item.anoReferencia}</p>
+                    <p className="record-subtitle">{nomes || "Sem usuarios"}</p>
+                  </div>
+                  <ActionMenu
+                    onEdit={() => handleEditar(item)}
+                    onView={() => handleVisualizar(item)}
+                    onDelete={() => handleExcluir(item.id)}
+                  />
                 </div>
-              </li>
-            ))}
-          </ul>
+              );
+            })}
+          </div>
         )}
       </div>
 

@@ -3,6 +3,8 @@ import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../redux/slices/userSlice';
 import { useNavigate } from 'react-router-dom';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+
 const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -19,15 +21,63 @@ const Login = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Simulação de login - em produção seria uma chamada à API
-    if (formData.email && formData.password) {
-      // Dispatch da ação loginSuccess com os dados do usuário
-      dispatch(loginSuccess({ email: formData.email, name: 'Usuário Teste' }));
-      navigate('/'); // Redireciona para a página principal após o login
-    } else {
+    if (!formData.email || !formData.password) {
       alert('Por favor, preencha todos os campos');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/usuarios`);
+      if (!response.ok) {
+        throw new Error('Falha ao consultar usuários');
+      }
+
+      const usuarios = await response.json();
+      const usuario = Array.isArray(usuarios)
+        ? usuarios.find(
+            (u) =>
+              (u.email || '').toLowerCase() === formData.email.trim().toLowerCase() &&
+              (u.senha_hash || '') === formData.password
+          )
+        : null;
+
+      if (!usuario) {
+        alert('E-mail ou senha inválidos.');
+        return;
+      }
+
+      let nivelAcesso = usuario.nivel_acesso || null;
+
+      // Compatibilidade: contas antigas sem nivel_acesso viram admin no primeiro login.
+      if (!nivelAcesso) {
+        const promoteResponse = await fetch(`${API_URL}/usuarios/${usuario.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            nome: usuario.nome,
+            email: usuario.email,
+            nivel_acesso: 'admin',
+          }),
+        });
+
+        if (promoteResponse.ok) {
+          nivelAcesso = 'admin';
+        }
+      }
+
+      dispatch(
+        loginSuccess({
+          id: usuario.id,
+          email: usuario.email,
+          name: usuario.nome,
+          nivel_acesso: nivelAcesso || 'usuario',
+        })
+      );
+      navigate('/dashboard');
+    } catch (error) {
+      alert(`Erro ao fazer login: ${error.message}`);
     }
   };
 
@@ -71,15 +121,7 @@ const Login = () => {
           </button>
         </form>
 
-        <div className="login-footer-links" style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between' }}>
-          <button
-            type="button"
-            onClick={() => navigate('/Register')}
-            style={{ background: 'none', border: 'none', color: 'blue', cursor: 'pointer', padding: 0 }}
-          >
-            Criar Conta
-          </button>
-
+        <div className="login-footer-links" style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
           <button
             type="button"
             onClick={() => navigate('/forgot-password')}

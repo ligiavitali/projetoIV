@@ -105,7 +105,7 @@ export const funcoesSchema = yup.object().shape({
 
 // 🔹 Avaliação
 export const avaliacaoSchema = yup.object().shape({
-  tipo: yup.string().required("O tipo de avaliação é obrigatório"),
+  itens: yup.string().required("Os itens de avaliação são obrigatórios"),
   status: yup
     .string()
     .oneOf(["Ativo", "Inativo"], "Status inválido")

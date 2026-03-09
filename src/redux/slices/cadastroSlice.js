@@ -28,7 +28,7 @@ const initialState = {
       status: '',
     },
     funcoes: { titulo: '', descricao: '', departamento: '', nivel: '', status: '' },
-    avaliacao: { tipo: '', criterios: '', periodo: '', responsavel: '', status: '' },
+    avaliacao: { itens: '', criterios: '', periodo: '', responsavel: '', status: '' },
   },
   registerData: {
     email: '',

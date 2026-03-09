@@ -1277,6 +1277,23 @@ body {
   margin: 0 auto;
   padding: 2rem;
 }
+.access-denied-card {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 720px;
+  margin: 12px auto;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+}
+.access-denied-card h2 {
+  color: #9a3412;
+  margin: 0 0 8px;
+}
+.access-denied-card p {
+  color: #7c2d12;
+  margin: 0;
+}
 
 .lista-header {
   text-align: center;

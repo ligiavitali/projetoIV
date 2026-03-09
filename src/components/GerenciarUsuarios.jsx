@@ -5,7 +5,8 @@ const API_URL = `${import.meta.env.VITE_API_URL || "http://localhost:3001/api"}/
 const initialForm = {
   nome: "",
   email: "",
-  nivel: "professor",
+  senha: "",
+  nivel_acesso: "usuario",
 };
 
 const GerenciarUsuarios = () => {
@@ -44,8 +45,8 @@ const GerenciarUsuarios = () => {
     const nome = formData.nome.trim();
     const email = formData.email.trim();
 
-    if (!nome || !email || !formData.nivel) {
-      alert("Preencha nome, e-mail e nível do usuário.");
+    if (!nome || !email || !formData.senha || !formData.nivel_acesso) {
+      alert("Preencha nome, e-mail, senha e nível de acesso do usuário.");
       return;
     }
 
@@ -57,7 +58,8 @@ const GerenciarUsuarios = () => {
         body: JSON.stringify({
           nome,
           email,
-          nivel: formData.nivel,
+          senha: formData.senha,
+          nivel_acesso: formData.nivel_acesso,
         }),
       });
 
@@ -128,12 +130,25 @@ const GerenciarUsuarios = () => {
 
           <div className="form-row">
             <div className="form-group">
+              <label>Senha</label>
+              <input
+                type="password"
+                value={formData.senha}
+                onChange={(e) => handleInputChange("senha", e.target.value)}
+                placeholder="Senha do usuário"
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
               <label>Nível de acesso</label>
               <select
-                value={formData.nivel}
-                onChange={(e) => handleInputChange("nivel", e.target.value)}
+                value={formData.nivel_acesso}
+                onChange={(e) => handleInputChange("nivel_acesso", e.target.value)}
               >
-                <option value="adm">adm</option>
+                <option value="admin">admin</option>
+                <option value="usuario">usuario</option>
                 <option value="professor">professor</option>
               </select>
             </div>
@@ -158,7 +173,7 @@ const GerenciarUsuarios = () => {
           <ul>
             {usuarios.map((usuario) => (
               <li key={usuario.id}>
-                <strong>{usuario.nome}</strong> - {usuario.email} ({usuario.nivel})
+                <strong>{usuario.nome}</strong> - {usuario.email} ({usuario.nivel_acesso || "usuario"})
                 <button
                   className="btn-excluir"
                   onClick={() => handleExcluir(usuario.id)}

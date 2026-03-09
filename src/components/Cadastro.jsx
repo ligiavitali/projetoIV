@@ -161,7 +161,10 @@ const Cadastro = () => {
   };
 
   const handleEditar = (item) => {
-    dispatch(updateCadastroAbaData({ aba: activeTab, data: { ...item } }));
+    const sanitizedItem = Object.fromEntries(
+      Object.entries(item).map(([key, value]) => [key, value ?? ""])
+    );
+    dispatch(updateCadastroAbaData({ aba: activeTab, data: sanitizedItem }));
   };
 
   // Renderiza erros de campo
@@ -593,11 +596,11 @@ const Cadastro = () => {
           <label>Itens</label>
           <input
             type="text"
-            value={formData.avaliacao.tipo}
-            onChange={(e) => handleChange("avaliacao", "tipo", e.target.value)}
+            value={formData.avaliacao.itens}
+            onChange={(e) => handleChange("avaliacao", "itens", e.target.value)}
             placeholder="Ex: Desempenho, Técnica..."
           />
-          {renderFieldError("tipo")}
+          {renderFieldError("itens")}
         </div>
       </div>
 
@@ -634,7 +637,7 @@ const Cadastro = () => {
       pessoas: item.nome,
       empresas: item.nome_fantasia || item.razao_social,
       funcoes: item.titulo || item.titulo_funcao,
-      avaliacao: item.tipo,
+      avaliacao: item.itens || item.tipo,
     };
     return (nomes[activeTab] || "").toLowerCase();
   };
@@ -648,7 +651,7 @@ const Cadastro = () => {
       pessoas: item.nome || "Sem nome",
       empresas: item.nome_fantasia || item.razao_social || "Sem nome",
       funcoes: item.titulo || item.titulo_funcao || "Sem titulo",
-      avaliacao: item.tipo || "Sem descricao",
+      avaliacao: item.itens || item.tipo || "Sem descricao",
     };
     return labels[activeTab];
   };

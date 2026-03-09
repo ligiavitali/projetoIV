@@ -3,14 +3,14 @@ import { useDispatch } from 'react-redux';
 import { logout } from '../redux/slices/userSlice';
 import { Users } from 'lucide-react';
 
-const Navigation = ({ currentPage, setCurrentPage, userEmail }) => {
+const Navigation = ({ currentPage, setCurrentPage, userEmail, isAdmin }) => {
   const dispatch = useDispatch();
   const handleLogout = () => {
     dispatch(logout());
   };
   const menuItems = [
-    { id: 'cadastro', label: 'Cadastros'},
-    { id: 'formularios', label: 'Formulários'}
+    { id: 'formularios', label: 'Formulários' },
+    ...(isAdmin ? [{ id: 'cadastro', label: 'Cadastros' }] : []),
   ];
 
   return (
@@ -38,15 +38,17 @@ const Navigation = ({ currentPage, setCurrentPage, userEmail }) => {
           <div className="user-info">
             <span className="user-email">{userEmail}</span>
           </div>
-          <button
-            type="button"
-            className={`nav-icon-btn ${currentPage === 'usuarios-sistema' ? 'active' : ''}`}
-            onClick={() => setCurrentPage('usuarios-sistema')}
-            title="Gerenciar usuários"
-            aria-label="Gerenciar usuários"
-          >
-            <Users size={16} />
-          </button>
+          {isAdmin && (
+            <button
+              type="button"
+              className={`nav-icon-btn ${currentPage === 'usuarios-sistema' ? 'active' : ''}`}
+              onClick={() => setCurrentPage('usuarios-sistema')}
+              title="Gerenciar usuários"
+              aria-label="Gerenciar usuários"
+            >
+              <Users size={16} />
+            </button>
+          )}
           <button onClick={handleLogout} className="logout-btn">
             Sair
           </button>

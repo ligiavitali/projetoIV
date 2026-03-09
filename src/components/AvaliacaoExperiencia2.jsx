@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   updateAvaliacaoExperiencia2,
@@ -18,90 +18,27 @@ const AvaliacaoExperiencia2 = () => {
     loading,
     error,
   } = useSelector((state) => state.formularios);
-  const { alunos, professores } = useCadastroOptions();
+  const user = useSelector((state) => state.user.user);
+  const { alunos, professores, itensAvaliacao } = useCadastroOptions();
+  const isAdmin = ["admin", "adm"].includes((user?.nivel_acesso || "").toLowerCase());
 
   const reduxFormData = formState?.formData || {};
   const reduxQuestoes = formState?.questoes || [];
-
-  const questoesIniciais = [
-    { id: 1, texto: "Atende as regras.", resposta: "" },
-    { id: 2, texto: "Socializa com o grupo.", resposta: "" },
-    { id: 3, texto: "Isola-se do grupo.", resposta: "" },
-    { id: 4, texto: "Possui tolerância a frustração.", resposta: "" },
-    { id: 5, texto: "Respeita colegas e professores.", resposta: "" },
-    { id: 6, texto: "Faz relatos fantasiosos.", resposta: "" },
-    { id: 7, texto: "Concentra-se nas atividades.", resposta: "" },
-    { id: 8, texto: "Tem iniciativa.", resposta: "" },
-    { id: 9, texto: "Sonolência durante as atividades.", resposta: "" },
-    { id: 10, texto: "Alterações intensas de humor.", resposta: "" },
-    { id: 11, texto: "Oscilações repentinas de humor.", resposta: "" },
-    { id: 12, texto: "Irrita-se com facilidade.", resposta: "" },
-    { id: 13, texto: "Ansiedade.", resposta: "" },
-    { id: 14, texto: "Escuta colegas.", resposta: "" },
-    { id: 15, texto: "Segue orientação dos professores.", resposta: "" },
-    { id: 16, texto: "Mantém-se em sala de aula.", resposta: "" },
-    { id: 17, texto: "Desloca-se muito na sala.", resposta: "" },
-    { id: 18, texto: "Fala demasiadamente.", resposta: "" },
-    { id: 19, texto: "É pontual.", resposta: "" },
-    { id: 20, texto: "É assíduo.", resposta: "" },
-    { id: 21, texto: "Demonstra desejo de trabalhar.", resposta: "" },
-    {
-      id: 22,
-      texto: "Apropria-se indevidamente do que não é seu.",
-      resposta: "",
-    },
-    { id: 23, texto: "Hábito de banho diário.", resposta: "" },
-    { id: 24, texto: "Hábito de escovação dental.", resposta: "" },
-    { id: 25, texto: "Cuidado com aparência e uniforme.", resposta: "" },
-    { id: 26, texto: "Autonomia nos hábitos de higiene.", resposta: "" },
-    {
-      id: 27,
-      texto: "Oscilações de comportamento sem medicação.",
-      resposta: "",
-    },
-    { id: 28, texto: "Possui acesso regular às medicações.", resposta: "" },
-    { id: 29, texto: "Traz materiais organizados.", resposta: "" },
-    { id: 30, texto: "Usa transporte coletivo.", resposta: "" },
-    { id: 31, texto: "Tem iniciativa diante das atividades.", resposta: "" },
-    { id: 32, texto: "Localiza-se no espaço da instituição.", resposta: "" },
-    {
-      id: 33,
-      texto: "Situa-se nas trocas de sala e atividades.",
-      resposta: "",
-    },
-    { id: 34, texto: "Interage par a par.", resposta: "" },
-    { id: 35, texto: "Interage em grupo.", resposta: "" },
-    { id: 36, texto: "Cria conflitos e intrigas.", resposta: "" },
-    { id: 37, texto: "Promove harmonia.", resposta: "" },
-    {
-      id: 38,
-      texto: "Faz intrigas entre colegas e professores.",
-      resposta: "",
-    },
-    { id: 39, texto: "Interesse em atividades extraclasses.", resposta: "" },
-    { id: 40, texto: "Família apoia a instituição.", resposta: "" },
-    { id: 41, texto: "Família demonstra superproteção.", resposta: "" },
-    {
-      id: 42,
-      texto: "Usuário traz relatos negativos da família.",
-      resposta: "",
-    },
-    {
-      id: 43,
-      texto: "Usuário traz relatos positivos da família.",
-      resposta: "",
-    },
-    { id: 44, texto: "Família incentiva autonomia.", resposta: "" },
-    { id: 45, texto: "Família incentiva inserção no mercado.", resposta: "" },
-    { id: 46, texto: "Traz documentos assinados pela família.", resposta: "" },
-  ];
-
-  const questoes = reduxQuestoes.length > 0 ? reduxQuestoes : questoesIniciais;
+  const questoes = reduxQuestoes;
   const [visualizando, setVisualizando] = useState(false);
   const [itemVisualizado, setItemVisualizado] = useState(null);
   const [editandoQuestionario, setEditandoQuestionario] = useState(false);
-  const [novaQuestaoTexto, setNovaQuestaoTexto] = useState("");
+  const [itemSelecionadoId, setItemSelecionadoId] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+
+  const itensDisponiveis = useMemo(() => {
+    const idsSelecionados = new Set(questoes.map((q) => Number(q.id)));
+    return itensAvaliacao.filter((item) => {
+      const status = (item.status || "").toLowerCase();
+      const ativo = status === "ativo" || status === "";
+      return ativo && !idsSelecionados.has(Number(item.id));
+    });
+  }, [itensAvaliacao, questoes]);
 
   useEffect(() => {
     dispatch(fetchAvaliacaoExperiencia2List());
@@ -152,37 +89,53 @@ const AvaliacaoExperiencia2 = () => {
   };
 
   const removerQuestao = (id) => {
+    if (!isAdmin) {
+      alert("Somente admin pode remover itens do questionário.");
+      return;
+    }
     const updatedQuestoes = questoes.filter((q) => q.id !== id);
     dispatch(updateAvaliacaoExperiencia2({ questoes: updatedQuestoes }));
   };
 
   const adicionarQuestao = () => {
-    const textoLimpo = novaQuestaoTexto.trim();
-
-    if (!textoLimpo) {
-      alert("Digite o texto da pergunta para adicionar ao questionário.");
+    if (!isAdmin) {
+      alert("Somente admin pode inserir itens no questionário.");
       return;
     }
 
-    const proximoId = questoes.reduce(
-      (maiorId, questao) => Math.max(maiorId, Number(questao.id) || 0),
-      0
-    ) + 1;
+    if (!itemSelecionadoId) {
+      alert("Selecione um item para adicionar ao questionário.");
+      return;
+    }
+
+    const itemSelecionado = itensAvaliacao.find(
+      (item) => String(item.id) === String(itemSelecionadoId)
+    );
+
+    if (!itemSelecionado) {
+      alert("Item selecionado inválido.");
+      return;
+    }
 
     const updatedQuestoes = [
       ...questoes,
-      { id: proximoId, texto: textoLimpo, resposta: "", personalizada: true },
+      {
+        id: itemSelecionado.id,
+        texto: itemSelecionado.itens,
+        resposta: "",
+        personalizada: true,
+      },
     ];
 
     dispatch(updateAvaliacaoExperiencia2({ questoes: updatedQuestoes }));
-    setNovaQuestaoTexto("");
+    setItemSelecionadoId("");
   };
 
   const handleEditar = (item) => {
     dispatch(
       updateAvaliacaoExperiencia2({
         formData: item.formData,
-        questoes: item.questoes,
+        questoes: item.questoes || [],
         id: item.id,
       })
     );
@@ -252,7 +205,7 @@ const AvaliacaoExperiencia2 = () => {
         dispatch(
           updateAvaliacaoExperiencia2({
             formData: {},
-            questoes: questoesIniciais,
+            questoes: [],
             id: undefined,
           })
         );
@@ -330,7 +283,13 @@ const AvaliacaoExperiencia2 = () => {
 
       <div className="questoes-section">
         <h3>Questionário</h3>
+        {itensAvaliacao.length === 0 && (
+          <p>Nenhum item cadastrado em Itens a serem avaliados.</p>
+        )}
         <div className="questoes-list">
+          {questoes.length === 0 && (
+            <p>Nenhum item selecionado para esta avaliação.</p>
+          )}
           {questoes.map((questao) => (
             <div key={questao.id} className="questao-item">
               <div className="questao-numero">{questao.id}</div>
@@ -351,7 +310,7 @@ const AvaliacaoExperiencia2 = () => {
                   </label>
                 ))}
               </div>
-              {editandoQuestionario && questao.personalizada && (
+              {editandoQuestionario && (
                 <button
                   onClick={() => removerQuestao(questao.id)}
                   className="btn-excluir"
@@ -363,42 +322,44 @@ const AvaliacaoExperiencia2 = () => {
             </div>
           ))}
 
-          <div className="admin-controls">
-            <div className="questionario-actions">
-              <button
-                type="button"
-                className="btn-editar"
-                  onClick={() => setEditandoQuestionario((prev) => !prev)}
-              >
-                  {editandoQuestionario ? "Fechar" : "Editar"}
-              </button>
-            </div>
-
-            {editandoQuestionario && (
-              <div className="add-questao">
-                <input
-                  type="text"
-                  className="questao-input"
-                  value={novaQuestaoTexto}
-                  onChange={(e) => setNovaQuestaoTexto(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      adicionarQuestao();
-                    }
-                  }}
-                  placeholder="Digite uma nova pergunta do questionário"
-                />
+          {isAdmin && (
+            <div className="admin-controls">
+              <div className="questionario-actions">
                 <button
                   type="button"
                   className="btn-editar"
-                  onClick={adicionarQuestao}
+                  onClick={() => setEditandoQuestionario((prev) => !prev)}
                 >
-                  Adicionar pergunta
+                  {editandoQuestionario ? "Fechar" : "Editar"}
                 </button>
               </div>
-            )}
-          </div>
+
+              {editandoQuestionario && (
+                <div className="add-questao">
+                  <select
+                    className="questao-input"
+                    value={itemSelecionadoId}
+                    onChange={(e) => setItemSelecionadoId(e.target.value)}
+                  >
+                    <option value="">Selecione um item cadastrado</option>
+                    {itensDisponiveis.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.itens}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    className="btn-editar"
+                    onClick={adicionarQuestao}
+                    disabled={itensDisponiveis.length === 0}
+                  >
+                    Adicionar item
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

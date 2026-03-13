@@ -19,11 +19,12 @@ const ListaUsuariosEncaminhados = () => {
     error,
   } = useSelector((state) => state.formularios);
   const { alunos, empresas, funcoes } = useCadastroOptions();
-  const { anoReferencia, usuarios, id } = formData;
+  const { usuarios, id } = formData;
 
   const [visualizando, setVisualizando] = useState(false);
   const [itemVisualizado, setItemVisualizado] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filtroAno, setFiltroAno] = useState(String(new Date().getFullYear()));
 
   useEffect(() => {
     dispatch(fetchListaUsuariosEncaminhadosList());
@@ -74,10 +75,6 @@ const ListaUsuariosEncaminhados = () => {
     dispatch(updateListaUsuariosEncaminhados({ usuarios: updatedUsuarios }));
   };
 
-  const handleAnoChange = (value) => {
-    dispatch(updateListaUsuariosEncaminhados({ anoReferencia: value }));
-  };
-
   const removerLinha = (id) => {
     if (usuarios.length > 1) {
       const novosUsuarios = usuarios.filter((usuario) => usuario.id !== id);
@@ -116,11 +113,6 @@ const ListaUsuariosEncaminhados = () => {
       return;
     }
 
-    if (!anoReferencia?.trim()) {
-      alert("O campo 'Ano de Referência' é obrigatório.");
-      return;
-    }
-
     const usuariosComCamposVazios = usuarios
       .map((u, index) => {
         const camposObrigatorios = {
@@ -154,14 +146,13 @@ const ListaUsuariosEncaminhados = () => {
       return;
     }
 
-    dispatch(saveListaUsuariosEncaminhados({ id, anoReferencia, usuarios }))
+    dispatch(saveListaUsuariosEncaminhados({ id, usuarios }))
       .unwrap()
       .then(() => {
         alert("Lista de Usuários Encaminhados salva com sucesso!");
         dispatch(fetchListaUsuariosEncaminhadosList());
         dispatch(
           updateListaUsuariosEncaminhados({
-            anoReferencia: "2025",
             usuarios: [
               {
                 id: 1,
@@ -171,6 +162,7 @@ const ListaUsuariosEncaminhados = () => {
                 empresa: "",
                 funcao: "",
                 contatoRH: "",
+                dataEncaminhamento: "",
                 provavelDataDesligamento: "",
               },
             ],
@@ -187,7 +179,6 @@ const ListaUsuariosEncaminhados = () => {
   const limparLista = () => {
     dispatch(
       updateListaUsuariosEncaminhados({
-        anoReferencia: "2025",
         usuarios: [
           {
             id: 1,
@@ -197,6 +188,7 @@ const ListaUsuariosEncaminhados = () => {
             empresa: "",
             funcao: "",
             contatoRH: "",
+            dataEncaminhamento: "",
             provavelDataDesligamento: "",
           },
         ],
@@ -218,14 +210,34 @@ const ListaUsuariosEncaminhados = () => {
       </div>
     );
 
-  const registrosFiltrados = listaUsuariosEncaminhadosList.filter(
-    (item) => item.anoReferencia === anoReferencia
-  );
+  const registrosFiltrados = listaUsuariosEncaminhadosList.filter((item) => {
+    if (!filtroAno?.trim()) {
+      return true;
+    }
+
+    return (item.usuarios || []).some((usuario) => {
+      if (!usuario?.dataEncaminhamento) {
+        return false;
+      }
+
+      const anoUsuario = String(new Date(usuario.dataEncaminhamento).getFullYear());
+      return anoUsuario === String(filtroAno).trim();
+    });
+  });
 
   const registrosPesquisa = registrosFiltrados.filter((item) => {
     const nomes = (item.usuarios || []).map((usuario) => usuario.nome || "").join(" ");
     return nomes.toLowerCase().includes(searchTerm.toLowerCase());
   });
+
+  const formatarData = (valor) => {
+    if (!valor) return "-";
+    const data = new Date(valor);
+    if (Number.isNaN(data.getTime())) return "-";
+    return `${String(data.getDate()).padStart(2, "0")}/${String(
+      data.getMonth() + 1
+    ).padStart(2, "0")}/${data.getFullYear()}`;
+  };
 
   return (
     <div className="lista-container">
@@ -235,11 +247,11 @@ const ListaUsuariosEncaminhados = () => {
         <h2>DIOMÍCIO FREITAS</h2>
         <h3>CRICIÚMA - SC</h3>
         <div className="titulo-ano">
-          <h4>Usuários encaminhados ao Trabalho em</h4>
+          <h4>Filtro por ano (data de encaminhamento)</h4>
           <input
             type="number"
-            value={anoReferencia}
-            onChange={(e) => handleAnoChange(e.target.value)}
+            value={filtroAno}
+            onChange={(e) => setFiltroAno(e.target.value)}
             className="ano-input"
             min="2020"
             max="2030"
@@ -269,6 +281,7 @@ const ListaUsuariosEncaminhados = () => {
               <th>Empresa</th>
               <th>Função</th>
               <th>Contato RH</th>
+              <th>Data Encaminhamento</th>
               <th>Provável data desligamento IEEDF</th>
               <th>Ações</th>
             </tr>
@@ -351,6 +364,20 @@ const ListaUsuariosEncaminhados = () => {
                 <td>
                   <input
                     type="date"
+                    value={usuario.dataEncaminhamento || ""}
+                    onChange={(e) => {
+                      handleInputChange(
+                        usuario.id,
+                        "dataEncaminhamento",
+                        e.target.value
+                      );
+                    }}
+                    className="table-input date-input"
+                  />
+                </td>
+                <td>
+                  <input
+                    type="date"
                     value={usuario.provavelDataDesligamento}
                     onChange={(e) =>
                       handleInputChange(
@@ -385,7 +412,7 @@ const ListaUsuariosEncaminhados = () => {
           placeholder="Pesquisar pelo nome..."
         />
         {registrosPesquisa.length === 0 ? (
-          <p>Nenhum registro salvo para o ano {anoReferencia}.</p>
+          <p>Nenhum registro salvo para o filtro informado.</p>
         ) : (
           <div className="record-list">
             {registrosPesquisa.map((item) => {
@@ -397,8 +424,7 @@ const ListaUsuariosEncaminhados = () => {
               return (
                 <div key={item.id} className="record-row">
                   <div className="record-main">
-                    <p className="record-title">Ano {item.anoReferencia}</p>
-                    <p className="record-subtitle">{nomes || "Sem usuarios"}</p>
+                    <p className="record-title">{nomes || "Sem usuarios"}</p>
                   </div>
                   <ActionMenu
                     onEdit={() => handleEditar(item)}
@@ -418,39 +444,34 @@ const ListaUsuariosEncaminhados = () => {
           <div className="visualizar-card">
             <h3>Detalhes da Lista</h3>
             <div className="visualizar-conteudo">
-              <p>
-                <strong>Ano de Referência:</strong>{" "}
-                {itemVisualizado.anoReferencia}
-              </p>
               {itemVisualizado.usuarios.map((u) => {
-                const dataAdmissao = u.dataAdmissao
-                  ? `${String(new Date(u.dataAdmissao).getDate()).padStart(
-                      2,
-                      "0"
-                    )}/${String(
-                      new Date(u.dataAdmissao).getMonth() + 1
-                    ).padStart(2, "0")}/${new Date(
-                      u.dataAdmissao
-                    ).getFullYear()}`
-                  : "-";
-                const dataDesligamento = u.provavelDataDesligamento
-                  ? `${String(
-                      new Date(u.provavelDataDesligamento).getDate()
-                    ).padStart(2, "0")}/${String(
-                      new Date(u.provavelDataDesligamento).getMonth() + 1
-                    ).padStart(2, "0")}/${new Date(
-                      u.provavelDataDesligamento
-                    ).getFullYear()}`
-                  : "-";
-
                 return (
-                  <p key={u.id}>
-                    <strong>
-                      {u.numero} - {u.nome}
-                    </strong>
-                    : {u.empresa} - {u.funcao} - {u.contatoRH} - Admissão:{" "}
-                    {dataAdmissao} - Desligamento: {dataDesligamento}
-                  </p>
+                  <div key={u.id} style={{ marginBottom: "0.9rem" }}>
+                    <p>
+                      <strong>Número:</strong> {u.numero || "-"}
+                    </p>
+                    <p>
+                      <strong>Nome:</strong> {u.nome || "-"}
+                    </p>
+                    <p>
+                      <strong>Empresa:</strong> {u.empresa || "-"}
+                    </p>
+                    <p>
+                      <strong>Função:</strong> {u.funcao || "-"}
+                    </p>
+                    <p>
+                      <strong>Contato RH:</strong> {u.contatoRH || "-"}
+                    </p>
+                    <p>
+                      <strong>Data de Admissão:</strong> {formatarData(u.dataAdmissao)}
+                    </p>
+                    <p>
+                      <strong>Data de Encaminhamento:</strong> {formatarData(u.dataEncaminhamento)}
+                    </p>
+                    <p>
+                      <strong>Provável data de desligamento:</strong> {formatarData(u.provavelDataDesligamento)}
+                    </p>
+                  </div>
                 );
               })}
             </div>

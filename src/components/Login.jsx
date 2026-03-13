@@ -4,6 +4,7 @@ import { loginSuccess } from '../redux/slices/userSlice';
 import { useNavigate } from 'react-router-dom';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const SESSION_DURATION_MS = 60 * 60 * 1000;
 
 const Login = () => {
   const dispatch = useDispatch();
@@ -69,10 +70,13 @@ const Login = () => {
 
       dispatch(
         loginSuccess({
-          id: usuario.id,
-          email: usuario.email,
-          name: usuario.nome,
-          nivel_acesso: nivelAcesso || 'usuario',
+          user: {
+            id: usuario.id,
+            email: usuario.email,
+            name: usuario.nome,
+            nivel_acesso: nivelAcesso || 'usuario',
+          },
+          sessionExpiresAt: Date.now() + SESSION_DURATION_MS,
         })
       );
       navigate('/dashboard');

@@ -36,6 +36,7 @@ const FichaAcompanhamento = () => {
     const alunoSelecionado = alunos.find((aluno) => aluno.nome === nomeAluno);
     dispatch(
       updateFichaAcompanhamento({
+        id_pessoa_aluno: alunoSelecionado?.id || "",
         nome: nomeAluno,
         dataAdmissao: alunoSelecionado?.data_ingresso || formData.dataAdmissao || "",
       })
@@ -54,6 +55,7 @@ const FichaAcompanhamento = () => {
 
     dispatch(
       updateFichaAcompanhamento({
+        id_empresa: empresaSelecionada?.id || "",
         empresa: nomeEmpresa,
         responsavelRH: empresaSelecionada?.nome_responsavel_rh || "",
         contatoCom: contatoEmpresa,
@@ -62,7 +64,39 @@ const FichaAcompanhamento = () => {
   };
 
   const handleEditar = (item) => {
-    dispatch(updateFichaAcompanhamento({ ...item, id: item.id }));
+    const idAluno = item.id_pessoa_aluno ?? item.idPessoaAluno ?? "";
+    const idEmpresa = item.id_empresa ?? item.idEmpresa ?? "";
+
+    const alunoSelecionado = alunos.find((aluno) => String(aluno.id) === String(idAluno));
+    const empresaSelecionada = empresas.find((empresa) => String(empresa.id) === String(idEmpresa));
+
+    const nomeEmpresa =
+      item.empresa ||
+      empresaSelecionada?.nome_fantasia ||
+      empresaSelecionada?.razao_social ||
+      "";
+
+    dispatch(
+      updateFichaAcompanhamento({
+        id: item.id,
+        id_pessoa_aluno: idAluno,
+        id_empresa: idEmpresa,
+        nome: item.nome || alunoSelecionado?.nome || "",
+        dataAdmissao: item.dataAdmissao || item.data_admissao || "",
+        dataVisita: item.dataVisita || item.data_visita || "",
+        empresa: nomeEmpresa,
+        responsavelRH:
+          item.responsavelRH ||
+          empresaSelecionada?.nome_responsavel_rh ||
+          "",
+        contatoCom:
+          item.contatoCom ||
+          empresaSelecionada?.telefone_responsavel_rh ||
+          empresaSelecionada?.email_responsavel_rh ||
+          "",
+        parecerGeral: item.parecerGeral || item.parecer_geral || "",
+      })
+    );
   };
 
   const handleExcluir = async (id) => {
@@ -116,13 +150,29 @@ const FichaAcompanhamento = () => {
       return;
     }
 
-    dispatch(saveFichaAcompanhamento(formData))
+    const alunoSelecionado = alunos.find((aluno) => aluno.nome === nome);
+    const empresaSelecionada = empresas.find(
+      (empresaItem) => (empresaItem.nome_fantasia || empresaItem.razao_social) === empresa
+    );
+
+    const payload = {
+      id: formData.id,
+      id_pessoa_aluno: formData.id_pessoa_aluno || alunoSelecionado?.id || null,
+      data_admissao: dataAdmissao || null,
+      data_visita: dataVisita || null,
+      id_empresa: formData.id_empresa || empresaSelecionada?.id || null,
+      parecer_geral: parecerGeral || null,
+    };
+
+    dispatch(saveFichaAcompanhamento(payload))
       .unwrap()
       .then(() => {
         alert("Ficha de Acompanhamento salva com sucesso!");
         dispatch(fetchFichaAcompanhamentoList());
         dispatch(
           updateFichaAcompanhamento({
+            id_pessoa_aluno: "",
+            id_empresa: "",
             nome: "",
             dataAdmissao: "",
             dataVisita: "",
@@ -143,6 +193,8 @@ const FichaAcompanhamento = () => {
   const limparFormulario = () => {
     dispatch(
       updateFichaAcompanhamento({
+        id_pessoa_aluno: "",
+        id_empresa: "",
         nome: "",
         dataAdmissao: "",
         dataVisita: "",
@@ -171,6 +223,56 @@ const FichaAcompanhamento = () => {
   const filteredList = fichaAcompanhamentoList.filter((item) =>
     (item.nome || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const camposOcultosVisualizacao = new Set([
+    "id",
+    "id_pessoa_aluno",
+    "id_empresa",
+    "nome",
+    "empresa",
+    "dataAdmissao",
+    "dataVisita",
+    "responsavelRH",
+    "contatoCom",
+    "parecerGeral",
+    "data_admissao",
+    "data_visita",
+    "parecer_geral",
+  ]);
+
+  const formatarData = (valor) => {
+    if (!valor) return "-";
+    const data = new Date(valor);
+    if (Number.isNaN(data.getTime())) return valor;
+    return `${String(data.getDate()).padStart(2, "0")}/${String(
+      data.getMonth() + 1
+    ).padStart(2, "0")}/${data.getFullYear()}`;
+  };
+
+  const dadosVisualizacao = itemVisualizado || {};
+  const nomeAlunoVisualizacao =
+    dadosVisualizacao.nome ||
+    alunos.find(
+      (aluno) => String(aluno.id) === String(dadosVisualizacao.id_pessoa_aluno)
+    )?.nome ||
+    "-";
+  const nomeEmpresaVisualizacao =
+    dadosVisualizacao.empresa ||
+    empresas.find(
+      (empresa) => String(empresa.id) === String(dadosVisualizacao.id_empresa)
+    )?.nome_fantasia ||
+    empresas.find(
+      (empresa) => String(empresa.id) === String(dadosVisualizacao.id_empresa)
+    )?.razao_social ||
+    "-";
+  const dataAdmissaoVisualizacao =
+    dadosVisualizacao.dataAdmissao || dadosVisualizacao.data_admissao || "";
+  const dataVisitaVisualizacao =
+    dadosVisualizacao.dataVisita || dadosVisualizacao.data_visita || "";
+  const responsavelRHVisualizacao = dadosVisualizacao.responsavelRH || "-";
+  const contatoComVisualizacao = dadosVisualizacao.contatoCom || "-";
+  const parecerGeralVisualizacao =
+    dadosVisualizacao.parecerGeral || dadosVisualizacao.parecer_geral || "-";
 
   return (
     <div className="ficha-container">
@@ -323,24 +425,40 @@ const FichaAcompanhamento = () => {
           <div className="visualizar-card">
             <h3>Detalhes do Registro</h3>
             <div className="visualizar-conteudo">
-              {itemVisualizado &&
-                Object.entries(itemVisualizado || {}).map(([key, value]) => {
-                  const data = new Date(value);
-                  const valorFormatado =
-                    !isNaN(data) &&
-                    typeof value === "string" &&
-                    value.includes("-")
-                      ? `${String(data.getDate()).padStart(2, "0")}/${String(
-                          data.getMonth() + 1
-                        ).padStart(2, "0")}/${data.getFullYear()}`
-                      : value;
+              {itemVisualizado && (
+                <>
+                  <p>
+                    <strong>Nome:</strong> {nomeAlunoVisualizacao}
+                  </p>
+                  <p>
+                    <strong>Data de admissão:</strong> {formatarData(dataAdmissaoVisualizacao)}
+                  </p>
+                  <p>
+                    <strong>Data da visita:</strong> {formatarData(dataVisitaVisualizacao)}
+                  </p>
+                  <p>
+                    <strong>Empresa:</strong> {nomeEmpresaVisualizacao}
+                  </p>
+                  <p>
+                    <strong>Responsável RH:</strong> {responsavelRHVisualizacao}
+                  </p>
+                  <p>
+                    <strong>Contato com:</strong> {contatoComVisualizacao}
+                  </p>
+                  <p>
+                    <strong>Parecer Geral:</strong> {parecerGeralVisualizacao}
+                  </p>
+                </>
+              )}
 
-                  return (
+              {itemVisualizado &&
+                Object.entries(itemVisualizado || {})
+                  .filter(([key]) => !camposOcultosVisualizacao.has(key))
+                  .map(([key, value]) => (
                     <p key={key}>
-                      <strong>{key}:</strong> {valorFormatado || "—"}
+                      <strong>{key}:</strong> {String(value || "-")}
                     </p>
-                  );
-                })}
+                  ))}
             </div>
             <div className="acoes-card">
               <button className="btn-fechar" onClick={fecharVisualizacao}>

@@ -58,17 +58,69 @@ export const {
   deleteItem: deleteControleInterno,
 } = createCRUDThunks("ControleInterno", "controleInterno");
 
+const createAvaliacaoExperienciaThunks = (nome, tipo) => {
+  const fetchList = createAsyncThunk(
+    `formularios/fetch${nome}List`,
+    async (_, { rejectWithValue }) => {
+      try {
+        const response = await axios.get(`${API_URL}/avaliacoes-experiencia`, {
+          params: { tipo },
+        });
+        return normalizeDatesInPayload(response.data);
+      } catch (error) {
+        return rejectWithValue(error.response?.data || error.message);
+      }
+    }
+  );
+
+  const saveItem = createAsyncThunk(
+    `formularios/save${nome}`,
+    async (data, { rejectWithValue }) => {
+      try {
+        const payload = {
+          ...data,
+          tipo,
+        };
+
+        const metodo = data.id ? "PUT" : "POST";
+        const url = data.id
+          ? `${API_URL}/avaliacoes-experiencia/${data.id}`
+          : `${API_URL}/avaliacoes-experiencia`;
+
+        const response = await axios({ method: metodo, url, data: payload });
+        return normalizeDatesInPayload(response.data);
+      } catch (error) {
+        return rejectWithValue(error.response?.data || error.message);
+      }
+    }
+  );
+
+  const deleteItem = createAsyncThunk(
+    `formularios/delete${nome}`,
+    async (id, { rejectWithValue }) => {
+      try {
+        await axios.delete(`${API_URL}/avaliacoes-experiencia/${id}`);
+        return id;
+      } catch (error) {
+        return rejectWithValue(error.response?.data || error.message);
+      }
+    }
+  );
+
+  return { fetchList, saveItem, deleteItem };
+};
+
 export const {
   fetchList: fetchAvaliacaoExperiencia1List,
   saveItem: saveAvaliacaoExperiencia1,
   deleteItem: deleteAvaliacaoExperiencia1,
-} = createCRUDThunks("AvaliacaoExperiencia1", "ficha-avaliacao-questionario");
+} = createAvaliacaoExperienciaThunks("AvaliacaoExperiencia1", "avaliacao-experiencia-1");
 
 export const {
   fetchList: fetchAvaliacaoExperiencia2List,
   saveItem: saveAvaliacaoExperiencia2,
   deleteItem: deleteAvaliacaoExperiencia2,
-} = createCRUDThunks("AvaliacaoExperiencia2", "ficha-avaliacao-questionario");
+} = createAvaliacaoExperienciaThunks("AvaliacaoExperiencia2", "avaliacao-experiencia-2");
 
 export const {
   fetchList: fetchFichaAcompanhamentoList,
@@ -76,11 +128,55 @@ export const {
   deleteItem: deleteFichaAcompanhamento,
 } = createCRUDThunks("FichaAcompanhamento", "ficha-acompanhamento");
 
+const createListaUsuariosEncaminhadosThunks = (nome) => {
+  const fetchList = createAsyncThunk(
+    `formularios/fetch${nome}List`,
+    async (_, { rejectWithValue }) => {
+      try {
+        const response = await axios.get(`${API_URL}/listas-encaminhados`);
+        return normalizeDatesInPayload(response.data);
+      } catch (error) {
+        return rejectWithValue(error.response?.data || error.message);
+      }
+    }
+  );
+
+  const saveItem = createAsyncThunk(
+    `formularios/save${nome}`,
+    async (data, { rejectWithValue }) => {
+      try {
+        const metodo = data.id ? "PUT" : "POST";
+        const url = data.id
+          ? `${API_URL}/listas-encaminhados/${data.id}`
+          : `${API_URL}/listas-encaminhados`;
+        const response = await axios({ method: metodo, url, data });
+        return normalizeDatesInPayload(response.data);
+      } catch (error) {
+        return rejectWithValue(error.response?.data || error.message);
+      }
+    }
+  );
+
+  const deleteItem = createAsyncThunk(
+    `formularios/delete${nome}`,
+    async (id, { rejectWithValue }) => {
+      try {
+        await axios.delete(`${API_URL}/listas-encaminhados/${id}`);
+        return id;
+      } catch (error) {
+        return rejectWithValue(error.response?.data || error.message);
+      }
+    }
+  );
+
+  return { fetchList, saveItem, deleteItem };
+};
+
 export const {
   fetchList: fetchListaUsuariosEncaminhadosList,
   saveItem: saveListaUsuariosEncaminhados,
   deleteItem: deleteListaUsuariosEncaminhados,
-} = createCRUDThunks("ListaUsuariosEncaminhados", "lista-encaminhados");
+} = createListaUsuariosEncaminhadosThunks("ListaUsuariosEncaminhados");
 
 // ===================== ESTADO INICIAL =====================
 const initialState = {
@@ -99,6 +195,7 @@ const initialState = {
         empresa: "",
         funcao: "",
         contatoRH: "",
+        dataEncaminhamento: "",
         provavelDataDesligamento: "",
       },
     ],

@@ -9,6 +9,40 @@ import {
 import useCadastroOptions from "../hooks/useCadastroOptions";
 import ActionMenu from "./ActionMenu";
 import SearchInput from "./SearchInput";
+import api from "../lib/api";
+
+const TIPO_QUESTIONARIO = "avaliacao-experiencia-2";
+
+const mapQuestoesTemplateParaFormulario = (questoes = []) =>
+  questoes
+    .map((questao) => ({
+      id: String(questao?.id || "").trim(),
+      texto: String(questao?.texto || ""),
+      tipo: questao?.tipo === "texto" ? "texto" : "opcao",
+      resposta: "",
+    }))
+    .filter((questao) => questao.id.length > 0 && questao.texto.trim().length > 0);
+
+const mapQuestoesFormularioParaTemplate = (questoes = []) =>
+  questoes
+    .map((questao) => ({
+      id: String(questao?.id || "").trim(),
+      texto: String(questao?.texto || "").trim(),
+      tipo: questao?.tipo === "texto" ? "texto" : "opcao",
+    }))
+    .filter((questao) => questao.id.length > 0 && questao.texto.length > 0);
+
+const criarIdQuestaoTexto = (questoes = []) => {
+  let indice = questoes.filter((questao) => String(questao.id).startsWith("texto-")).length + 1;
+  let novoId = `texto-${indice}`;
+
+  while (questoes.some((questao) => String(questao.id) === novoId)) {
+    indice += 1;
+    novoId = `texto-${indice}`;
+  }
+
+  return novoId;
+};
 
 const AvaliacaoExperiencia2 = () => {
   const dispatch = useDispatch();
@@ -28,21 +62,73 @@ const AvaliacaoExperiencia2 = () => {
   const [visualizando, setVisualizando] = useState(false);
   const [itemVisualizado, setItemVisualizado] = useState(null);
   const [editandoQuestionario, setEditandoQuestionario] = useState(false);
+  const [editandoPerguntasTexto, setEditandoPerguntasTexto] = useState(false);
+  const [draftQuestoesOpcao, setDraftQuestoesOpcao] = useState([]);
+  const [draftQuestoesTexto, setDraftQuestoesTexto] = useState([]);
   const [itemSelecionadoId, setItemSelecionadoId] = useState("");
+  const [novoCampoTexto, setNovoCampoTexto] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const questoesOpcao = questoes.filter((questao) => questao.tipo !== "texto");
+  const questoesTexto = questoes.filter((questao) => questao.tipo === "texto");
+  const questoesOpcaoEmEdicao = editandoQuestionario ? draftQuestoesOpcao : questoesOpcao;
+  const questoesTextoEmEdicao = editandoPerguntasTexto ? draftQuestoesTexto : questoesTexto;
 
   const itensDisponiveis = useMemo(() => {
-    const idsSelecionados = new Set(questoes.map((q) => Number(q.id)));
+    const idsSelecionados = new Set(
+      questoesOpcaoEmEdicao
+        .filter((q) => q.tipo !== "texto")
+        .map((q) => String(q.id))
+    );
     return itensAvaliacao.filter((item) => {
       const status = (item.status || "").toLowerCase();
       const ativo = status === "ativo" || status === "";
-      return ativo && !idsSelecionados.has(Number(item.id));
+      return ativo && !idsSelecionados.has(String(item.id));
     });
-  }, [itensAvaliacao, questoes]);
+  }, [itensAvaliacao, questoesOpcaoEmEdicao]);
 
   useEffect(() => {
     dispatch(fetchAvaliacaoExperiencia2List());
   }, [dispatch]);
+
+  useEffect(() => {
+    const loadQuestionarioModelo = async () => {
+      if (formState?.id || reduxQuestoes.length > 0) {
+        return;
+      }
+
+      try {
+        const { data } = await api.get(`/questionarios-modelo/${TIPO_QUESTIONARIO}`);
+        const questoesPadrao = mapQuestoesTemplateParaFormulario(data?.questoes || []);
+        if (questoesPadrao.length > 0) {
+          dispatch(updateAvaliacaoExperiencia2({ questoes: questoesPadrao }));
+        }
+      } catch (error) {
+        console.error("Erro ao carregar questionario modelo da 2a avaliacao:", error);
+      }
+    };
+
+    loadQuestionarioModelo();
+  }, [dispatch, formState?.id, reduxQuestoes.length]);
+
+  const salvarQuestionarioModelo = async (questoesAtualizadas) => {
+    const payload = mapQuestoesFormularioParaTemplate(questoesAtualizadas);
+
+    if (payload.length === 0) {
+      alert("Nao e possivel salvar um questionario vazio.");
+      return false;
+    }
+
+    try {
+      await api.put(`/questionarios-modelo/${TIPO_QUESTIONARIO}`, {
+        questoes: payload,
+      });
+      return true;
+    } catch (error) {
+      console.error("Erro ao salvar questionario modelo da 2a avaliacao:", error);
+      alert("Nao foi possivel salvar o modelo de questionario.");
+      return false;
+    }
+  };
 
   const opcoes = ["Sim", "Não", "Maioria das vezes", "Raras vezes"];
 
@@ -83,28 +169,41 @@ const AvaliacaoExperiencia2 = () => {
 
   const handleQuestaoChange = (id, value) => {
     const updatedQuestoes = questoes.map((q) =>
-      q.id === id ? { ...q, resposta: value } : q
+      String(q.id) === String(id) ? { ...q, resposta: value } : q
     );
     dispatch(updateAvaliacaoExperiencia2({ questoes: updatedQuestoes }));
   };
 
-  const removerQuestao = (id) => {
-    if (!isAdmin) {
-      alert("Somente admin pode remover itens do questionário.");
+  const iniciarEdicaoQuestionario = () => {
+    if (editandoPerguntasTexto) {
+      alert("Finalize a edicao de perguntas descritivas antes de editar o questionario.");
       return;
     }
-    const updatedQuestoes = questoes.filter((q) => q.id !== id);
-    dispatch(updateAvaliacaoExperiencia2({ questoes: updatedQuestoes }));
+
+    setDraftQuestoesOpcao(questoesOpcao.map((q) => ({ ...q })));
+    setItemSelecionadoId("");
+    setEditandoQuestionario(true);
   };
 
-  const adicionarQuestao = () => {
-    if (!isAdmin) {
-      alert("Somente admin pode inserir itens no questionário.");
-      return;
-    }
+  const cancelarEdicaoQuestionario = () => {
+    setEditandoQuestionario(false);
+    setDraftQuestoesOpcao([]);
+    setItemSelecionadoId("");
+  };
 
+  const atualizarTextoQuestaoOpcao = (id, texto) => {
+    setDraftQuestoesOpcao((prev) =>
+      prev.map((q) => (String(q.id) === String(id) ? { ...q, texto } : q))
+    );
+  };
+
+  const removerQuestaoOpcao = (id) => {
+    setDraftQuestoesOpcao((prev) => prev.filter((q) => String(q.id) !== String(id)));
+  };
+
+  const adicionarQuestaoOpcao = () => {
     if (!itemSelecionadoId) {
-      alert("Selecione um item para adicionar ao questionário.");
+      alert("Selecione um item para adicionar ao questionario.");
       return;
     }
 
@@ -113,22 +212,114 @@ const AvaliacaoExperiencia2 = () => {
     );
 
     if (!itemSelecionado) {
-      alert("Item selecionado inválido.");
+      alert("Item selecionado invalido.");
       return;
     }
 
-    const updatedQuestoes = [
-      ...questoes,
+    setDraftQuestoesOpcao((prev) => [
+      ...prev,
       {
-        id: itemSelecionado.id,
+        id: String(itemSelecionado.id),
         texto: itemSelecionado.itens,
+        tipo: "opcao",
         resposta: "",
-        personalizada: true,
       },
-    ];
-
-    dispatch(updateAvaliacaoExperiencia2({ questoes: updatedQuestoes }));
+    ]);
     setItemSelecionadoId("");
+  };
+
+  const salvarEdicaoQuestionario = async () => {
+    const questoesNormalizadas = draftQuestoesOpcao
+      .map((q) => ({ ...q, texto: String(q.texto || "").trim() }))
+      .filter((q) => q.texto.length > 0);
+
+    const questoesAtualizadas = [...questoesNormalizadas, ...questoesTexto];
+    const salvouModelo = await salvarQuestionarioModelo(questoesAtualizadas);
+    if (!salvouModelo) {
+      return;
+    }
+
+    const respostasPorId = new Map(questoes.map((q) => [String(q.id), q.resposta || ""]));
+    const comRespostas = questoesAtualizadas.map((q) => ({
+      ...q,
+      resposta: respostasPorId.get(String(q.id)) || "",
+    }));
+
+    dispatch(updateAvaliacaoExperiencia2({ questoes: comRespostas }));
+    setEditandoQuestionario(false);
+    setDraftQuestoesOpcao([]);
+    setItemSelecionadoId("");
+    alert("Questionario atualizado para todos os professores.");
+  };
+
+  const iniciarEdicaoPerguntasTexto = () => {
+    if (editandoQuestionario) {
+      alert("Finalize a edicao do questionario antes de editar perguntas descritivas.");
+      return;
+    }
+
+    setDraftQuestoesTexto(questoesTexto.map((q) => ({ ...q })));
+    setNovoCampoTexto("");
+    setEditandoPerguntasTexto(true);
+  };
+
+  const cancelarEdicaoPerguntasTexto = () => {
+    setEditandoPerguntasTexto(false);
+    setDraftQuestoesTexto([]);
+    setNovoCampoTexto("");
+  };
+
+  const atualizarTextoPerguntaDescritiva = (id, texto) => {
+    setDraftQuestoesTexto((prev) =>
+      prev.map((q) => (String(q.id) === String(id) ? { ...q, texto } : q))
+    );
+  };
+
+  const removerPerguntaDescritiva = (id) => {
+    setDraftQuestoesTexto((prev) => prev.filter((q) => String(q.id) !== String(id)));
+  };
+
+  const adicionarCampoTexto = () => {
+    const texto = novoCampoTexto.trim();
+    if (!texto) {
+      alert("Digite o texto do novo campo.");
+      return;
+    }
+
+    setDraftQuestoesTexto((prev) => [
+      ...prev,
+      {
+        id: criarIdQuestaoTexto([...questoes, ...prev]),
+        texto,
+        tipo: "texto",
+        resposta: "",
+      },
+    ]);
+    setNovoCampoTexto("");
+  };
+
+  const salvarEdicaoPerguntasTexto = async () => {
+    const questoesTextoNormalizadas = draftQuestoesTexto
+      .map((q) => ({ ...q, texto: String(q.texto || "").trim() }))
+      .filter((q) => q.texto.length > 0);
+
+    const questoesAtualizadas = [...questoesOpcao, ...questoesTextoNormalizadas];
+    const salvouModelo = await salvarQuestionarioModelo(questoesAtualizadas);
+    if (!salvouModelo) {
+      return;
+    }
+
+    const respostasPorId = new Map(questoes.map((q) => [String(q.id), q.resposta || ""]));
+    const comRespostas = questoesAtualizadas.map((q) => ({
+      ...q,
+      resposta: respostasPorId.get(String(q.id)) || "",
+    }));
+
+    dispatch(updateAvaliacaoExperiencia2({ questoes: comRespostas }));
+    setEditandoPerguntasTexto(false);
+    setDraftQuestoesTexto([]);
+    setNovoCampoTexto("");
+    alert("Perguntas descritivas atualizadas para todos os professores.");
   };
 
   const handleEditar = (item) => {
@@ -159,31 +350,30 @@ const AvaliacaoExperiencia2 = () => {
   };
 
   const salvarFormulario = () => {
+    const { nome, dataEntrada, dataAvaliacao, nomeAvaliador } =
+      reduxFormData || {};
+
     const camposObrigatorios = {
       nome: "Nome",
-      dataAdmissao: "Data de Admissão",
-      dataInicio: "Data de Início",
-      dataFim: "Data de Fim",
-      empresa: "Empresa",
-      funcao: "Função",
-      responsavelRH: "Responsável RH",
+      dataEntrada: "Data da Entrada",
+      dataAvaliacao: "Data da Avaliação",
+      nomeAvaliador: "Nome do Professor(a)",
     };
-    if (!formState.id) {
-      const camposVazios = Object.entries(camposObrigatorios)
-        .filter(([campo]) => {
-          const valor = reduxFormData?.[campo];
-          return typeof valor === "string" ? valor.trim() === "" : !valor;
-        })
-        .map(([_, label]) => label);
 
-      if (camposVazios.length > 0) {
-        alert(
-          `Preencha os seguintes campos antes de salvar:\n\n• ${camposVazios.join(
-            "\n• "
-          )}`
-        );
-        return;
-      }
+    const camposVazios = Object.entries(camposObrigatorios)
+      .filter(([campo]) => {
+        const valor = reduxFormData?.[campo];
+        return typeof valor === "string" ? valor.trim() === "" : !valor;
+      })
+      .map(([_, label]) => label);
+
+    if (camposVazios.length > 0) {
+      alert(
+        `Preencha os seguintes campos antes de salvar:\n\n• ${camposVazios.join(
+          "\n• "
+        )}`
+      );
+      return;
     }
 
     const questoesParaSalvar = questoes.map(({ personalizada, ...questao }) =>
@@ -231,6 +421,31 @@ const AvaliacaoExperiencia2 = () => {
     const nome = item.formData?.nome || "";
     return nome.toLowerCase().includes(searchTerm.toLowerCase());
   });
+
+  const formDataVisualizado = itemVisualizado?.formData || {};
+  const nomeAlunoVisualizado =
+    formDataVisualizado.nome ||
+    alunos.find((aluno) => String(aluno.id) === String(formDataVisualizado.id_pessoa_aluno))?.nome ||
+    "—";
+  const nomeProfessorVisualizado =
+    formDataVisualizado.nomeAvaliador ||
+    professores.find(
+      (professor) => String(professor.id) === String(formDataVisualizado.id_pessoa_professor)
+    )?.nome ||
+    "—";
+  const camposOcultosVisualizacao = new Set([
+    "id",
+    "id_pessoa_aluno",
+    "id_pessoa_professor",
+    "nome",
+    "nomeAvaliador",
+  ]);
+  const labelsCamposVisualizacao = {
+    dataEntrada: "Data da Entrada",
+    dataAvaliacao: "Data da Avaliacao",
+    observacoes: "Observacoes",
+    situacoesIrritacao: "Situacoes de Irritacao",
+  };
 
   return (
     <div className="avaliacao-container">
@@ -287,32 +502,43 @@ const AvaliacaoExperiencia2 = () => {
           <p>Nenhum item cadastrado em Itens a serem avaliados.</p>
         )}
         <div className="questoes-list">
-          {questoes.length === 0 && (
+          {questoesOpcao.length === 0 && (
             <p>Nenhum item selecionado para esta avaliação.</p>
           )}
-          {questoes.map((questao) => (
+          {questoesOpcaoEmEdicao.map((questao, index) => (
             <div key={questao.id} className="questao-item">
-              <div className="questao-numero">{questao.id}</div>
-              <div className="questao-texto">{questao.texto}</div>
-              <div className="questao-opcoes">
-                {opcoes.map((opcao) => (
-                  <label key={opcao} className="radio-label">
-                    <input
-                      type="radio"
-                      name={`questao-${questao.id}`}
-                      value={opcao}
-                      checked={questao.resposta === opcao}
-                      onChange={(e) =>
-                        handleQuestaoChange(questao.id, e.target.value)
-                      }
-                    />
-                    <span>{opcao}</span>
-                  </label>
-                ))}
-              </div>
+              <div className="questao-numero">{index + 1}</div>
+              {editandoQuestionario && isAdmin ? (
+                <input
+                  type="text"
+                  className="questao-input"
+                  value={questao.texto}
+                  onChange={(e) => atualizarTextoQuestaoOpcao(questao.id, e.target.value)}
+                />
+              ) : (
+                <div className="questao-texto">{questao.texto}</div>
+              )}
+              {!editandoQuestionario && (
+                <div className="questao-opcoes">
+                  {opcoes.map((opcao) => (
+                    <label key={opcao} className="radio-label">
+                      <input
+                        type="radio"
+                        name={`questao-${questao.id}`}
+                        value={opcao}
+                        checked={questao.resposta === opcao}
+                        onChange={(e) =>
+                          handleQuestaoChange(questao.id, e.target.value)
+                        }
+                      />
+                      <span>{opcao}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
               {editandoQuestionario && (
                 <button
-                  onClick={() => removerQuestao(questao.id)}
+                  onClick={() => removerQuestaoOpcao(questao.id)}
                   className="btn-excluir"
                   title="Remover questão"
                 >
@@ -325,13 +551,32 @@ const AvaliacaoExperiencia2 = () => {
           {isAdmin && (
             <div className="admin-controls">
               <div className="questionario-actions">
-                <button
-                  type="button"
-                  className="btn-editar"
-                  onClick={() => setEditandoQuestionario((prev) => !prev)}
-                >
-                  {editandoQuestionario ? "Fechar" : "Editar"}
-                </button>
+                {editandoQuestionario ? (
+                  <>
+                    <button
+                      type="button"
+                      className="btn-editar"
+                      onClick={salvarEdicaoQuestionario}
+                    >
+                      Salvar Questionario
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-excluir"
+                      onClick={cancelarEdicaoQuestionario}
+                    >
+                      Cancelar
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn-editar"
+                    onClick={iniciarEdicaoQuestionario}
+                  >
+                    Editar Questionario
+                  </button>
+                )}
               </div>
 
               {editandoQuestionario && (
@@ -351,7 +596,7 @@ const AvaliacaoExperiencia2 = () => {
                   <button
                     type="button"
                     className="btn-editar"
-                    onClick={adicionarQuestao}
+                    onClick={adicionarQuestaoOpcao}
                     disabled={itensDisponiveis.length === 0}
                   >
                     Adicionar item
@@ -363,26 +608,97 @@ const AvaliacaoExperiencia2 = () => {
         </div>
       </div>
 
-      <div className="questao-especial">
-        <h4>47 - O usuário tem perfil para esta instituição? Por quê?</h4>
-        <textarea
-          value={reduxFormData.observacoes || ""}
-          onChange={(e) => handleInputChange("observacoes", e.target.value)}
-          placeholder="Descreva sua opinião..."
-          rows="4"
-        />
-      </div>
+      <div className="questoes-section">
+        <h3>Perguntas Descritivas</h3>
+        <div className="questoes-list">
+          {questoesTexto.length === 0 && (
+            <p>Nenhuma pergunta descritiva cadastrada.</p>
+          )}
+          {questoesTextoEmEdicao.map((questao, index) => (
+            <div key={questao.id} className="questao-item">
+              <div className="questao-numero">{index + 1}</div>
+              {editandoPerguntasTexto && isAdmin ? (
+                <input
+                  type="text"
+                  className="questao-input"
+                  value={questao.texto}
+                  onChange={(e) => atualizarTextoPerguntaDescritiva(questao.id, e.target.value)}
+                />
+              ) : (
+                <div className="questao-texto">{questao.texto}</div>
+              )}
+              <div className="questao-especial">
+                <textarea
+                  value={questao.resposta || ""}
+                  onChange={(e) => handleQuestaoChange(questao.id, e.target.value)}
+                  placeholder="Descreva sua resposta..."
+                  rows="3"
+                />
+              </div>
+              {editandoPerguntasTexto && (
+                <button
+                  onClick={() => removerPerguntaDescritiva(questao.id)}
+                  className="btn-excluir"
+                  title="Remover pergunta"
+                >
+                  Excluir
+                </button>
+              )}
+            </div>
+          ))}
 
-      <div className="questao-especial">
-        <h4>Em que situações demonstra irritação?</h4>
-        <textarea
-          value={reduxFormData.situacoesIrritacao || ""}
-          onChange={(e) =>
-            handleInputChange("situacoesIrritacao", e.target.value)
-          }
-          placeholder="Descreva as situações..."
-          rows="3"
-        />
+          {isAdmin && (
+            <div className="admin-controls">
+              <div className="questionario-actions">
+                {editandoPerguntasTexto ? (
+                  <>
+                    <button
+                      type="button"
+                      className="btn-editar"
+                      onClick={salvarEdicaoPerguntasTexto}
+                    >
+                      Salvar Perguntas
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-excluir"
+                      onClick={cancelarEdicaoPerguntasTexto}
+                    >
+                      Cancelar
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn-editar"
+                    onClick={iniciarEdicaoPerguntasTexto}
+                  >
+                    Editar Perguntas
+                  </button>
+                )}
+              </div>
+
+              {editandoPerguntasTexto && (
+                <div className="add-questao">
+                  <input
+                    type="text"
+                    className="questao-input"
+                    placeholder="Digite uma nova pergunta de texto"
+                    value={novoCampoTexto}
+                    onChange={(e) => setNovoCampoTexto(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="btn-editar"
+                    onClick={adicionarCampoTexto}
+                  >
+                    Adicionar campo de texto
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="form-section">
@@ -442,8 +758,21 @@ const AvaliacaoExperiencia2 = () => {
           <div className="visualizar-card">
             <h3>Detalhes do Registro</h3>
             <div className="visualizar-conteudo">
+              {itemVisualizado && (
+                <>
+                  <p>
+                    <strong>Aluno:</strong> {nomeAlunoVisualizado}
+                  </p>
+                  <p>
+                    <strong>Professor(a):</strong> {nomeProfessorVisualizado}
+                  </p>
+                </>
+              )}
+
               {itemVisualizado &&
-                Object.entries(itemVisualizado.formData || {}).map(
+                Object.entries(formDataVisualizado)
+                  .filter(([key]) => !camposOcultosVisualizacao.has(key))
+                  .map(
                   ([key, value]) => {
                     const data = new Date(value);
                     const valorFormatado = !isNaN(data)
@@ -453,7 +782,7 @@ const AvaliacaoExperiencia2 = () => {
                       : value;
                     return (
                       <p key={key}>
-                        <strong>{key}:</strong> {valorFormatado || "—"}
+                        <strong>{labelsCamposVisualizacao[key] || key}:</strong> {valorFormatado || "—"}
                       </p>
                     );
                   }
@@ -464,9 +793,7 @@ const AvaliacaoExperiencia2 = () => {
                   <h4>Questões</h4>
                   {itemVisualizado.questoes.map((q) => (
                     <p key={q.id}>
-                      <strong>
-                        {q.id} - {q.texto}:
-                      </strong>{" "}
+                      <strong>{q.texto}:</strong>{" "}
                       {q.resposta || "—"}
                     </p>
                   ))}

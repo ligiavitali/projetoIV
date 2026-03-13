@@ -401,7 +401,7 @@ body {
   background: var(--white);
   border-radius: 12px;
   box-shadow: var(--shadow);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .tabs-nav {
@@ -1112,9 +1112,33 @@ body {
 
 .admin-controls {
   background: var(--light-gray);
-  padding: 1rem;
+  padding: 0.125rem 0.35rem;
   border-radius: 8px;
+  border: 0.5px solid #eceff3;
   margin-bottom: 2rem;
+}
+
+.admin-controls .btn-editar,
+.admin-controls .btn-excluir {
+  margin-top: 0;
+  margin-right: 0;
+  padding: 8px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-controls .questionario-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 0;
+  gap: 0.5rem;
+  min-height: 36px;
+}
+
+.admin-controls .questionario-actions + .add-questao {
+  margin-top: 0.5rem;
 }
 
 .add-questao {
@@ -1225,6 +1249,17 @@ body {
   font-size: 1rem;
   font-family: inherit;
   resize: vertical;
+}
+
+.questao-item .questao-especial {
+  grid-column: 2 / -1;
+  margin-bottom: 0;
+  padding: 1rem;
+  box-shadow: none;
+}
+
+.questao-item .questao-especial textarea {
+  min-height: 96px;
 }
 
 /* Ficha de Acompanhamento */
@@ -1420,6 +1455,10 @@ body {
   .questao-item {
     grid-template-columns: 1fr;
     gap: 0.5rem;
+  }
+
+  .questao-item .questao-especial {
+    grid-column: 1 / -1;
   }
 
   .questao-opcoes {

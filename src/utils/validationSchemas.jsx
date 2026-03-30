@@ -3,7 +3,10 @@ import * as yup from "yup";
 
 // 🔹 Pessoas
 export const pessoasSchema = yup.object().shape({
-  nome: yup.string().required("O nome é obrigatório"),
+  nome: yup
+    .string()
+    .required("O nome é obrigatório")
+    .matches(/^[^0-9]*$/, "O nome não pode conter números"),
   email: yup
     .string()
     .email("E-mail inválido")
@@ -25,7 +28,7 @@ export const pessoasSchema = yup.object().shape({
     .oneOf(["Ativo", "Inativo"], "Status inválido")
     .required("O status é obrigatório"),
   dataIngresso: yup.string().when("cargo", {
-    is: "Aluno",
+    is: (c) => c === "Aluno" || c === "Professor",
     then: (schema) => schema.required("A data de ingresso é obrigatória"),
     otherwise: (schema) => schema.notRequired(),
   }),
@@ -35,8 +38,14 @@ export const pessoasSchema = yup.object().shape({
     otherwise: (schema) => schema.notRequired(),
   }),
   nome_responsavel: yup.string().when("cargo", {
-    is: "Aluno",
-    then: (schema) => schema.required("O nome do responsável é obrigatório"),
+    is: (c) => c === "Aluno" || c === "Professor",
+    then: (schema) =>
+      schema
+        .required("O nome do responsável é obrigatório")
+        .matches(
+          /^[^0-9]*$/,
+          "O nome do responsável não pode conter números"
+        ),
     otherwise: (schema) => schema.notRequired(),
   }),
   telefone_responsavel: yup.string().when("cargo", {
@@ -48,7 +57,7 @@ export const pessoasSchema = yup.object().shape({
     otherwise: (schema) => schema.notRequired(),
   }),
   usa_medicamento: yup.string().when("cargo", {
-    is: "Aluno",
+    is: (c) => c === "Aluno" || c === "Professor",
     then: (schema) =>
       schema
         .oneOf(["Sim", "Não"], "Informe se usa medicamento")
@@ -57,7 +66,7 @@ export const pessoasSchema = yup.object().shape({
   }),
   info_medicamentos: yup.string().when(["cargo", "usa_medicamento"], {
     is: (cargo, usa_medicamento) =>
-      cargo === "Aluno" && usa_medicamento === "Sim",
+      (cargo === "Aluno" || cargo === "Professor") && usa_medicamento === "Sim",
     then: (schema) => schema.required("Informe os medicamentos"),
     otherwise: (schema) => schema.notRequired(),
   }),

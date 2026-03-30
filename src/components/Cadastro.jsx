@@ -8,6 +8,11 @@ import {
   avaliacaoSchema,
 } from "../utils/validationSchemas";
 import { normalizeDatesInPayload } from "../lib/dateUtils";
+import {
+  mapPessoaApiToForm,
+  pessoaFormToApi,
+  filtrarNomeSemNumeros,
+} from "../utils/pessoaFormUtils";
 import ActionMenu from "./ActionMenu";
 import SearchInput from "./SearchInput";
 
@@ -97,10 +102,17 @@ const Cadastro = () => {
       const metodo = data.id ? "PUT" : "POST";
       const endpoint = data.id ? `${url}/${data.id}` : url;
 
+      let body =
+        activeTab === "pessoas" ? pessoaFormToApi(data) : data;
+      if (activeTab === "pessoas" && metodo === "POST") {
+        const { id: _omit, ...rest } = body;
+        body = rest;
+      }
+
       const response = await fetch(endpoint, {
         method: metodo,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(body),
       });
 
       if (response.ok) {
@@ -161,6 +173,18 @@ const Cadastro = () => {
   };
 
   const handleEditar = (item) => {
+    if (activeTab === "pessoas") {
+      const sanitized = Object.fromEntries(
+        Object.entries(item).map(([key, value]) => [key, value ?? ""])
+      );
+      dispatch(
+        updateCadastroAbaData({
+          aba: "pessoas",
+          data: mapPessoaApiToForm(sanitized),
+        })
+      );
+      return;
+    }
     const sanitizedItem = Object.fromEntries(
       Object.entries(item).map(([key, value]) => [key, value ?? ""])
     );
@@ -180,7 +204,13 @@ const Cadastro = () => {
           <input
             type="text"
             value={formData.pessoas.nome}
-            onChange={(e) => handleChange("pessoas", "nome", e.target.value)}
+            onChange={(e) =>
+              handleChange(
+                "pessoas",
+                "nome",
+                filtrarNomeSemNumeros(e.target.value)
+              )
+            }
             placeholder="Digite o nome completo"
           />
           {renderFieldError("nome")}
@@ -234,13 +264,16 @@ const Cadastro = () => {
             onChange={(e) => {
               const novoCargo = e.target.value;
               handleChange("pessoas", "cargo", novoCargo);
-              if (novoCargo !== "Aluno") {
+              if (novoCargo === "") {
                 handleChange("pessoas", "dataIngresso", "");
                 handleChange("pessoas", "data_nascimento", "");
                 handleChange("pessoas", "nome_responsavel", "");
                 handleChange("pessoas", "telefone_responsavel", "");
                 handleChange("pessoas", "usa_medicamento", "");
                 handleChange("pessoas", "info_medicamentos", "");
+              } else if (novoCargo === "Professor") {
+                handleChange("pessoas", "data_nascimento", "");
+                handleChange("pessoas", "telefone_responsavel", "");
               }
             }}
           >
@@ -251,7 +284,8 @@ const Cadastro = () => {
           {renderFieldError("cargo")}
         </div>
 
-        {formData.pessoas.cargo === "Aluno" && (
+        {(formData.pessoas.cargo === "Aluno" ||
+          formData.pessoas.cargo === "Professor") && (
           <div className="form-group">
             <label>Data de Ingresso</label>
             <input
@@ -267,27 +301,36 @@ const Cadastro = () => {
       </div>
 
       {formData.pessoas.cargo === "Aluno" && (
+        <div className="form-row">
+          <div className="form-group">
+            <label>Data de Nascimento</label>
+            <input
+              type="date"
+              value={formData.pessoas.data_nascimento}
+              onChange={(e) =>
+                handleChange("pessoas", "data_nascimento", e.target.value)
+              }
+            />
+            {renderFieldError("data_nascimento")}
+          </div>
+        </div>
+      )}
+
+      {(formData.pessoas.cargo === "Aluno" ||
+        formData.pessoas.cargo === "Professor") && (
         <>
           <div className="form-row">
-            <div className="form-group">
-              <label>Data de Nascimento</label>
-              <input
-                type="date"
-                value={formData.pessoas.data_nascimento}
-                onChange={(e) =>
-                  handleChange("pessoas", "data_nascimento", e.target.value)
-                }
-              />
-              {renderFieldError("data_nascimento")}
-            </div>
-
             <div className="form-group">
               <label>Nome do Responsável</label>
               <input
                 type="text"
                 value={formData.pessoas.nome_responsavel}
                 onChange={(e) =>
-                  handleChange("pessoas", "nome_responsavel", e.target.value)
+                  handleChange(
+                    "pessoas",
+                    "nome_responsavel",
+                    filtrarNomeSemNumeros(e.target.value)
+                  )
                 }
                 placeholder="Digite o nome do responsável"
               />
@@ -295,24 +338,28 @@ const Cadastro = () => {
             </div>
           </div>
 
-          <div className="form-row">
-            <div className="form-group">
-              <label>Telefone do Responsável</label>
-              <input
-                type="tel"
-                value={formData.pessoas.telefone_responsavel}
-                onChange={(e) =>
-                  handleChange(
-                    "pessoas",
-                    "telefone_responsavel",
-                    formatTelefone(e.target.value)
-                  )
-                }
-                placeholder="(11) 99999-9999"
-              />
-              {renderFieldError("telefone_responsavel")}
+          {formData.pessoas.cargo === "Aluno" && (
+            <div className="form-row">
+              <div className="form-group">
+                <label>Telefone do Responsável</label>
+                <input
+                  type="tel"
+                  value={formData.pessoas.telefone_responsavel}
+                  onChange={(e) =>
+                    handleChange(
+                      "pessoas",
+                      "telefone_responsavel",
+                      formatTelefone(e.target.value)
+                    )
+                  }
+                  placeholder="(11) 99999-9999"
+                />
+                {renderFieldError("telefone_responsavel")}
+              </div>
             </div>
+          )}
 
+          <div className="form-row">
             <div className="form-group">
               <label>Usa Medicamento?</label>
               <select

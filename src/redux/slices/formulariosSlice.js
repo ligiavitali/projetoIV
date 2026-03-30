@@ -197,6 +197,7 @@ const initialState = {
         contatoRH: "",
         dataEncaminhamento: "",
         provavelDataDesligamento: "",
+        statusEncaminhamento: "ativo",
       },
     ],
   },

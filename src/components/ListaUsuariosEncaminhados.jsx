@@ -164,6 +164,7 @@ const ListaUsuariosEncaminhados = () => {
                 contatoRH: "",
                 dataEncaminhamento: "",
                 provavelDataDesligamento: "",
+                statusEncaminhamento: "ativo",
               },
             ],
             id: undefined,
@@ -190,6 +191,7 @@ const ListaUsuariosEncaminhados = () => {
             contatoRH: "",
             dataEncaminhamento: "",
             provavelDataDesligamento: "",
+            statusEncaminhamento: "ativo",
           },
         ],
         id: undefined,
@@ -376,18 +378,34 @@ const ListaUsuariosEncaminhados = () => {
                   />
                 </td>
                 <td>
-                  <input
-                    type="date"
-                    value={usuario.provavelDataDesligamento}
-                    onChange={(e) =>
-                      handleInputChange(
-                        usuario.id,
-                        "provavelDataDesligamento",
-                        e.target.value
-                      )
-                    }
-                    className="table-input date-input"
-                  />
+                  <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                    <input
+                      type="date"
+                      value={usuario.provavelDataDesligamento}
+                      onChange={(e) =>
+                        handleInputChange(
+                          usuario.id,
+                          "provavelDataDesligamento",
+                          e.target.value
+                        )
+                      }
+                      className="table-input date-input"
+                    />
+                    <select
+                      value={usuario.statusEncaminhamento || "ativo"}
+                      onChange={(e) =>
+                        handleInputChange(
+                          usuario.id,
+                          "statusEncaminhamento",
+                          e.target.value
+                        )
+                      }
+                      className="table-input"
+                    >
+                      <option value="ativo">Ativo</option>
+                      <option value="inativo">Inativo</option>
+                    </select>
+                  </div>
                 </td>
                 <td>
                   <button
@@ -470,6 +488,9 @@ const ListaUsuariosEncaminhados = () => {
                     </p>
                     <p>
                       <strong>Provável data de desligamento:</strong> {formatarData(u.provavelDataDesligamento)}
+                    </p>
+                    <p>
+                      <strong>Status do encaminhamento:</strong> {u.statusEncaminhamento || "ativo"}
                     </p>
                   </div>
                 );

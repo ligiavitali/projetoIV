@@ -238,15 +238,6 @@ const FormularioAvaliacao = () => {
 
       {mensagem && <p className="mensagem-sucesso">{mensagem}</p>}
 
-      <div className="formulario-actions">
-        <button onClick={salvarFormulario} className="btn-save">
-          Salvar Formulário
-        </button>
-        <button onClick={limparFormulario} className="btn-clear">
-          Limpar Tudo
-        </button>
-      </div>
-
       <div className="table-container">
         <table className="avaliacao-table">
           <thead>
@@ -365,6 +356,12 @@ const FormularioAvaliacao = () => {
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div className="lista-save-button">
+        <button onClick={salvarFormulario} className="btn-save">
+          Salvar
+        </button>
       </div>
 
       <div className="lista-registros">

@@ -37,6 +37,7 @@ const Cadastro = () => {
   // Estado da telinha (visualização)
   const [visualizando, setVisualizando] = useState(false);
   const [itemVisualizado, setItemVisualizado] = useState(null);
+  const [erroModal, setErroModal] = useState("");
 
   const carregarDados = async () => {
     try {
@@ -155,7 +156,12 @@ const Cadastro = () => {
         alert("Registro excluído com sucesso!");
         carregarDados();
       } else {
-        alert("Erro ao excluir registro!");
+        const data = await response.json().catch(() => ({}));
+        if (response.status === 500 && data?.details?.includes("violates foreign key")) {
+          setErroModal("Este cadastro não pode ser excluído pois possui vínculos com outros registros do sistema (formulários, fichas ou avaliações). Remova os vínculos antes de excluir.");
+        } else {
+          setErroModal(data?.error || "Erro ao excluir registro!");
+        }
       }
     } catch (error) {
       console.error("Erro ao excluir registro:", error);
@@ -188,7 +194,14 @@ const Cadastro = () => {
     const sanitizedItem = Object.fromEntries(
       Object.entries(item).map(([key, value]) => [key, value ?? ""])
     );
-    dispatch(updateCadastroAbaData({ aba: activeTab, data: sanitizedItem }));
+    let mappedItem = sanitizedItem;
+    if (activeTab === "funcoes") {
+      mappedItem = {
+        ...sanitizedItem,
+        titulo: sanitizedItem.titulo_funcao ?? sanitizedItem.titulo ?? "",
+      };
+    }
+    dispatch(updateCadastroAbaData({ aba: activeTab, data: mappedItem }));
   };
 
   // Renderiza erros de campo
@@ -316,8 +329,7 @@ const Cadastro = () => {
         </div>
       )}
 
-      {(formData.pessoas.cargo === "Aluno" ||
-        formData.pessoas.cargo === "Professor") && (
+      {formData.pessoas.cargo === "Aluno" && (
         <>
           <div className="form-row">
             <div className="form-group">
@@ -767,6 +779,21 @@ const Cadastro = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal de erro de exclusão */}
+      {erroModal && (
+        <div className="overlay-visualizar">
+          <div className="visualizar-card">
+            <h3 style={{ color: "var(--danger-red)", marginBottom: "1rem" }}>Não foi possível excluir</h3>
+            <div className="visualizar-conteudo">
+              <p>{erroModal}</p>
+            </div>
+            <div className="acoes-card">
+              <button className="btn-fechar" onClick={() => setErroModal("")}>Fechar</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Telinha de visualização */}
       {visualizando && (

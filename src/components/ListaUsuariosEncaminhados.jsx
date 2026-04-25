@@ -177,28 +177,6 @@ const ListaUsuariosEncaminhados = () => {
       });
   };
 
-  const limparLista = () => {
-    dispatch(
-      updateListaUsuariosEncaminhados({
-        usuarios: [
-          {
-            id: 1,
-            numero: "01",
-            nome: "",
-            dataAdmissao: "",
-            empresa: "",
-            funcao: "",
-            contatoRH: "",
-            dataEncaminhamento: "",
-            provavelDataDesligamento: "",
-            statusEncaminhamento: "ativo",
-          },
-        ],
-        id: undefined,
-      })
-    );
-  };
-
   if (loading)
     return (
       <div className="loading-message">
@@ -259,17 +237,6 @@ const ListaUsuariosEncaminhados = () => {
             max="2030"
           />
         </div>
-        <p className="instituicao">IEEDF</p>
-      </div>
-
-      {/* Ações */}
-      <div className="lista-actions">
-        <button onClick={salvarLista} className="btn-save">
-          Salvar Lista
-        </button>
-        <button onClick={limparLista} className="btn-clear">
-          Limpar Lista
-        </button>
       </div>
 
       {/* Tabela de Edição */}
@@ -277,28 +244,26 @@ const ListaUsuariosEncaminhados = () => {
         <table className="usuarios-table">
           <thead>
             <tr>
-              <th>Nº</th>
               <th>Nome</th>
               <th>Data Admissão</th>
               <th>Empresa</th>
               <th>Função</th>
               <th>Contato RH</th>
               <th>Data Encaminhamento</th>
-              <th>Provável data desligamento IEEDF</th>
-              <th>Ações</th>
+              <th>Desligamento</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
             {usuarios.map((usuario) => (
               <tr key={usuario.id}>
-                <td className="numero-cell">{usuario.numero}</td>
                 <td>
                   <select
                     value={usuario.nome}
                     onChange={(e) => handleAlunoChange(usuario.id, e.target.value)}
                     className="table-input"
                   >
-                    <option value="">Selecione o aluno</option>
+                    <option value="">Selecionar</option>
                     {alunos.map((aluno) => (
                       <option key={aluno.id} value={aluno.nome}>
                         {aluno.nome}
@@ -326,7 +291,7 @@ const ListaUsuariosEncaminhados = () => {
                     onChange={(e) => handleEmpresaChange(usuario.id, e.target.value)}
                     className="table-input"
                   >
-                    <option value="">Selecione a empresa</option>
+                    <option value="">Selecionar</option>
                     {empresas.map((empresa) => {
                       const nomeEmpresa = empresa.nome_fantasia || empresa.razao_social;
                       return (
@@ -345,7 +310,7 @@ const ListaUsuariosEncaminhados = () => {
                     }
                     className="table-input"
                   >
-                    <option value="">Selecione a funcao</option>
+                    <option value="">Selecionar</option>
                     {funcoes.map((funcao) => (
                       <option key={funcao.id} value={funcao.titulo_funcao}>
                         {funcao.titulo_funcao}
@@ -378,48 +343,46 @@ const ListaUsuariosEncaminhados = () => {
                   />
                 </td>
                 <td>
-                  <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                    <input
-                      type="date"
-                      value={usuario.provavelDataDesligamento}
-                      onChange={(e) =>
-                        handleInputChange(
-                          usuario.id,
-                          "provavelDataDesligamento",
-                          e.target.value
-                        )
-                      }
-                      className="table-input date-input"
-                    />
-                    <select
-                      value={usuario.statusEncaminhamento || "ativo"}
-                      onChange={(e) =>
-                        handleInputChange(
-                          usuario.id,
-                          "statusEncaminhamento",
-                          e.target.value
-                        )
-                      }
-                      className="table-input"
-                    >
-                      <option value="ativo">Ativo</option>
-                      <option value="inativo">Inativo</option>
-                    </select>
-                  </div>
+                  <input
+                    type="date"
+                    value={usuario.provavelDataDesligamento}
+                    onChange={(e) =>
+                      handleInputChange(
+                        usuario.id,
+                        "provavelDataDesligamento",
+                        e.target.value
+                      )
+                    }
+                    className="table-input date-input"
+                  />
                 </td>
                 <td>
-                  <button
-                    onClick={() => removerLinha(usuario.id)}
-                    className="btn-excluir"
-                    disabled={usuarios.length === 1}
+                  <select
+                    value={usuario.statusEncaminhamento || "ativo"}
+                    onChange={(e) =>
+                      handleInputChange(
+                        usuario.id,
+                        "statusEncaminhamento",
+                        e.target.value
+                      )
+                    }
+                    className="table-input status-select"
                   >
-                    Excluir
-                  </button>
+                    <option value="ativo">Ativo</option>
+                    <option value="inativo">Inativo</option>
+                  </select>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Botão Salvar */}
+      <div className="lista-save-button">
+        <button onClick={salvarLista} className="btn-save">
+          Salvar
+        </button>
       </div>
 
       {/* Lista Geral (apenas nome) */}
@@ -465,9 +428,6 @@ const ListaUsuariosEncaminhados = () => {
               {itemVisualizado.usuarios.map((u) => {
                 return (
                   <div key={u.id} style={{ marginBottom: "0.9rem" }}>
-                    <p>
-                      <strong>Número:</strong> {u.numero || "-"}
-                    </p>
                     <p>
                       <strong>Nome:</strong> {u.nome || "-"}
                     </p>

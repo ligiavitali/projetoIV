@@ -61,6 +61,7 @@ const AvaliacaoExperiencia1 = () => {
   const questoes = reduxQuestoes;
   const [visualizando, setVisualizando] = useState(false);
   const [itemVisualizado, setItemVisualizado] = useState(null);
+  const [confirmandoExclusao, setConfirmandoExclusao] = useState(null);
   const [editandoQuestionario, setEditandoQuestionario] = useState(false);
   const [editandoPerguntasTexto, setEditandoPerguntasTexto] = useState(false);
   const [draftQuestoesOpcao, setDraftQuestoesOpcao] = useState([]);
@@ -332,11 +333,14 @@ const AvaliacaoExperiencia1 = () => {
     );
   };
 
-  const handleExcluir = async (id) => {
-    if (window.confirm("Tem certeza que deseja excluir este registro?")) {
-      await dispatch(deleteAvaliacaoExperiencia1(id));
-      dispatch(fetchAvaliacaoExperiencia1List());
-    }
+  const handleExcluir = (id) => {
+    setConfirmandoExclusao(id);
+  };
+
+  const confirmarExclusao = async () => {
+    await dispatch(deleteAvaliacaoExperiencia1(confirmandoExclusao));
+    dispatch(fetchAvaliacaoExperiencia1List());
+    setConfirmandoExclusao(null);
   };
 
   const handleVisualizar = (item) => {
@@ -444,7 +448,6 @@ const AvaliacaoExperiencia1 = () => {
       <div className="avaliacao-header">
         <h1>INSTITUTO DE EDUCAÇÃO ESPECIAL</h1>
         <h2>DIOMÍCIO FREITAS</h2>
-        <h3>Criciúma - SC</h3>
         <h4>Avaliação Usuário em Período de Experiência - 1ª Avaliação</h4>
       </div>
 
@@ -744,6 +747,22 @@ const AvaliacaoExperiencia1 = () => {
           </div>
         )}
       </div>
+
+      {/* Modal de confirmação de exclusão */}
+      {confirmandoExclusao && (
+        <div className="overlay-visualizar">
+          <div className="visualizar-card">
+            <h3 style={{ marginBottom: "1rem" }}>Confirmar Exclusão</h3>
+            <div className="visualizar-conteudo">
+              <p>Tem certeza que deseja excluir este registro? Esta ação não pode ser desfeita.</p>
+            </div>
+            <div className="acoes-card" style={{ display: "flex", gap: "1rem", justifyContent: "flex-end" }}>
+              <button className="btn-fechar" onClick={() => setConfirmandoExclusao(null)}>Cancelar</button>
+              <button className="btn-excluir" style={{ marginTop: 0 }} onClick={confirmarExclusao}>Excluir</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Telinha de visualização */}
       {visualizando && (

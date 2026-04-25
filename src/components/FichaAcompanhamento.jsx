@@ -279,7 +279,6 @@ const FichaAcompanhamento = () => {
       <div className="ficha-header">
         <h1>INSTITUTO DE EDUCAÇÃO ESPECIAL</h1>
         <h2>DIOMÍCIO FREITAS</h2>
-        <h3>Criciúma - SC</h3>
         <h4>ACOMPANHAMENTO MERCADO DE TRABALHO</h4>
       </div>
 

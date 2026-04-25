@@ -9,8 +9,9 @@ const Navigation = ({ currentPage, setCurrentPage, userEmail, isAdmin }) => {
     dispatch(logout());
   };
   const menuItems = [
-    { id: 'formularios', label: 'Formulários' },
+    { id: 'visao-geral', label: 'Visão Geral' },
     ...(isAdmin ? [{ id: 'cadastro', label: 'Cadastros' }] : []),
+    { id: 'formularios', label: 'Formulários' },
   ];
 
   return (
@@ -28,7 +29,7 @@ const Navigation = ({ currentPage, setCurrentPage, userEmail, isAdmin }) => {
               className={`nav-item ${currentPage === item.id ? 'active' : ''}`}
               onClick={() => setCurrentPage(item.id)}
             >
-              <span className="nav-icon">{item.icon}</span>
+              {item.icon && <span className="nav-icon">{item.icon}</span>}
               <span className="nav-label">{item.label}</span>
             </button>
           ))}

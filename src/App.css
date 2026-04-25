@@ -56,6 +56,233 @@ body {
   font-size: 0.875rem;
 }
 
+/* ── Visão Geral ── */
+.visao-geral-container {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.visao-geral-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  color: var(--primary-blue);
+}
+
+.visao-geral-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--dark-gray);
+}
+
+.vg-section {
+  background: var(--white);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.vg-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.vg-section-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--dark-gray);
+  margin-bottom: 1.25rem;
+}
+
+.vg-section-header .vg-section-title {
+  margin-bottom: 0;
+}
+
+.vg-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--medium-gray);
+  font-weight: 600;
+}
+
+.vg-ano-input {
+  width: 80px;
+  padding: 6px 10px;
+  border: 2px solid var(--primary-blue);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--primary-blue);
+  text-align: center;
+}
+
+.vg-cards-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.vg-card {
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.vg-card-blue {
+  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  border-left: 4px solid var(--primary-blue);
+}
+
+.vg-card-green {
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  border-left: 4px solid var(--success-green);
+}
+
+.vg-card-orange {
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+  border-left: 4px solid var(--warning-orange);
+}
+
+.vg-card-red {
+  background: linear-gradient(135deg, #fef2f2, #fee2e2);
+  border-left: 4px solid var(--danger-red);
+}
+
+.vg-card-icon {
+  color: var(--medium-gray);
+  margin-bottom: 0.5rem;
+  opacity: 0.7;
+}
+
+.vg-card-blue .vg-card-icon { color: var(--primary-blue); }
+.vg-card-green .vg-card-icon { color: var(--success-green); }
+.vg-card-orange .vg-card-icon { color: var(--warning-orange); }
+.vg-card-red .vg-card-icon { color: var(--danger-red); }
+
+.vg-card-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.vg-card-number {
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--dark-gray);
+}
+
+.vg-card-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--dark-gray);
+  margin-top: 0.25rem;
+}
+
+.vg-card-sub {
+  font-size: 0.75rem;
+  color: var(--medium-gray);
+  margin-top: 0.35rem;
+}
+
+/* Ranking de empresas */
+.vg-ranking {
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+}
+
+.vg-ranking-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--dark-gray);
+  margin-bottom: 0.75rem;
+}
+
+.vg-ranking-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.vg-ranking-item {
+  display: grid;
+  grid-template-columns: 28px 1fr 70px 150px;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+}
+
+.vg-ranking-pos {
+  font-weight: 700;
+  color: var(--primary-blue);
+  text-align: center;
+}
+
+.vg-ranking-name {
+  color: var(--dark-gray);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vg-ranking-count {
+  font-weight: 600;
+  color: var(--medium-gray);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.vg-ranking-bar {
+  background: var(--light-gray);
+  border-radius: 99px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.vg-ranking-bar-fill {
+  height: 100%;
+  background: var(--primary-blue);
+  border-radius: 99px;
+  transition: width 0.5s ease;
+}
+
+.vg-atualizado {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .vg-cards-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .vg-ranking-item {
+    grid-template-columns: 24px 1fr 60px;
+  }
+  .vg-ranking-bar {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .vg-cards-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Componente Login */
 .login-container {
   min-height: 100vh;
@@ -1412,35 +1639,94 @@ body {
   opacity: 0.9;
 }
 
+.table-container {
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  margin-bottom: 2rem;
+  background-color: var(--white);
+  overflow: visible;
+}
+
 .usuarios-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 1000px;
+  background-color: var(--white);
+  table-layout: fixed;
 }
 
 .usuarios-table th {
   background-color: var(--primary-blue);
   color: var(--white);
-  padding: 12px 8px;
+  padding: 14px 8px;
   text-align: left;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .usuarios-table td {
-  padding: 8px;
+  padding: 14px 8px;
   border-bottom: 1px solid var(--border-color);
-}
-
-.numero-cell {
-  text-align: center;
-  font-weight: bold;
-  color: var(--primary-blue);
-  background-color: var(--light-blue);
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 48px;
 }
 
 .date-input {
-  min-width: 120px;
+  min-width: 100px;
+}
+
+.table-input {
+  width: 100%;
+  min-width: 80px;
+  padding: 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.3;
+}
+
+.table-input[type="date"] {
+  height: 36px;
+  padding: 6px 8px;
+}
+
+.table-input:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.lista-save-button {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -1.5rem;
+  margin-bottom: 2rem;
+}
+
+.lista-save-button .btn-save {
+  padding: 12px 32px;
+  font-size: 1rem;
+}
+
+.status-select {
+  text-align: center;
+  font-weight: 500;
+}
+
+.status-select[value="ativo"] {
+  color: #16a34a;
+}
+
+.status-select[value="inativo"] {
+  color: #dc2626;
 }
 
 .lista-info {
@@ -1484,12 +1770,22 @@ body {
   }
 
   .usuarios-table {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
   }
 
   .usuarios-table th,
   .usuarios-table td {
-    padding: 6px 4px;
+    padding: 8px 4px;
+  }
+
+  .table-input {
+    font-size: 0.75rem;
+  }
+
+  .btn-trash-icon {
+    min-width: 36px;
+    min-height: 36px;
+    padding: 6px;
   }
 }
 

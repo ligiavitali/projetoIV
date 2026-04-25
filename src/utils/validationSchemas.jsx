@@ -38,7 +38,7 @@ export const pessoasSchema = yup.object().shape({
     otherwise: (schema) => schema.notRequired(),
   }),
   nome_responsavel: yup.string().when("cargo", {
-    is: (c) => c === "Aluno" || c === "Professor",
+    is: "Aluno",
     then: (schema) =>
       schema
         .required("O nome do responsável é obrigatório")
@@ -57,7 +57,7 @@ export const pessoasSchema = yup.object().shape({
     otherwise: (schema) => schema.notRequired(),
   }),
   usa_medicamento: yup.string().when("cargo", {
-    is: (c) => c === "Aluno" || c === "Professor",
+    is: "Aluno",
     then: (schema) =>
       schema
         .oneOf(["Sim", "Não"], "Informe se usa medicamento")
@@ -66,7 +66,7 @@ export const pessoasSchema = yup.object().shape({
   }),
   info_medicamentos: yup.string().when(["cargo", "usa_medicamento"], {
     is: (cargo, usa_medicamento) =>
-      (cargo === "Aluno" || cargo === "Professor") && usa_medicamento === "Sim",
+      cargo === "Aluno" && usa_medicamento === "Sim",
     then: (schema) => schema.required("Informe os medicamentos"),
     otherwise: (schema) => schema.notRequired(),
   }),

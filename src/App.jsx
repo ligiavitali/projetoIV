@@ -9,6 +9,7 @@ import Navigation from './components/Navigation';
 import ForgotPassword from './components/ForgotPassword';
 import RecuperarSenha from './components/RecuperarSenha';
 import GerenciarUsuarios from './components/GerenciarUsuarios';
+import VisiaoGeral from './components/VisiaoGeral';
 import { logout } from './redux/slices/userSlice';
 
 import './App.css';
@@ -16,7 +17,7 @@ import './App.css';
 function App() {
   const dispatch = useDispatch();
   const { isAuthenticated, user, sessionExpiresAt } = useSelector((state) => state.user);
-  const [currentPage, setCurrentPage] = useState('formularios');
+  const [currentPage, setCurrentPage] = useState('visao-geral');
   const isAdmin = ['admin', 'adm'].includes((user?.nivel_acesso || '').toLowerCase());
 
   useEffect(() => {
@@ -41,6 +42,8 @@ function App() {
 
   const renderCurrentPage = () => {
     switch (currentPage) {
+      case 'visao-geral':
+        return <VisiaoGeral />;
       case 'formularios':
         return <Formularios />;
       case 'cadastro':
